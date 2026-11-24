@@ -76,4 +76,11 @@ impl EvalCounter {
         self.search_evals += 1;
         true
     }
+
+    /// Charges up to `count` post-initialization search evaluations, returning actual consumed count.
+    pub fn consume_search_up_to(&mut self, count: usize) -> usize {
+        let take = count.min(self.remaining());
+        self.search_evals += take;
+        take
+    }
 }

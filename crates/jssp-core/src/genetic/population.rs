@@ -5,7 +5,7 @@ use std::time::Instant;
 use crate::decoder::SerialDecoderWorkspace;
 use crate::error::JsspError;
 use crate::feasibility::validate_schedule;
-use crate::genetic::crossover::pox_crossover;
+use crate::genetic::crossover::PoxWorkspace;
 use crate::genetic::elitism::ranked_population_indices;
 use crate::genetic::mutation::mutate_obr;
 use crate::genetic::selection::tournament_select;
@@ -227,6 +227,14 @@ pub fn run_phase_a_ga(
     let mut generation = 0usize;
     let mut crossover_count = 0usize;
     let mut mutation_count = 0usize;
+    let chrom_len = instance.num_operations();
+    let mut pox_ws = PoxWorkspace::new(num_jobs, chrom_len);
+    let mut next_chromosomes: Vec<ObrChromosome> = (0..pop_size)
+        .map(|_| ObrChromosome::new(Vec::with_capacity(chrom_len)))
+        .collect();
+    let mut next_makespans = vec![0u64; pop_size];
+    let mut child1_buf = Vec::with_capacity(chrom_len);
+    let mut child2_buf = Vec::with_capacity(chrom_len);
 
     while counter.remaining() > 0 {
         generation += 1;
@@ -235,12 +243,11 @@ pub fn run_phase_a_ga(
         let num_new = nominal_new.min(counter.remaining());
         let carry_count = pop_size - num_new;
 
-        let mut next_chromosomes = Vec::with_capacity(pop_size);
-        let mut next_makespans = Vec::with_capacity(pop_size);
-
-        for &idx in ranked.iter().take(carry_count) {
-            next_chromosomes.push(chromosomes[idx].clone());
-            next_makespans.push(makespans[idx]);
+        for (slot, &idx) in ranked.iter().take(carry_count).enumerate() {
+            let dst = next_chromosomes[slot].genes_mut_vec();
+            dst.clear();
+            dst.extend_from_slice(chromosomes[idx].genes());
+            next_makespans[slot] = makespans[idx];
         }
 
         let mut produced = 0usize;
@@ -249,65 +256,95 @@ pub fn run_phase_a_ga(
                 tournament_select(&makespans, config.tournament_size, &mut streams.selection)?;
             let p2_idx =
                 tournament_select(&makespans, config.tournament_size, &mut streams.selection)?;
-            let (mut child1, mut child2, did_cx) = pox_crossover(
-                &chromosomes[p1_idx],
-                &chromosomes[p2_idx],
+            let did_cx = pox_ws.crossover_into(
+                (chromosomes[p1_idx].genes(), chromosomes[p2_idx].genes()),
                 num_jobs,
                 config.crossover_rate,
                 &mut streams.crossover,
+                (&mut child1_buf, &mut child2_buf),
             )?;
             if did_cx {
                 crossover_count += 1;
             }
 
-            if mutate_obr(&mut child1, config.mutation_rate, &mut streams.mutation)? {
+            let dst1 = &mut next_chromosomes[carry_count + produced];
+            {
+                let v = dst1.genes_mut_vec();
+                v.clear();
+                v.extend_from_slice(&child1_buf);
+            }
+            if mutate_obr(dst1, config.mutation_rate, &mut streams.mutation)? {
                 mutation_count += 1;
             }
             if counter.try_consume_search() {
-                let cmax1 = workspace.decode_makespan_only(instance, &child1)?;
+                let cmax1 = workspace.decode_makespan_only(instance, dst1)?;
                 if cmax1 < best_makespan {
                     best_makespan = cmax1;
                     best_found_eval = counter.total();
                     best_found_generation = generation;
-                    best_chromosome = child1.clone();
+                    best_chromosome.genes_mut_vec().clear();
+                    best_chromosome
+                        .genes_mut_vec()
+                        .extend_from_slice(dst1.genes());
                 }
-                next_chromosomes.push(child1);
-                next_makespans.push(cmax1);
+                next_makespans[carry_count + produced] = cmax1;
                 produced += 1;
             }
 
             if produced < num_new {
-                if mutate_obr(&mut child2, config.mutation_rate, &mut streams.mutation)? {
+                let dst2 = &mut next_chromosomes[carry_count + produced];
+                {
+                    let v = dst2.genes_mut_vec();
+                    v.clear();
+                    v.extend_from_slice(&child2_buf);
+                }
+                if mutate_obr(dst2, config.mutation_rate, &mut streams.mutation)? {
                     mutation_count += 1;
                 }
                 if counter.try_consume_search() {
-                    let cmax2 = workspace.decode_makespan_only(instance, &child2)?;
+                    let cmax2 = workspace.decode_makespan_only(instance, dst2)?;
                     if cmax2 < best_makespan {
                         best_makespan = cmax2;
                         best_found_eval = counter.total();
                         best_found_generation = generation;
-                        best_chromosome = child2.clone();
+                        best_chromosome.genes_mut_vec().clear();
+                        best_chromosome
+                            .genes_mut_vec()
+                            .extend_from_slice(dst2.genes());
                     }
-                    next_chromosomes.push(child2);
-                    next_makespans.push(cmax2);
+                    next_makespans[carry_count + produced] = cmax2;
                     produced += 1;
                 }
             }
         }
 
-        chromosomes = next_chromosomes;
-        makespans = next_makespans;
+        std::mem::swap(&mut chromosomes, &mut next_chromosomes);
+        std::mem::swap(&mut makespans, &mut next_makespans);
 
         let mean_cmax = makespans.iter().map(|&v| v as f64).sum::<f64>() / (makespans.len() as f64);
-        let div = compute_obr_hamming_diversity(&chromosomes, num_jobs);
-        let uniq_obr = count_unique_chromosomes(&chromosomes);
+        let nominal_new = pop_size - config.elitism_count;
+        let total_gens = counter
+            .budget()
+            .saturating_sub(pop_size)
+            .div_ceil(nominal_new.max(1));
+        let is_sampled_step = total_gens <= 20
+            || counter.remaining() == 0
+            || (0..=20).any(|step| (step * total_gens) / 20 == generation);
+        let (obr_hamming_diversity, unique_chromosomes) = if is_sampled_step {
+            (
+                compute_obr_hamming_diversity(&chromosomes, num_jobs),
+                count_unique_chromosomes(&chromosomes),
+            )
+        } else {
+            (0.0, 0)
+        };
         trajectory.push(GenerationSnapshot {
             generation,
             evals_used: counter.total(),
             best_makespan,
             mean_makespan: mean_cmax,
-            obr_hamming_diversity: div,
-            unique_chromosomes: uniq_obr,
+            obr_hamming_diversity,
+            unique_chromosomes,
         });
     }
 

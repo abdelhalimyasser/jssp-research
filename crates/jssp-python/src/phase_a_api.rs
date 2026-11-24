@@ -149,7 +149,7 @@ fn result_to_tuple(res: PhaseARunResult, trajectory_mode: &str) -> PyResult<Phas
     ))
 }
 
-fn build_seed_context(
+pub(crate) fn build_seed_context(
     replicate_index: u32,
     master_seed_override: Option<u64>,
     instance_id: String,

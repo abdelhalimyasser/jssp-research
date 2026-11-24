@@ -1233,3 +1233,475 @@ def run_phase_a_batch(
         trajectory_mode,
     )
     return tuple(_phase_a_run_payload_to_record(item) for item in raw_list)
+
+
+@dataclass(frozen=True, slots=True)
+class PhaseBConfigSpec:
+    """Metadata describing one active Phase B local-search or metaheuristic configuration."""
+
+    code: str
+    strategy_name: str
+    neighborhood_code: str
+
+
+@dataclass(frozen=True, slots=True)
+class SearchCountersRecord:
+    """Cumulative Phase B move, feasibility, cycle-rejection, and perturbation counters."""
+
+    iterations: int
+    generated_moves: int
+    duplicate_pruned_moves: int
+    infeasible_precond_moves: int
+    clipped_moves: int
+    evaluated_moves: int
+    feasible_moves: int
+    rejected_cyclic_moves: int
+    improving_moves: int
+    accepted_moves: int
+    adapter_left_shift_count: int
+    perturbations_applied: int
+    perturbations_accepted: int
+    restarts_triggered: int
+
+
+@dataclass(frozen=True, slots=True)
+class PhaseBRunResultRecord:
+    """Complete telemetry outcome returned from one Phase B run in Rust."""
+
+    config_id: str
+    neighborhood_id: str
+    evaluation_budget: int
+    evals_used: int
+    initial_makespan: int
+    final_makespan: int
+    best_makespan: int
+    best_found_eval: int
+    feasible_final: bool
+    reached_local_optimum: bool
+    terminated_reason: str
+    anytime_cmax_auc: float
+    total_elapsed_ns: int
+    counters: SearchCountersRecord
+    best_milestones: tuple[tuple[int, int], ...]
+    best_machine_sequences: tuple[tuple[tuple[int, int], ...], ...]
+
+
+def _phase_b_run_payload_to_record(
+    payload: tuple[
+        tuple[str, str, int, int, int, int, int, int],
+        tuple[bool, bool, str, float, int],
+        tuple[int, int, int, int, int, int, int],
+        tuple[int, int, int, int, int, int, int],
+        list[tuple[int, int]],
+        list[list[tuple[int, int]]],
+    ],
+) -> PhaseBRunResultRecord:
+    summary_core, status_meta, c1, c2, milestones, seqs = payload
+    counters = SearchCountersRecord(
+        iterations=int(c1[0]),
+        generated_moves=int(c1[1]),
+        duplicate_pruned_moves=int(c1[2]),
+        infeasible_precond_moves=int(c1[3]),
+        clipped_moves=int(c1[4]),
+        evaluated_moves=int(c1[5]),
+        feasible_moves=int(c1[6]),
+        rejected_cyclic_moves=int(c2[0]),
+        improving_moves=int(c2[1]),
+        accepted_moves=int(c2[2]),
+        adapter_left_shift_count=int(c2[3]),
+        perturbations_applied=int(c2[4]),
+        perturbations_accepted=int(c2[5]),
+        restarts_triggered=int(c2[6]),
+    )
+    return PhaseBRunResultRecord(
+        config_id=str(summary_core[0]),
+        neighborhood_id=str(summary_core[1]),
+        evaluation_budget=int(summary_core[2]),
+        evals_used=int(summary_core[3]),
+        initial_makespan=int(summary_core[4]),
+        final_makespan=int(summary_core[5]),
+        best_makespan=int(summary_core[6]),
+        best_found_eval=int(summary_core[7]),
+        feasible_final=bool(status_meta[0]),
+        reached_local_optimum=bool(status_meta[1]),
+        terminated_reason=str(status_meta[2]),
+        anytime_cmax_auc=float(status_meta[3]),
+        total_elapsed_ns=int(status_meta[4]),
+        counters=counters,
+        best_milestones=tuple((int(ev), int(cm)) for ev, cm in milestones),
+        best_machine_sequences=tuple(tuple((int(j), int(op)) for j, op in m_seq) for m_seq in seqs),
+    )
+
+
+def list_phase_b_configs() -> tuple[PhaseBConfigSpec, ...]:
+    """Return authoritative Rust metadata across all 28 active Phase B configurations."""
+    return tuple(
+        PhaseBConfigSpec(code=str(c), strategy_name=str(s), neighborhood_code=str(n))
+        for c, s, n in _native.list_phase_b_configs()
+    )
+
+
+def default_phase_b_budget(num_jobs: int, num_machines: int, multiplier: int = 100) -> int:
+    """Return Phase B candidate-evaluation budget `multiplier * J * M` from Rust."""
+    return int(_native.default_phase_b_budget(int(num_jobs), int(num_machines), int(multiplier)))
+
+
+def generate_matched_phase_b_start(
+    jobs: InstanceSpec,
+    *,
+    initializer_id: str = "A07",
+    instance_id: str = "instance",
+    pop_size: int = 64,
+    replicate_index: int = 0,
+    master_seed_override: int | None = None,
+    pairing_mode: str = "paired_init",
+    pairing_group: str = "phase_b_matched_start",
+    configuration_id: str | None = None,
+) -> tuple[tuple[int, ...], DecodedScheduleResult]:
+    """Generate and decode the matched Phase B starting schedule in Rust."""
+    genes_raw, sched_raw = _native.generate_matched_phase_b_start(
+        _normalize_jobs(jobs),
+        initializer_id,
+        instance_id,
+        int(pop_size),
+        int(replicate_index),
+        master_seed_override,
+        pairing_mode,
+        pairing_group,
+        configuration_id,
+    )
+    return tuple(int(g) for g in genes_raw), _payload_to_result(sched_raw)
+
+
+def run_phase_b_single(
+    jobs: InstanceSpec,
+    config_id: str,
+    instance_id: str,
+    *,
+    initializer_id: str = "A07",
+    init_pop_size: int = 64,
+    evaluation_budget: int | None = None,
+    budget_multiplier: int = 100,
+    replicate_index: int = 0,
+    master_seed_override: int | None = None,
+    pairing_mode: str = "paired_init",
+    pairing_group: str = "phase_b_matched_start",
+    configuration_id: str | None = None,
+    start_chromosome: Sequence[int] | None = None,
+) -> PhaseBRunResultRecord:
+    """Execute one Phase B local-search or metaheuristic run in Rust."""
+    payload = _native.run_phase_b_single(
+        _normalize_jobs(jobs),
+        config_id,
+        instance_id,
+        initializer_id,
+        int(init_pop_size),
+        (int(evaluation_budget) if evaluation_budget is not None else None),
+        int(budget_multiplier),
+        int(replicate_index),
+        master_seed_override,
+        pairing_mode,
+        pairing_group,
+        configuration_id,
+        ([int(g) for g in start_chromosome] if start_chromosome is not None else None),
+    )
+    return _phase_b_run_payload_to_record(payload)
+
+
+def run_phase_b_batch(
+    jobs: InstanceSpec,
+    instance_id: str,
+    tasks: Sequence[tuple[str, int, int | None, str, str, str]],
+    *,
+    initializer_id: str = "A07",
+    init_pop_size: int = 64,
+    evaluation_budget: int | None = None,
+    budget_multiplier: int = 100,
+    num_threads: int = 0,
+) -> tuple[PhaseBRunResultRecord, ...]:
+    """Run a multi-threaded Rust batch of Phase B `(config_id, replicate)` tasks."""
+    normalized_tasks = [
+        (str(cfg_id), int(rep), seed_ov, str(pmode), str(pgroup), str(cfg_label))
+        for cfg_id, rep, seed_ov, pmode, pgroup, cfg_label in tasks
+    ]
+    raw_list = _native.run_phase_b_batch(
+        _normalize_jobs(jobs),
+        instance_id,
+        normalized_tasks,
+        initializer_id,
+        int(init_pop_size),
+        (int(evaluation_budget) if evaluation_budget is not None else None),
+        int(budget_multiplier),
+        int(num_threads),
+    )
+    return tuple(_phase_b_run_payload_to_record(item) for item in raw_list)
+
+
+@dataclass(frozen=True, slots=True)
+class PhaseCConfigSpec:
+    """Metadata describing one Phase C Memetic or Dual-View GA configuration (`C01`–`C11`)."""
+
+    code: str
+    name: str
+    is_memetic: bool
+    is_dual_view_paired: bool
+
+
+@dataclass(frozen=True, slots=True)
+class PhaseCRunResultRecord:
+    """Complete telemetry bundle returned from one Phase C (`C01`–`C11`) run in Rust."""
+
+    config_id: str
+    initializer_id: str
+    ls_neighborhood: str | None
+    ls_strategy: str | None
+    genotype_capacity: int
+    evaluation_budget: int
+    evals_used: int
+    init_evals: int
+    search_evals: int
+    decode_evals: int
+    ls_evals: int
+    generations_executed: int
+    best_makespan: int
+    best_found_eval: int
+    best_found_generation: int
+    feasible_final: bool
+    anytime_cmax_auc: float
+    total_elapsed_ns: int
+    final_obr_diversity: float
+    final_lam_diversity: float | None
+    final_bald_diversity: float | None
+    final_gate_p: float | None
+    lam_best_makespan: int | None
+    bald_best_makespan: int | None
+    crossover_count: int
+    mutation_count: int
+    writeback_count: int
+    migrations_applied: int
+    gate_p_trajectory: tuple[tuple[int, float], ...]
+    best_milestones: tuple[tuple[int, int], ...]
+    best_chromosome: tuple[int, ...]
+    best_machine_sequences: tuple[tuple[tuple[int, int], ...], ...]
+
+
+@dataclass(frozen=True, slots=True)
+class FinalIntegratedRunRecord:
+    """Telemetry returned by the combined `P5 (A* -> C* -> B*)` Rust pipeline runner."""
+
+    pipeline_id: str
+    total_budget: int
+    evals_used: int
+    stage_c_best_makespan: int
+    final_best_makespan: int
+    stage_c_best_eval: int
+    final_best_eval: int
+    feasible_final: bool
+    anytime_cmax_auc: float
+    total_elapsed_ns: int
+
+
+def _phase_c_run_payload_to_record(
+    payload: tuple[
+        tuple[str, str, str | None, str | None, int, int, int, int, int],
+        tuple[int, int, int, int, int, int, bool, float, int],
+        tuple[
+            float,
+            float | None,
+            float | None,
+            float | None,
+            int | None,
+            int | None,
+            int,
+            int,
+            int,
+            int,
+        ],
+        list[tuple[int, float]],
+        list[tuple[int, int]],
+        list[int],
+        list[list[tuple[int, int]]],
+    ],
+) -> PhaseCRunResultRecord:
+    sc, sp, d, gate_traj, milestones, best_chr, seqs = payload
+    return PhaseCRunResultRecord(
+        config_id=str(sc[0]),
+        initializer_id=str(sc[1]),
+        ls_neighborhood=(str(sc[2]) if sc[2] is not None else None),
+        ls_strategy=(str(sc[3]) if sc[3] is not None else None),
+        genotype_capacity=int(sc[4]),
+        evaluation_budget=int(sc[5]),
+        evals_used=int(sc[6]),
+        init_evals=int(sc[7]),
+        search_evals=int(sc[8]),
+        decode_evals=int(sp[0]),
+        ls_evals=int(sp[1]),
+        generations_executed=int(sp[2]),
+        best_makespan=int(sp[3]),
+        best_found_eval=int(sp[4]),
+        best_found_generation=int(sp[5]),
+        feasible_final=bool(sp[6]),
+        anytime_cmax_auc=float(sp[7]),
+        total_elapsed_ns=int(sp[8]),
+        final_obr_diversity=float(d[0]),
+        final_lam_diversity=(float(d[1]) if d[1] is not None else None),
+        final_bald_diversity=(float(d[2]) if d[2] is not None else None),
+        final_gate_p=(float(d[3]) if d[3] is not None else None),
+        lam_best_makespan=(int(d[4]) if d[4] is not None else None),
+        bald_best_makespan=(int(d[5]) if d[5] is not None else None),
+        crossover_count=int(d[6]),
+        mutation_count=int(d[7]),
+        writeback_count=int(d[8]),
+        migrations_applied=int(d[9]),
+        gate_p_trajectory=tuple((int(g), float(p)) for g, p in gate_traj),
+        best_milestones=tuple((int(ev), int(cm)) for ev, cm in milestones),
+        best_chromosome=tuple(int(x) for x in best_chr),
+        best_machine_sequences=tuple(tuple((int(j), int(op)) for j, op in ms) for ms in seqs),
+    )
+
+
+def list_phase_c_configs() -> tuple[PhaseCConfigSpec, ...]:
+    """Return authoritative Rust metadata across all 11 Phase C configurations (`C01`–`C11`)."""
+    return tuple(
+        PhaseCConfigSpec(
+            code=str(code),
+            name=str(name),
+            is_memetic=bool(mem),
+            is_dual_view_paired=bool(dv),
+        )
+        for code, name, mem, dv in _native.list_phase_c_configs()
+    )
+
+
+def default_phase_c_budget(num_jobs: int, num_machines: int) -> int:
+    """Return equalized Phase C objective-evaluation budget matching Phase A (`B_GA`)."""
+    return int(_native.default_phase_c_budget(int(num_jobs), int(num_machines)))
+
+
+def run_phase_c_single(
+    jobs: InstanceSpec,
+    config_id: str,
+    instance_id: str,
+    *,
+    initializer_id: str = "A07",
+    ls_neighborhood: str = "N7",
+    ls_strategy: str = "steepest_descent",
+    max_ls_evals: int = 50,
+    pop_size: int = 64,
+    tournament_size: int = 2,
+    crossover_rate: float = 0.85,
+    mutation_rate: float = 0.15,
+    elitism_count: int = 2,
+    evaluation_budget: int | None = None,
+    replicate_index: int = 0,
+    master_seed_override: int | None = None,
+    pairing_mode: str = "paired_init",
+    pairing_group: str = "phase_c_shared_init",
+    configuration_id: str | None = None,
+) -> PhaseCRunResultRecord:
+    """Execute one Phase C (`C01`–`C11`) run in Rust."""
+    payload = _native.run_phase_c_single(
+        _normalize_jobs(jobs),
+        config_id,
+        instance_id,
+        initializer_id,
+        ls_neighborhood,
+        ls_strategy,
+        int(max_ls_evals),
+        int(pop_size),
+        int(tournament_size),
+        float(crossover_rate),
+        float(mutation_rate),
+        int(elitism_count),
+        (int(evaluation_budget) if evaluation_budget is not None else None),
+        int(replicate_index),
+        master_seed_override,
+        pairing_mode,
+        pairing_group,
+        configuration_id,
+    )
+    return _phase_c_run_payload_to_record(payload)
+
+
+def run_phase_c_batch(
+    jobs: InstanceSpec,
+    instance_id: str,
+    tasks: Sequence[tuple[str, int, int | None, str, str, str]],
+    *,
+    initializer_id: str = "A07",
+    ls_neighborhood: str = "N7",
+    ls_strategy: str = "steepest_descent",
+    max_ls_evals: int = 50,
+    pop_size: int = 64,
+    tournament_size: int = 2,
+    crossover_rate: float = 0.85,
+    mutation_rate: float = 0.15,
+    elitism_count: int = 2,
+    evaluation_budget: int | None = None,
+    num_threads: int = 0,
+) -> tuple[PhaseCRunResultRecord, ...]:
+    """Run a multi-threaded Rust batch of Phase C `(config_id, replicate)` tasks."""
+    normalized_tasks = [
+        (str(cfg_id), int(rep), seed_ov, str(pmode), str(pgroup), str(cfg_label))
+        for cfg_id, rep, seed_ov, pmode, pgroup, cfg_label in tasks
+    ]
+    raw_list = _native.run_phase_c_batch(
+        _normalize_jobs(jobs),
+        instance_id,
+        normalized_tasks,
+        initializer_id,
+        ls_neighborhood,
+        ls_strategy,
+        int(max_ls_evals),
+        int(pop_size),
+        int(tournament_size),
+        float(crossover_rate),
+        float(mutation_rate),
+        int(elitism_count),
+        (int(evaluation_budget) if evaluation_budget is not None else None),
+        int(num_threads),
+    )
+    return tuple(_phase_c_run_payload_to_record(item) for item in raw_list)
+
+
+def run_integrated_acb_batch(
+    jobs: InstanceSpec,
+    instance_id: str,
+    replicates: Sequence[int],
+    *,
+    frozen_a_id: str,
+    frozen_b_id: str,
+    frozen_c_id: str,
+    max_ls_evals: int = 50,
+    evaluation_budget: int | None = None,
+    stage_c_fraction: float = 0.85,
+    num_threads: int = 0,
+) -> tuple[FinalIntegratedRunRecord, ...]:
+    """Run integrated `P5 (A* -> C* [85%] -> B* [15%])` across replicates in Rust."""
+    raw = _native.run_integrated_acb_batch(
+        _normalize_jobs(jobs),
+        instance_id,
+        [int(r) for r in replicates],
+        frozen_a_id,
+        frozen_b_id,
+        frozen_c_id,
+        int(max_ls_evals),
+        (int(evaluation_budget) if evaluation_budget is not None else None),
+        float(stage_c_fraction),
+        int(num_threads),
+    )
+    return tuple(
+        FinalIntegratedRunRecord(
+            pipeline_id=str(pid),
+            total_budget=int(tb),
+            evals_used=int(eu),
+            stage_c_best_makespan=int(cb),
+            final_best_makespan=int(fb),
+            stage_c_best_eval=int(cbe),
+            final_best_eval=int(fbe),
+            feasible_final=bool(feas),
+            anytime_cmax_auc=float(auc),
+            total_elapsed_ns=int(ns),
+        )
+        for pid, tb, eu, cb, fb, cbe, fbe, feas, auc, ns in raw
+    )

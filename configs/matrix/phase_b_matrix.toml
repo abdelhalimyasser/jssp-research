@@ -1,0 +1,263 @@
+schema_version = "jssp-phase-b-matrix-v1"
+phase = "B"
+expected_config_count = 28
+excluded_config_ids = ["B25", "B26", "B27", "B28"]
+exclusion_decision = "D04-A"
+screening_budget_formula = "100 * n * m"
+screening_budget_multiplier = 100
+confirmatory_budget_formula = "500 * n * m"
+confirmatory_budget_multiplier = 500
+pairing_mode = "paired_init"
+pairing_group = "phase_b_matched_start"
+
+[[configs]]
+config_id = "B01"
+name = "Steepest Descent + N5"
+strategy = "Steepest Descent"
+strategy_code = "steepest_descent"
+neighborhood = "N5"
+stochastic = false
+uses_perturbation = false
+
+[[configs]]
+config_id = "B02"
+name = "Steepest Descent + N6"
+strategy = "Steepest Descent"
+strategy_code = "steepest_descent"
+neighborhood = "N6"
+stochastic = false
+uses_perturbation = false
+
+[[configs]]
+config_id = "B03"
+name = "Steepest Descent + N7"
+strategy = "Steepest Descent"
+strategy_code = "steepest_descent"
+neighborhood = "N7"
+stochastic = false
+uses_perturbation = false
+
+[[configs]]
+config_id = "B04"
+name = "Steepest Descent + N8"
+strategy = "Steepest Descent"
+strategy_code = "steepest_descent"
+neighborhood = "N8"
+stochastic = false
+uses_perturbation = false
+
+[[configs]]
+config_id = "B05"
+name = "First Improvement + N5"
+strategy = "First Improvement"
+strategy_code = "first_improvement"
+neighborhood = "N5"
+stochastic = false
+uses_perturbation = false
+
+[[configs]]
+config_id = "B06"
+name = "First Improvement + N6"
+strategy = "First Improvement"
+strategy_code = "first_improvement"
+neighborhood = "N6"
+stochastic = false
+uses_perturbation = false
+
+[[configs]]
+config_id = "B07"
+name = "First Improvement + N7"
+strategy = "First Improvement"
+strategy_code = "first_improvement"
+neighborhood = "N7"
+stochastic = false
+uses_perturbation = false
+
+[[configs]]
+config_id = "B08"
+name = "First Improvement + N8"
+strategy = "First Improvement"
+strategy_code = "first_improvement"
+neighborhood = "N8"
+stochastic = false
+uses_perturbation = false
+
+[[configs]]
+config_id = "B09"
+name = "Random Improvement + N5"
+strategy = "Random Improvement"
+strategy_code = "random_improvement"
+neighborhood = "N5"
+stochastic = true
+uses_perturbation = false
+
+[[configs]]
+config_id = "B10"
+name = "Random Improvement + N6"
+strategy = "Random Improvement"
+strategy_code = "random_improvement"
+neighborhood = "N6"
+stochastic = true
+uses_perturbation = false
+
+[[configs]]
+config_id = "B11"
+name = "Random Improvement + N7"
+strategy = "Random Improvement"
+strategy_code = "random_improvement"
+neighborhood = "N7"
+stochastic = true
+uses_perturbation = false
+
+[[configs]]
+config_id = "B12"
+name = "Random Improvement + N8"
+strategy = "Random Improvement"
+strategy_code = "random_improvement"
+neighborhood = "N8"
+stochastic = true
+uses_perturbation = false
+
+[[configs]]
+config_id = "B13"
+name = "Tabu Search + N5"
+strategy = "Tabu Search"
+strategy_code = "tabu_search"
+neighborhood = "N5"
+stochastic = true
+uses_perturbation = true
+
+[[configs]]
+config_id = "B14"
+name = "Tabu Search + N6"
+strategy = "Tabu Search"
+strategy_code = "tabu_search"
+neighborhood = "N6"
+stochastic = true
+uses_perturbation = true
+
+[[configs]]
+config_id = "B15"
+name = "Tabu Search + N7"
+strategy = "Tabu Search"
+strategy_code = "tabu_search"
+neighborhood = "N7"
+stochastic = true
+uses_perturbation = true
+
+[[configs]]
+config_id = "B16"
+name = "Tabu Search + N8"
+strategy = "Tabu Search"
+strategy_code = "tabu_search"
+neighborhood = "N8"
+stochastic = true
+uses_perturbation = true
+
+[[configs]]
+config_id = "B17"
+name = "Iterated Local Search + N5"
+strategy = "Iterated Local Search (ILS)"
+strategy_code = "ils"
+neighborhood = "N5"
+stochastic = true
+uses_perturbation = true
+
+[[configs]]
+config_id = "B18"
+name = "Iterated Local Search + N6"
+strategy = "Iterated Local Search (ILS)"
+strategy_code = "ils"
+neighborhood = "N6"
+stochastic = true
+uses_perturbation = true
+
+[[configs]]
+config_id = "B19"
+name = "Iterated Local Search + N7"
+strategy = "Iterated Local Search (ILS)"
+strategy_code = "ils"
+neighborhood = "N7"
+stochastic = true
+uses_perturbation = true
+
+[[configs]]
+config_id = "B20"
+name = "Iterated Local Search + N8"
+strategy = "Iterated Local Search (ILS)"
+strategy_code = "ils"
+neighborhood = "N8"
+stochastic = true
+uses_perturbation = true
+
+[[configs]]
+config_id = "B21"
+name = "Simulated Annealing + N5"
+strategy = "Simulated Annealing (SA)"
+strategy_code = "simulated_annealing"
+neighborhood = "N5"
+stochastic = true
+uses_perturbation = false
+
+[[configs]]
+config_id = "B22"
+name = "Simulated Annealing + N6"
+strategy = "Simulated Annealing (SA)"
+strategy_code = "simulated_annealing"
+neighborhood = "N6"
+stochastic = true
+uses_perturbation = false
+
+[[configs]]
+config_id = "B23"
+name = "Simulated Annealing + N7"
+strategy = "Simulated Annealing (SA)"
+strategy_code = "simulated_annealing"
+neighborhood = "N7"
+stochastic = true
+uses_perturbation = false
+
+[[configs]]
+config_id = "B24"
+name = "Simulated Annealing + N8"
+strategy = "Simulated Annealing (SA)"
+strategy_code = "simulated_annealing"
+neighborhood = "N8"
+stochastic = true
+uses_perturbation = false
+
+[[configs]]
+config_id = "B29"
+name = "Metropolis-Filtered ILS + N5"
+strategy = "Metropolis-Filtered ILS + Steepest Descent"
+strategy_code = "ils_mh"
+neighborhood = "N5"
+stochastic = true
+uses_perturbation = true
+
+[[configs]]
+config_id = "B30"
+name = "Metropolis-Filtered ILS + N6"
+strategy = "Metropolis-Filtered ILS + Steepest Descent"
+strategy_code = "ils_mh"
+neighborhood = "N6"
+stochastic = true
+uses_perturbation = true
+
+[[configs]]
+config_id = "B31"
+name = "Metropolis-Filtered ILS + N7"
+strategy = "Metropolis-Filtered ILS + Steepest Descent"
+strategy_code = "ils_mh"
+neighborhood = "N7"
+stochastic = true
+uses_perturbation = true
+
+[[configs]]
+config_id = "B32"
+name = "Metropolis-Filtered ILS + N8"
+strategy = "Metropolis-Filtered ILS + Steepest Descent"
+strategy_code = "ils_mh"
+neighborhood = "N8"
+stochastic = true
+uses_perturbation = true

@@ -1,0 +1,26 @@
+schema_version = "jssp-phase-c-dual-view-v1"
+decision_ref = "D06 (docs/algorithms/dual_view.md)"
+architecture = "model_a_pair_level_selection_gate"
+paired_individuals = 32
+total_genotype_capacity = 64
+elite_pairs = 1
+cross_view_crossover_in_base = false
+lineage_separation_invariant = "strict_within_view_pox_and_mutation"
+fixed_gates = { C05 = 0.50, C07 = 0.25, C08 = 0.75 }
+
+[adaptive_gate]
+p_init = 0.50
+p_min = 0.15
+p_max = 0.85
+lambda_ewma = 0.30
+eta_step = 0.05
+hold_threshold = 1e-12
+epsilon_yield = 1e-9
+weights_c06 = { w_perf = 0.70, w_div = 0.30 }
+weights_c09_ablation = { w_perf = 1.00, w_div = 0.00 }
+
+[controls_and_exploratory]
+c10_unpaired_pools = "32_lga_plus_32_bga_independent_no_pair_id_no_gate"
+c11_migration_interval_gens = 10
+c11_migration_fraction = 0.10
+c11_migration_tie_break = "lamarckian"

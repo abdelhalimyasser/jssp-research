@@ -6,7 +6,7 @@ pub mod mutation;
 pub mod population;
 pub mod selection;
 
-pub use crossover::pox_crossover;
+pub use crossover::{PoxWorkspace, pox_crossover};
 pub use elitism::ranked_population_indices;
 pub use mutation::mutate_obr;
 pub use population::{

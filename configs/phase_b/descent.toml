@@ -1,0 +1,18 @@
+schema_version = "jssp-phase-b-descent-v1"
+local_optimum_classification = "strict_exhaustive_neighborhood_completion_only"
+
+[steepest_descent]
+config_ids = ["B01", "B02", "B03", "B04"]
+selection_rule = "best_strict_improvement_deterministic_scan_tie_break"
+uses_rng = false
+
+[first_improvement]
+config_ids = ["B05", "B06", "B07", "B08"]
+selection_rule = "first_strict_improvement_canonical_scan_order"
+uses_rng = false
+
+[random_improvement]
+config_ids = ["B09", "B10", "B11", "B12"]
+selection_rule = "first_strict_improvement_lazy_fisher_yates_without_replacement"
+rng_stream = "local_search_sample"
+uses_rng = true

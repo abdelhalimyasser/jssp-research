@@ -1,0 +1,11 @@
+schema_version = "jssp-phase-c-memetic-v1"
+total_genotype_capacity = 64
+single_view_population = 64
+single_view_elitism = 2
+local_search_cap_per_individual = 50
+local_search_elite_re_search = false
+plga_writeback_rule = "sort_ascending_post_ls_cmax_tie_index_write_back_even_ranks"
+budget_equality_invariant = "single_shared_eval_counter_for_decodes_and_ls"
+default_budget_formula = "clamp(64 * ceil(2.5 * n * m), 6400, 64000)"
+screening_budget_formula = "200 * n * m"
+confirmatory_budget_formula = "1000 * n * m"

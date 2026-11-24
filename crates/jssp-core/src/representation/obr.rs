@@ -72,6 +72,11 @@ impl ObrChromosome {
         &mut self.genes
     }
 
+    /// Crate-internal mutable backing vector for zero-allocation buffer reuse.
+    pub(crate) fn genes_mut_vec(&mut self) -> &mut Vec<JobId> {
+        &mut self.genes
+    }
+
     /// Returns the chromosome as plain `usize` job indices.
     #[must_use]
     pub fn to_job_indices(&self) -> Vec<usize> {

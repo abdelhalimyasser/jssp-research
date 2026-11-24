@@ -1,0 +1,5 @@
+schema_version = "jssp-phase-b-mh-excluded-v1"
+excluded_config_ids = ["B25", "B26", "B27", "B28"]
+status = "excluded_per_d04_a"
+decision_ref = "D04-A (docs/algorithms/mh_vs_sa.md)"
+rationale = "Fixed-temperature Metropolis-Hastings without asymmetric Hastings correction duplicates constant-T SA (B21-B24); full reverse-neighborhood Hastings correction is replaced by D04-B Metropolis-filtered ILS (B29-B32), reducing the full matrix from 67 to 63 active configurations."

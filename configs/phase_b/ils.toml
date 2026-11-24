@@ -1,0 +1,11 @@
+schema_version = "jssp-phase-b-ils-v1"
+config_ids = ["B17", "B18", "B19", "B20"]
+embedded_local_search = "steepest_descent"
+perturbation_kernel = "obr_3_cycle_distinct_job"
+perturbation_strength_normal = 1
+perturbation_decode_cost = 1
+acceptance_criterion = "less_or_equal_current_makespan"
+stagnation_perturbations_restart = 20
+restart_source = "global_best_machine_sequences"
+restart_strength_formula = "max(2, floor(L / 15))"
+stream = "perturbation"

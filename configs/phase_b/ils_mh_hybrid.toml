@@ -1,0 +1,9 @@
+schema_version = "jssp-phase-b-ils-mh-v1"
+config_ids = ["B29", "B30", "B31", "B32"]
+decision_ref = "D04-B (docs/algorithms/mh_vs_sa.md)"
+perturbation_kernel = "obr_3_cycle_distinct_job"
+proposal_symmetry = "symmetric_1_over_2T_hastings_ratio_1.0"
+perturbation_decode_cost = 1
+beta_filter_formula = "2.0 / mean_proc_time"
+post_filter_local_search = "steepest_descent_iff_accepted"
+streams = ["perturbation", "mh_filter"]

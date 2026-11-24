@@ -1,0 +1,12 @@
+schema_version = "jssp-phase-b-tabu-v1"
+config_ids = ["B13", "B14", "B15", "B16"]
+tenure_mode = "dynamic_uniform_integer"
+l_min_formula = "10 + floor(n / m)"
+l_max_formula = "floor(1.5 * l_min)"
+tabu_attribute = "broken_machine_arc_pair_on_accept"
+aspiration_criterion = "candidate_strictly_better_than_global_best_makespan"
+fallback_rule = "oldest_tabu_expiration_then_best_makespan"
+stagnation_iterations_restart = 200
+diversification_kernel = "obr_3_cycle_distinct_job"
+diversification_decode_cost = 1
+streams = ["local_search_sample", "perturbation"]

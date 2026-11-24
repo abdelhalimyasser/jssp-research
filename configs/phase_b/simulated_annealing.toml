@@ -1,0 +1,11 @@
+schema_version = "jssp-phase-b-sa-v1"
+config_ids = ["B21", "B22", "B23", "B24"]
+initial_temperature_calibration_proposals = 50
+target_uphill_acceptance_prob = 0.80
+zero_uphill_fallback_ratio = 0.05
+min_initial_temperature = 1.0
+cooling_schedule = "geometric"
+cooling_rate = 0.95
+t_min = 0.001
+epoch_length_formula = "2 * L"
+streams = ["local_search_sample", "sa_accept"]

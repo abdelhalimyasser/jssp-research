@@ -1,0 +1,29 @@
+schema_version = "jssp-phase-b-neighbourhoods-v1"
+canonical_evaluator = "disjunctive_graph_machine_sequence_dag"
+adapter_decision = "D01-B"
+neighborhood_decision = "D03-A"
+performance_decision = "D03-C"
+critical_block_rule = "all_maximal_same_machine_runs_including_len_1_for_true_B1_Bb"
+dedup_key = "(machine, from_pos, to_pos, canonical_adjacent_swap_collapse)"
+inclusion_invariant = "N5_subset_N6_subset_N7_subset_N8"
+
+[N5]
+name = "Nowicki & Smutnicki (1996)"
+scope = "adjacent_critical_block_boundary_swaps"
+b1_head_swap_excluded = true
+bb_tail_swap_excluded = true
+
+[N6]
+name = "Balas & Vazacopoulos (1998)"
+scope = "single_block_shifts_to_or_from_endpoints_with_head_tail_precondition"
+precondition = "theorem_1_and_2_head_tail_check"
+
+[N7]
+name = "Zhang, Li, Guan & Rao (2007)"
+scope = "n6_plus_interior_to_from_endpoint_shifts"
+precondition = "theorem_1_and_2_head_tail_check"
+
+[N8]
+name = "Xie, Li, Gao & Gui (2023)"
+scope = "n7_plus_extra_block_same_machine_shifts_verified_by_exact_dag_dp"
+precondition = "xie_propositions_1_and_2_plus_exact_cycle_check"

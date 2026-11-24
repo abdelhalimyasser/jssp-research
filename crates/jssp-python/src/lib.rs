@@ -7,6 +7,8 @@
 mod graph_api;
 mod instance_api;
 mod phase_a_api;
+mod phase_b_api;
+mod phase_c_api;
 mod result_api;
 mod run_api;
 mod validation_api;
@@ -70,5 +72,18 @@ fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
     )?)?;
     m.add_function(wrap_pyfunction!(phase_a_api::run_phase_a_single, m)?)?;
     m.add_function(wrap_pyfunction!(phase_a_api::run_phase_a_batch, m)?)?;
+    m.add_function(wrap_pyfunction!(phase_b_api::list_phase_b_configs, m)?)?;
+    m.add_function(wrap_pyfunction!(phase_b_api::default_phase_b_budget, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        phase_b_api::generate_matched_phase_b_start,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(phase_b_api::run_phase_b_single, m)?)?;
+    m.add_function(wrap_pyfunction!(phase_b_api::run_phase_b_batch, m)?)?;
+    m.add_function(wrap_pyfunction!(phase_c_api::list_phase_c_configs, m)?)?;
+    m.add_function(wrap_pyfunction!(phase_c_api::default_phase_c_budget, m)?)?;
+    m.add_function(wrap_pyfunction!(phase_c_api::run_phase_c_single, m)?)?;
+    m.add_function(wrap_pyfunction!(phase_c_api::run_phase_c_batch, m)?)?;
+    m.add_function(wrap_pyfunction!(phase_c_api::run_integrated_acb_batch, m)?)?;
     Ok(())
 }
