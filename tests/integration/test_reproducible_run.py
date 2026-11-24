@@ -25,6 +25,7 @@ from jssp_research.results import (
     load_and_validate_result,
     write_result_record,
 )
+from jssp_research.utils.provenance import collect_git_provenance
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -167,7 +168,9 @@ def test_cli_workflows_end_to_end(tmp_path: Path, capsys: object) -> None:
     )
     assert cli_main(["--repo-root", str(REPO_ROOT), "manifest", "validate", str(manifest_out)]) == 0
 
-    # Creating a confirmatory manifest on dirty working tree must return exit code 1
+    # Confirmatory manifests are rejected only when the working tree is not clean.
+    git_provenance = collect_git_provenance(REPO_ROOT)
+    clean_working_tree = git_provenance.dirty is False and git_provenance.diff_sha256 is None
     bad_conf = tmp_path / "bad_conf.manifest.json"
     rc = cli_main(
         [
@@ -197,8 +200,8 @@ def test_cli_workflows_end_to_end(tmp_path: Path, capsys: object) -> None:
             str(bad_conf),
         ]
     )
-    assert rc == 1
-    assert not bad_conf.exists()
+    assert rc == (0 if clean_working_tree else 1)
+    assert bad_conf.exists() is clean_working_tree
 
     # Check output validity of at least one JSON payload (last valid command was manifest validate)
     captured = capsys.readouterr()  # type: ignore[attr-defined]
