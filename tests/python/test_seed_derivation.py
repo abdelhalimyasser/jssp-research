@@ -153,7 +153,11 @@ def test_benchmark_parsers_fixtures_and_error_cases() -> None:
         parse_jssp_text("2 2\n0 1 1 2\n0 1\n", instance_id="nonrect")
 
     with pytest.raises(BenchmarkParseError, match="non-positive processing time"):
-        parse_jssp_text("2 2\n0 1 1 0\n0 1 1 1\n", instance_id="zero_dur")
+        parse_jssp_text("2 2\n0 0 1 0\n0 1 1 1\n", instance_id="zero_job_work")
+
+    # Individual zero-duration operation inside a positive-work job (e.g. orb07) is valid.
+    parsed_zero_op = parse_jssp_text("2 2\n0 1 1 0\n0 1 1 1\n", instance_id="zero_op_ok")
+    assert parsed_zero_op.total_processing_time == 3
 
     with pytest.raises(BenchmarkParseError, match="references machine 2"):
         parse_jssp_text("2 2\n0 1 2 1\n0 1 1 1\n", instance_id="bad_mach")
@@ -189,10 +193,16 @@ def test_complete_catalog_counts_splits_and_deferrals() -> None:
         BenchmarkTrack.TRACK4_VARIABLE_ROUTE.value: 24,
         BenchmarkTrack.TRACK5_BEL_INDUSTRIAL.value: 20,
     }
-    assert report.available_files_verified == 1
-    assert report.local_files_parsed_and_verified == 1
+    track1_raw_dir = REPO_ROOT / "data" / "raw" / "track1"
+    if (track1_raw_dir / "ft" / "ft06.txt").is_file():
+        assert report.available_files_verified == 242
+        assert report.local_files_parsed_and_verified == 242
+        assert report.pending_file_acquisition_entries == 250
+    else:
+        assert report.available_files_verified == 1
+        assert report.local_files_parsed_and_verified == 1
+        assert report.pending_file_acquisition_entries == 491
     assert report.metadata_entries_validated == 536
-    assert report.pending_file_acquisition_entries == 491
     assert report.deferred_entries == 44
 
     t1_dev = [

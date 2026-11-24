@@ -28,7 +28,7 @@ pub enum JsspError {
     },
     /// A job visits the same machine more than once (violating classical JSSP permutation routing).
     DuplicateMachineInJob { job: usize, machine: usize },
-    /// Classical JSSP operations must have strictly positive integer processing times (`p > 0`).
+    /// Classical JSSP jobs must have strictly positive total processing time (`sum p > 0`).
     NonPositiveProcessingTime {
         job: usize,
         op_index: usize,
@@ -119,6 +119,34 @@ pub enum JsspError {
     },
     /// Invalid pairing policy identifier or hexadecimal seed payload passed to RNG helpers.
     InvalidRngConfiguration { detail: String },
+    /// Topological sorting detected a directed cycle in the disjunctive graph.
+    GraphCycleDetected {
+        unvisited_vertices: usize,
+        cycle_operations: Vec<(usize, usize)>,
+    },
+    /// Structural disjunctive-graph input violated invariants.
+    InvalidDisjunctiveGraph { detail: String },
+    /// Longest-path makespan on the disjunctive graph disagrees with schedule makespan.
+    GraphMakespanMismatch {
+        schedule_makespan: u64,
+        graph_makespan: u64,
+    },
+    /// Critical-path consistency failure: `head[u] + p[u] + tail[u] > C_max`.
+    NegativeOperationSlack {
+        job: usize,
+        op_index: usize,
+        head_plus_proc_plus_tail: u64,
+        graph_makespan: u64,
+    },
+    /// Standard Sobol sequence dimension exceeded supported table size (`d_max = 21,201`).
+    UnsupportedQmcDimension {
+        requested_dimension: usize,
+        max_supported_dimension: usize,
+    },
+    /// Invalid Phase A initializer identifier or parameter configuration.
+    InvalidInitializerConfiguration { detail: String },
+    /// Invalid Classical GA parameter or evaluation budget configuration.
+    InvalidGeneticConfiguration { detail: String },
 }
 
 impl fmt::Display for JsspError {
@@ -290,6 +318,52 @@ impl fmt::Display for JsspError {
             ),
             Self::InvalidRngConfiguration { detail } => {
                 write!(f, "invalid RNG configuration: {detail}")
+            }
+            Self::GraphCycleDetected {
+                unvisited_vertices,
+                cycle_operations,
+            } => {
+                let cycle_str: Vec<String> = cycle_operations
+                    .iter()
+                    .map(|(j, k)| format!("O({j},{k})"))
+                    .collect();
+                write!(
+                    f,
+                    "disjunctive graph contains a directed cycle ({unvisited_vertices} unvisited vertices, cycle witness: [{}])",
+                    cycle_str.join(" -> ")
+                )
+            }
+            Self::InvalidDisjunctiveGraph { detail } => {
+                write!(f, "invalid disjunctive graph: {detail}")
+            }
+            Self::GraphMakespanMismatch {
+                schedule_makespan,
+                graph_makespan,
+            } => write!(
+                f,
+                "disjunctive graph makespan {graph_makespan} disagrees with schedule makespan {schedule_makespan}"
+            ),
+            Self::NegativeOperationSlack {
+                job,
+                op_index,
+                head_plus_proc_plus_tail,
+                graph_makespan,
+            } => write!(
+                f,
+                "operation ({job}, {op_index}) has negative slack: head+p+tail={head_plus_proc_plus_tail} > C_max={graph_makespan}"
+            ),
+            Self::UnsupportedQmcDimension {
+                requested_dimension,
+                max_supported_dimension,
+            } => write!(
+                f,
+                "QMC dimension {requested_dimension} exceeds maximum supported Sobol dimension {max_supported_dimension}"
+            ),
+            Self::InvalidInitializerConfiguration { detail } => {
+                write!(f, "invalid Phase A initializer configuration: {detail}")
+            }
+            Self::InvalidGeneticConfiguration { detail } => {
+                write!(f, "invalid Classical GA configuration: {detail}")
             }
         }
     }

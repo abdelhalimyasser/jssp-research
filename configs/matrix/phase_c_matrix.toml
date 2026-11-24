@@ -1,0 +1,119 @@
+schema_version = "jssp-phase-c-matrix-v1"
+phase = "C"
+expected_config_count = 11
+genotype_capacity = 64
+local_search_cap_b_ls = 50
+pairing_mode = "paired_init"
+pairing_group = "phase_c_shared_init"
+
+[[configs]]
+config_id = "C01"
+name = "Classical GA Baseline"
+architecture = "classical_single_view"
+is_memetic = false
+is_dual_view = false
+fixed_gate_p = 0.0
+use_adaptive_gate = false
+migration_enabled = false
+
+[[configs]]
+config_id = "C02"
+name = "Lamarckian GA (LGA)"
+architecture = "lamarckian_single_view"
+is_memetic = true
+is_dual_view = false
+fixed_gate_p = 1.0
+use_adaptive_gate = false
+migration_enabled = false
+
+[[configs]]
+config_id = "C03"
+name = "Baldwinian GA (BGA)"
+architecture = "baldwinian_single_view"
+is_memetic = true
+is_dual_view = false
+fixed_gate_p = 0.0
+use_adaptive_gate = false
+migration_enabled = false
+
+[[configs]]
+config_id = "C04"
+name = "Partial Lamarckian GA (PLGA 50%)"
+architecture = "partial_lamarckian_single_view"
+is_memetic = true
+is_dual_view = false
+fixed_gate_p = 0.50
+use_adaptive_gate = false
+migration_enabled = false
+
+[[configs]]
+config_id = "C05"
+name = "Dual-View Fixed Gate (p=0.50)"
+architecture = "dual_view_model_a"
+is_memetic = true
+is_dual_view = true
+fixed_gate_p = 0.50
+use_adaptive_gate = false
+migration_enabled = false
+
+[[configs]]
+config_id = "C06"
+name = "Dual-View Adaptive Gate"
+architecture = "dual_view_model_a"
+is_memetic = true
+is_dual_view = true
+use_adaptive_gate = true
+w_perf = 0.70
+w_div = 0.30
+migration_enabled = false
+
+[[configs]]
+config_id = "C07"
+name = "Dual-View Fixed Gate (p=0.25)"
+architecture = "dual_view_model_a"
+is_memetic = true
+is_dual_view = true
+fixed_gate_p = 0.25
+use_adaptive_gate = false
+migration_enabled = false
+
+[[configs]]
+config_id = "C08"
+name = "Dual-View Fixed Gate (p=0.75)"
+architecture = "dual_view_model_a"
+is_memetic = true
+is_dual_view = true
+fixed_gate_p = 0.75
+use_adaptive_gate = false
+migration_enabled = false
+
+[[configs]]
+config_id = "C09"
+name = "Dual-View Adaptive Gate (no diversity ablation)"
+architecture = "dual_view_model_a"
+is_memetic = true
+is_dual_view = true
+use_adaptive_gate = true
+w_perf = 1.00
+w_div = 0.00
+migration_enabled = false
+
+[[configs]]
+config_id = "C10"
+name = "Unpaired Dual-Population Control (32 LGA + 32 BGA)"
+architecture = "unpaired_dual_pool_control"
+is_memetic = true
+is_dual_view = false
+use_adaptive_gate = false
+migration_enabled = false
+
+[[configs]]
+config_id = "C11"
+name = "Dual-View Adaptive + Cross-View Migration (Exploratory)"
+architecture = "dual_view_model_a_migration"
+is_memetic = true
+is_dual_view = true
+use_adaptive_gate = true
+w_perf = 0.70
+w_div = 0.30
+migration_enabled = true

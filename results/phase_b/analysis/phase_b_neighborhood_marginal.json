@@ -1,0 +1,50 @@
+[
+  {
+    "neighborhood_id": "N6",
+    "n_runs_total": 4480,
+    "dev_mean_best_rpd": 9.737950356808588,
+    "dev_mean_anytime_rpd_auc": 10.951437015465284,
+    "ho_mean_best_rpd": 11.248602811499985,
+    "ho_mean_anytime_rpd_auc": 12.715231274196706,
+    "mean_improvement_pct": 8.485757690439442,
+    "mean_hit_bks_rate": 0.10602678571428571,
+    "mean_elapsed_ms": 137.9100748408482,
+    "mean_rejected_cyclic_moves": 0.0
+  },
+  {
+    "neighborhood_id": "N5",
+    "n_runs_total": 4480,
+    "dev_mean_best_rpd": 9.913440326153713,
+    "dev_mean_anytime_rpd_auc": 10.784691436730782,
+    "ho_mean_best_rpd": 11.515847227491687,
+    "ho_mean_anytime_rpd_auc": 12.604040057712112,
+    "mean_improvement_pct": 8.305767425181566,
+    "mean_hit_bks_rate": 0.09955357142857142,
+    "mean_elapsed_ms": 120.02635051562501,
+    "mean_rejected_cyclic_moves": 0.0
+  },
+  {
+    "neighborhood_id": "N7",
+    "n_runs_total": 4480,
+    "dev_mean_best_rpd": 10.173146852179382,
+    "dev_mean_anytime_rpd_auc": 11.500551360604028,
+    "ho_mean_best_rpd": 11.83693237063874,
+    "ho_mean_anytime_rpd_auc": 13.476377811559653,
+    "mean_improvement_pct": 8.077521553232199,
+    "mean_hit_bks_rate": 0.10513392857142857,
+    "mean_elapsed_ms": 120.47363955580357,
+    "mean_rejected_cyclic_moves": 0.0
+  },
+  {
+    "neighborhood_id": "N8",
+    "n_runs_total": 4480,
+    "dev_mean_best_rpd": 11.193984955255699,
+    "dev_mean_anytime_rpd_auc": 12.81379004882429,
+    "ho_mean_best_rpd": 13.110974311631884,
+    "ho_mean_anytime_rpd_auc": 15.045771307538274,
+    "mean_improvement_pct": 7.155536496132681,
+    "mean_hit_bks_rate": 0.09799107142857143,
+    "mean_elapsed_ms": 110.58811183816965,
+    "mean_rejected_cyclic_moves": 0.007589285714285714
+  }
+]

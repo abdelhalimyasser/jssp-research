@@ -1,0 +1,7 @@
+schema_version = "jssp-representation-defaults-v1"
+representation = "obr"
+job_id_base = 0
+validate_length = true
+validate_bounds = true
+validate_multiplicity = true
+graph_to_obr_adapter = "d01b_canonical_topological"

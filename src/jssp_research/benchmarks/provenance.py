@@ -31,9 +31,10 @@ class SplitAssignment(StrEnum):
 
 
 class AcquisitionStatus(StrEnum):
-    """Indicates whether raw benchmark files are committed in this workspace."""
+    """Indicates whether raw benchmark files are committed or locally acquired and verified."""
 
     COMMITTED_FIXTURE = "committed_fixture"
+    ACQUIRED_VERIFIED_LOCAL = "acquired_verified_local"
     METADATA_CATALOGED_FILE_PENDING = "metadata_cataloged_file_pending"
     DEFERRED_UNSUPPORTED_MODEL = "deferred_unsupported_model"
 

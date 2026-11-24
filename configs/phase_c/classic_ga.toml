@@ -1,0 +1,25 @@
+schema_version = "jssp-classic-ga-v1"
+configuration_id = "C01"
+name = "Classical GA Baseline"
+population_size = 64
+tournament_size = 2
+selection_tie_break = "lower_population_index"
+crossover_operator = "pox"
+crossover_rate = 0.85
+pox_nonempty_proper_partition = true
+mutation_operator = "swap_or_insert_distinct_job_50_50"
+mutation_rate = 0.15
+elitism_count = 2
+elitism_tie_break = "lower_population_index"
+budget_formula = "clamp(64 * ceil(2.5 * n * m), 6400, 64000)"
+budget_min = 6400
+budget_max = 64000
+budget_ops_multiplier = 2.5
+step_granularity = 64
+
+[streams]
+init = "init"
+qmc_scramble = "qmc_scramble"
+selection = "selection"
+crossover = "crossover"
+mutation = "mutation"

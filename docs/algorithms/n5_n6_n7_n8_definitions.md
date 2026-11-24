@@ -16,6 +16,7 @@ Following Balas (1969) as used in Nowicki & Smutnicki (1996), Balas & Vazacopoul
 - **Makespan & Critical Path:** $C_{\max}(\sigma) = L(0, \tilde{n}) = \max_{u \in O} (r_u + p_u + q_u)$. An operation $u \in O$ is critical if $r_u + p_u + q_u = C_{\max}(\sigma)$.
 - **Critical Path Selection & Critical Blocks ($B_1, \dots, B_b$):** Pick one deterministic longest critical path $P = (0, v_1, \dots, v_K, \tilde{n})$ (tie-breaking predecessors in longest-path backtracking deterministically by lowest `OpId`). Partition $P$ into maximal contiguous subsequences $B_1, B_2, \dots, B_b$ of operations processed on the **same machine** with $|B_l| \ge 1$ (note: only blocks with $|B_l| \ge 2$ contain intra-block swaps/insertions, whereas $|B_l| \ge 1$ blocks can still participate in `N8` extra-block moves!).
   - For a block $B = (b_1, b_2, \dots, b_k)$ ($k \ge 2$): $u_{\text{first}} = b_1$, $u_{\text{last}} = b_k$, and **inner operations** are $\{b_2, \dots, b_{k-1}\}$.
+  - *M4–M5 Disjunctive Graph & Adapter Note:* Milestone M4 implements the graph-wide critical subgraph and extracts maximal contiguous critical machine blocks of length $\ge 2$ across all critical `MachineOrder` arcs (`head[u] + p[u] == head[v]` and critical target $v$) alongside the deterministic `RepresentativeCriticalPath` ($P$) in [`disjunctive_graph.md`](file:///home/abdelhalimyasser/Downloads/jssp-research/docs/algorithms/disjunctive_graph.md) and [`critical_path_and_blocks.md`](file:///home/abdelhalimyasser/Downloads/jssp-research/docs/algorithms/critical_path_and_blocks.md). Head/tail conventions (`head[u] = r_u`, `tail[u] = q_u`, both excluding $p_u$) agree identically. Milestone M5 implements and audits the canonical `D01-B` machine-sequence $\leftrightarrow$ OBR adapter (`encode_graph_to_obr`, `round_trip_machine_sequences`) in [`obr_machine_sequence_adapter.md`](file:///home/abdelhalimyasser/Downloads/jssp-research/docs/algorithms/obr_machine_sequence_adapter.md), confirming 100% `Exact` round trips on active schedules and non-worsening left-shift projection (`right_shifts == 0`) on non-active orientations. Move generation for `N5`–`N8` remains unimplemented in M5.
 
 ---
 
@@ -31,27 +32,25 @@ Following Balas (1969) as used in Nowicki & Smutnicki (1996), Balas & Vazacopoul
 
 ### 2.2 `N6` — Balas & Vazacopoulos (1998)
 - **Primary Reference:** E. Balas and A. Vazacopoulos, "Guided Local Search with Shifting Bottleneck for Job Shop Scheduling," *Management Science*, vol. 44, no. 2, pp. 262–275, 1998 (Section 2, Theorems 1–2 / Neighborhood $N6$, pp. 264–266). DOI: `10.1287/mnsc.44.2.262`.
-- **Move Rule:** For each critical block $B_l = (b_1, \dots, b_k)$ with $k \ge 2$ and every inner/boundary pair within $B_l$:
-  1. **Forward shift (move $u = b_1$ right after $v \in \{b_2, \dots, b_k\}$):** Allowed if $v = b_2$ OR $l > 1$? Wait—in Balas & Vazacopoulos (1998), `N6` moves an operation inside $B_l$ to the front ($b_1$) or rear ($b_k$), OR moves $b_1$ after $v$ / $b_k$ before $u$: specifically, as summarized identically in Zhang et al. (2007, Section 2) and Xie et al. (2023, Section 3.1, Fig. 4) and Gui et al. (2023, Section 3.2, Fig. 7):
-     - Move an operation $v \in \{b_2, \dots, b_k\}$ to immediately **before** $u = b_1$ (if $l > 1$, or for $v = b_k$? Wait: moving $b_2$ before $b_1$ in $B_1$ cannot improve $C_{\max}$ because $b_1$ has $JP[b_1]$ outside $M$ or $r_{b_1}=0$; under Proposition 3 of Nowicki–Smutnicki, changing only the first operation of $B_1$ or last operation of $B_b$ cannot decrease $C_{\max}$).
-     - Move an operation $u \in \{b_1, \dots, b_{k-1}\}$ to immediately **after** $v = b_k$ (excluding moving $b_{k-1}$ after $b_k$ in $B_b$, or moving $u$ after $b_k$ in $B_b$).
+- **Move Rule:** Partition the critical path $P = (0, v_1, \dots, v_K, \tilde{n})$ into maximal contiguous same-machine blocks $B_1, \dots, B_b$ (including $|B_l| = 1$ blocks so $l = 1$ and $l = b$ identify true endpoints of $P$). For each block $B_l = (b_1, \dots, b_k)$ with $k \ge 2$:
+  1. **Backward shift before block head $b_1$:** When $l > 1$, move any operation $v \in \{b_2, \dots, b_k\}$ to immediately **before** $b_1$ (inserts $b_k \dots b_2$ to the head of $B_l$; clipped for $l = 1$ because shifting within $B_1$ before $b_1$ cannot reduce $C_{\max}$ by Nowicki–Smutnicki Proposition 3 / Xie et al. Proposition 5).
+  2. **Forward shift after block rear $b_k$:** When $l < b$, move any operation $u \in \{b_1, \dots, b_{k-1}\}$ to immediately **after** $b_k$ (clipped for $l = b$ because moving operations within $B_b$ after $b_k$ cannot reduce $C_{\max}$ by Nowicki–Smutnicki Proposition 3 / Xie et al. Proposition 6).
 - **Sufficient Feasibility Conditions (Balas & Vazacopoulos 1998; Zhang et al. 2007 Theorems 1–2):**
   - Moving $v$ immediately **before** $u$ (where $u$ precedes $v$ on the same machine) is **guaranteed acyclic** if:
-    $$r_u + p_u \ge r_{JP[v]} + p_{JP[v]} \quad (\text{or } r_{JP[v]} = -\infty \text{ if } JP[v] = 0)$$
-    *(Note: Xie et al. 2023 Proposition 2 relaxes this slightly to $r_u + p_u \ge r_{JP[v]}$, which is strictly checked below; for `N6` we apply the published head/tail condition $r_u + p_u \ge r_{JP[v]} + p_{JP[v]}$ AND always run cycle detection on the mutated graph as a safety net!)*
+    $$r_u + p_u \ge r_{JP[v]} + p_{JP[v]} \quad (\text{always satisfied when } JP[v] = 0)$$
+    with mandatory topological DAG cycle verification on every mutated machine sequence as an exact safety net.
   - Moving $u$ immediately **after** $v$ is **guaranteed acyclic** if:
-    $$q_v + p_v \ge q_{JS[u]} + p_{JS[u]} \quad (\text{equivalently } L(v, \tilde{n}) \ge L(JS[u], \tilde{n}))$$
-- **Size & Complexity:** $O(\sum_l |B_l|)$ moves; can create a cycle **only** if a non-sufficient move were attempted, so enforcing the sufficient condition guarantees acyclicity (with explicit topological verification in Rust).
+    $$q_v + p_v \ge q_{JS[u]} + p_{JS[u]} \quad (\text{equivalently } L(v, \tilde{n}) \ge L(JS[u], \tilde{n}); \text{ always satisfied when } JS[u] = \tilde{n})$$
+- **Size & Complexity:** $O(\sum_l |B_l|)$ moves; enforcing the Balas–Vazacopoulos head/tail bounds plus topological DAG verification prevents any cyclic state from entering search.
 
 ### 2.3 `N7` — Zhang, Li, Guan & Rao (2007)
 - **Primary Reference:** C. Y. Zhang, P. G. Li, Z. L. Guan, and Y. Q. Rao, "A tabu search algorithm with a new neighborhood structure for the job shop scheduling problem," *Computers & Operations Research*, vol. 34, no. 11, pp. 3229–3242, 2007 (Section 2, Theorems 1–2 & Fig. 2, pp. 3231–3233). DOI: `10.1016/j.cor.2005.12.002`.
 - **Move Rule:** Extends `N6` within each critical block $B_l = (b_1, \dots, b_k)$ ($k \ge 2$):
-  1. All `N6` insertions moving $v \in \{b_2,\dots,b_k\}$ immediately **before** $b_1$ and $u \in \{b_1,\dots,b_{k-1}\}$ immediately **after** $b_k$.
-  2. **Additional `N7` moves:**
-     - Move $b_1$ immediately **after** any inner operation $v \in \{b_2, \dots, b_{k-1}\}$.
-     - Move $b_k$ immediately **before** any inner operation $u \in \{b_2, \dots, b_{k-1}\}$.
-  - *Boundary exclusions:* In $B_1$, moves that only reorder within $B_1$ by inserting $b_1$ inside $B_1$ or inner ops before $b_1$ can be retained or clipped per Zhang et al. / Xie et al. (see Section 3 below!).
-- **Feasibility Conditions:** Same Balas–Vazacopoulos / Zhang et al. Theorems 1–2: $r_u + p_u \ge r_{JP[v]} + p_{JP[v]}$ for moving $v$ before $u$; $L(v, \tilde{n}) \ge L(JS[u], \tilde{n})$ for moving $u$ after $v$.
+  1. All `N6` insertions moving $v \in \{b_2,\dots,b_k\}$ immediately **before** $b_1$ (for $l > 1$) and $u \in \{b_1,\dots,b_{k-1}\}$ immediately **after** $b_k$ (for $l < b$).
+  2. **Additional `N7` endpoint-into-interior insertions (for $k \ge 3$):**
+     - When $l > 1$, move $b_1$ immediately **after** any inner operation $v \in \{b_2, \dots, b_{k-1}\}$ (for $l = 1$, clipped per Xie et al. Proposition 3 because moving $b_1$ of $B_1$ inside $B_1$ cannot reduce $C_{\max}$).
+     - When $l < b$, move $b_k$ immediately **before** any inner operation $u \in \{b_2, \dots, b_{k-1}\}$ (for $l = b$, clipped per Xie et al. Proposition 4 because moving $b_k$ of $B_b$ inside $B_b$ cannot reduce $C_{\max}$).
+- **Feasibility Conditions:** Same Balas–Vazacopoulos / Zhang et al. Theorems 1–2 ($r_u + p_u \ge r_{JP[v]} + p_{JP[v]}$ for moving $v$ before $u$; $q_v + p_v \ge q_{JS[u]} + p_{JS[u]}$ for moving $u$ after $v$) plus explicit DAG acyclicity verification.
 
 ### 2.4 `N8` — Xie, Li, Gao & Gui (2023) *(and TWT Terminology Disambiguation)*
 - **Primary Reference (Makespan):** J. Xie, X. Li, L. Gao, and L. Gui, "A new neighbourhood structure for job shop scheduling problems," *International Journal of Production Research*, vol. 61, no. 7, pp. 2147–2161, 2023 (arXiv:2109.02843, Section 3.2–3.3, Propositions 1–6, Figs. 9–11). DOI: `10.1080/00207543.2022.2060772`.

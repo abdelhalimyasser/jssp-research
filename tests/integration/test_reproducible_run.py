@@ -5,6 +5,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from jssp_research.benchmarks import get_catalog_entry, parse_jssp_file
 from jssp_research.cli import main as cli_main
 from jssp_research.experiments import (
@@ -25,6 +27,7 @@ from jssp_research.results import (
     load_and_validate_result,
     write_result_record,
 )
+from jssp_research.utils.provenance import GitProvenance
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -99,7 +102,9 @@ def test_end_to_end_reproducible_seed_parse_manifest_and_result(tmp_path: Path) 
     assert reloaded_manifest.instance.canonical_parsed_sha256 == parsed.canonical_sha256
 
 
-def test_cli_workflows_end_to_end(tmp_path: Path, capsys: object) -> None:
+def test_cli_workflows_end_to_end(
+    tmp_path: Path, capsys: object, monkeypatch: pytest.MonkeyPatch
+) -> None:
     """Exercise all M3 CLI subcommands against real repository fixtures and manifests."""
     assert cli_main(["--repo-root", str(REPO_ROOT), "benchmarks", "families"]) == 0
     assert cli_main(["--repo-root", str(REPO_ROOT), "benchmarks", "list", "--family", "FT"]) == 0
@@ -168,6 +173,15 @@ def test_cli_workflows_end_to_end(tmp_path: Path, capsys: object) -> None:
     assert cli_main(["--repo-root", str(REPO_ROOT), "manifest", "validate", str(manifest_out)]) == 0
 
     # Creating a confirmatory manifest on dirty working tree must return exit code 1
+    monkeypatch.setattr(
+        "jssp_research.experiments.manifests.collect_git_provenance",
+        lambda _repo_root: GitProvenance(
+            commit="36564e2aacd312218b56c7413181c55a10ff14a8",
+            branch="main",
+            dirty=True,
+            diff_sha256="a" * 64,
+        ),
+    )
     bad_conf = tmp_path / "bad_conf.manifest.json"
     rc = cli_main(
         [

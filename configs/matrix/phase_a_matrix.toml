@@ -1,0 +1,359 @@
+schema_version = "jssp-phase-a-matrix-v1"
+phase = "A"
+expected_config_count = 24
+baseline_ga_id = "C01"
+
+[[configs]]
+config_id = "A01"
+name = "Uniform Random (alpha=0.0)"
+family = "monte_carlo"
+generator = "prng"
+scrambled = false
+deterministic = false
+uses_sobol = false
+dyadic_net_balance = false
+alpha = 0.0
+halton_count = 0
+sobol_count = 0
+role = "baseline_control"
+
+[[configs]]
+config_id = "A02"
+name = "Deterministic MWR"
+family = "mwr_deterministic"
+generator = "deterministic_mwr"
+scrambled = false
+deterministic = true
+uses_sobol = false
+dyadic_net_balance = false
+halton_count = 0
+sobol_count = 0
+role = "deterministic_control"
+
+[[configs]]
+config_id = "A03"
+name = "Monte Carlo + MWR (alpha=1.0)"
+family = "mc_mwr"
+generator = "prng"
+scrambled = false
+deterministic = false
+uses_sobol = false
+dyadic_net_balance = false
+alpha = 1.0
+halton_count = 0
+sobol_count = 0
+role = "primary_stochastic_mwr"
+
+[[configs]]
+config_id = "A04"
+name = "Unscrambled Halton (alpha=0.0)"
+family = "halton"
+generator = "halton"
+scrambled = false
+deterministic = true
+uses_sobol = false
+dyadic_net_balance = false
+alpha = 0.0
+halton_count = 64
+sobol_count = 0
+qmc_index_start = 1
+role = "unscrambled_qmc"
+
+[[configs]]
+config_id = "A05"
+name = "Scrambled Halton (alpha=0.0)"
+family = "halton"
+generator = "halton"
+scrambled = true
+deterministic = false
+uses_sobol = false
+dyadic_net_balance = false
+alpha = 0.0
+halton_count = 64
+sobol_count = 0
+qmc_index_start = 1
+role = "scrambled_qmc"
+
+[[configs]]
+config_id = "A06"
+name = "Unscrambled Sobol (alpha=0.0)"
+family = "sobol"
+generator = "sobol"
+scrambled = false
+deterministic = true
+uses_sobol = true
+dyadic_net_balance = false
+alpha = 0.0
+halton_count = 0
+sobol_count = 64
+qmc_index_start = 1
+role = "unscrambled_qmc"
+
+[[configs]]
+config_id = "A07"
+name = "Scrambled Sobol (alpha=0.0)"
+family = "sobol"
+generator = "sobol"
+scrambled = true
+deterministic = false
+uses_sobol = true
+dyadic_net_balance = true
+alpha = 0.0
+halton_count = 0
+sobol_count = 64
+qmc_index_start = 0
+role = "scrambled_qmc"
+
+[[configs]]
+config_id = "A08"
+name = "Halton + MWR (alpha=1.0)"
+family = "halton_mwr"
+generator = "halton"
+scrambled = false
+deterministic = true
+uses_sobol = false
+dyadic_net_balance = false
+alpha = 1.0
+halton_count = 64
+sobol_count = 0
+qmc_index_start = 1
+role = "unscrambled_qmc_mwr"
+
+[[configs]]
+config_id = "A09"
+name = "Scrambled Halton + MWR (alpha=1.0)"
+family = "halton_mwr"
+generator = "halton"
+scrambled = true
+deterministic = false
+uses_sobol = false
+dyadic_net_balance = false
+alpha = 1.0
+halton_count = 64
+sobol_count = 0
+qmc_index_start = 1
+role = "scrambled_qmc_mwr"
+
+[[configs]]
+config_id = "A10"
+name = "Sobol + MWR (alpha=1.0)"
+family = "sobol_mwr"
+generator = "sobol"
+scrambled = false
+deterministic = true
+uses_sobol = true
+dyadic_net_balance = false
+alpha = 1.0
+halton_count = 0
+sobol_count = 64
+qmc_index_start = 1
+role = "unscrambled_qmc_mwr"
+
+[[configs]]
+config_id = "A11"
+name = "Scrambled Sobol + MWR (alpha=1.0)"
+family = "sobol_mwr"
+generator = "sobol"
+scrambled = true
+deterministic = false
+uses_sobol = true
+dyadic_net_balance = true
+alpha = 1.0
+halton_count = 0
+sobol_count = 64
+qmc_index_start = 0
+role = "scrambled_qmc_mwr"
+
+[[configs]]
+config_id = "A12"
+name = "Mixed Scrambled Halton/Sobol (50:50)"
+family = "mixed_qmc"
+generator = "mixed_halton_sobol"
+scrambled = true
+deterministic = false
+uses_sobol = true
+dyadic_net_balance = true
+alpha = 0.0
+halton_count = 32
+sobol_count = 32
+qmc_index_start = 0
+role = "mixed_qmc"
+
+[[configs]]
+config_id = "A13"
+name = "Mixed Scrambled Halton/Sobol (25:75)"
+family = "mixed_qmc"
+generator = "mixed_halton_sobol"
+scrambled = true
+deterministic = false
+uses_sobol = true
+dyadic_net_balance = false
+alpha = 0.0
+halton_count = 16
+sobol_count = 48
+qmc_index_start = 0
+notes = "Empirical non-2^m Sobol prefix (N_S=48) without standard digital-net balance guarantee."
+role = "mixed_qmc_non_dyadic"
+
+[[configs]]
+config_id = "A14"
+name = "Mixed Scrambled Halton/Sobol (75:25)"
+family = "mixed_qmc"
+generator = "mixed_halton_sobol"
+scrambled = true
+deterministic = false
+uses_sobol = true
+dyadic_net_balance = true
+alpha = 0.0
+halton_count = 48
+sobol_count = 16
+qmc_index_start = 0
+role = "mixed_qmc"
+
+[[configs]]
+config_id = "A15"
+name = "Monte Carlo + MWR (alpha=0.5)"
+family = "mc_mwr_sensitivity"
+generator = "prng"
+scrambled = false
+deterministic = false
+uses_sobol = false
+dyadic_net_balance = false
+alpha = 0.5
+halton_count = 0
+sobol_count = 0
+role = "alpha_sensitivity"
+
+[[configs]]
+config_id = "A16"
+name = "Monte Carlo + MWR (alpha=2.0)"
+family = "mc_mwr_sensitivity"
+generator = "prng"
+scrambled = false
+deterministic = false
+uses_sobol = false
+dyadic_net_balance = false
+alpha = 2.0
+halton_count = 0
+sobol_count = 0
+role = "alpha_sensitivity"
+
+[[configs]]
+config_id = "A17"
+name = "Halton + MWR (alpha=0.5)"
+family = "halton_mwr_sensitivity"
+generator = "halton"
+scrambled = false
+deterministic = true
+uses_sobol = false
+dyadic_net_balance = false
+alpha = 0.5
+halton_count = 64
+sobol_count = 0
+qmc_index_start = 1
+role = "alpha_sensitivity"
+
+[[configs]]
+config_id = "A18"
+name = "Halton + MWR (alpha=2.0)"
+family = "halton_mwr_sensitivity"
+generator = "halton"
+scrambled = false
+deterministic = true
+uses_sobol = false
+dyadic_net_balance = false
+alpha = 2.0
+halton_count = 64
+sobol_count = 0
+qmc_index_start = 1
+role = "alpha_sensitivity"
+
+[[configs]]
+config_id = "A19"
+name = "Scrambled Halton + MWR (alpha=0.5)"
+family = "halton_mwr_sensitivity"
+generator = "halton"
+scrambled = true
+deterministic = false
+uses_sobol = false
+dyadic_net_balance = false
+alpha = 0.5
+halton_count = 64
+sobol_count = 0
+qmc_index_start = 1
+role = "alpha_sensitivity"
+
+[[configs]]
+config_id = "A20"
+name = "Scrambled Halton + MWR (alpha=2.0)"
+family = "halton_mwr_sensitivity"
+generator = "halton"
+scrambled = true
+deterministic = false
+uses_sobol = false
+dyadic_net_balance = false
+alpha = 2.0
+halton_count = 64
+sobol_count = 0
+qmc_index_start = 1
+role = "alpha_sensitivity"
+
+[[configs]]
+config_id = "A21"
+name = "Sobol + MWR (alpha=0.5)"
+family = "sobol_mwr_sensitivity"
+generator = "sobol"
+scrambled = false
+deterministic = true
+uses_sobol = true
+dyadic_net_balance = false
+alpha = 0.5
+halton_count = 0
+sobol_count = 64
+qmc_index_start = 1
+role = "alpha_sensitivity"
+
+[[configs]]
+config_id = "A22"
+name = "Sobol + MWR (alpha=2.0)"
+family = "sobol_mwr_sensitivity"
+generator = "sobol"
+scrambled = false
+deterministic = true
+uses_sobol = true
+dyadic_net_balance = false
+alpha = 2.0
+halton_count = 0
+sobol_count = 64
+qmc_index_start = 1
+role = "alpha_sensitivity"
+
+[[configs]]
+config_id = "A23"
+name = "Scrambled Sobol + MWR (alpha=0.5)"
+family = "sobol_mwr_sensitivity"
+generator = "sobol"
+scrambled = true
+deterministic = false
+uses_sobol = true
+dyadic_net_balance = true
+alpha = 0.5
+halton_count = 0
+sobol_count = 64
+qmc_index_start = 0
+role = "alpha_sensitivity"
+
+[[configs]]
+config_id = "A24"
+name = "Scrambled Sobol + MWR (alpha=2.0)"
+family = "sobol_mwr_sensitivity"
+generator = "sobol"
+scrambled = true
+deterministic = false
+uses_sobol = true
+dyadic_net_balance = true
+alpha = 2.0
+halton_count = 0
+sobol_count = 64
+qmc_index_start = 0
+role = "alpha_sensitivity"

@@ -1,0 +1,2189 @@
+{
+  "best_known_open_count": 60,
+  "bounds": [
+    {
+      "best_known_upper_bound": 1234,
+      "instance_id": "abz5",
+      "known_optimum": 1234,
+      "lower_bound": 1234,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 943,
+      "instance_id": "abz6",
+      "known_optimum": 943,
+      "lower_bound": 943,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 656,
+      "instance_id": "abz7",
+      "known_optimum": 656,
+      "lower_bound": 656,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 667,
+      "instance_id": "abz8",
+      "known_optimum": 667,
+      "lower_bound": 667,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 678,
+      "instance_id": "abz9",
+      "known_optimum": 678,
+      "lower_bound": 678,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2563,
+      "instance_id": "dmu01",
+      "known_optimum": 2563,
+      "lower_bound": 2563,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2706,
+      "instance_id": "dmu02",
+      "known_optimum": 2706,
+      "lower_bound": 2706,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2731,
+      "instance_id": "dmu03",
+      "known_optimum": 2731,
+      "lower_bound": 2731,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2669,
+      "instance_id": "dmu04",
+      "known_optimum": 2669,
+      "lower_bound": 2669,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2749,
+      "instance_id": "dmu05",
+      "known_optimum": 2749,
+      "lower_bound": 2749,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 3244,
+      "instance_id": "dmu06",
+      "known_optimum": 3244,
+      "lower_bound": 3244,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 3046,
+      "instance_id": "dmu07",
+      "known_optimum": 3046,
+      "lower_bound": 3046,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 3188,
+      "instance_id": "dmu08",
+      "known_optimum": 3188,
+      "lower_bound": 3188,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 3092,
+      "instance_id": "dmu09",
+      "known_optimum": 3092,
+      "lower_bound": 3092,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2984,
+      "instance_id": "dmu10",
+      "known_optimum": 2984,
+      "lower_bound": 2984,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 3430,
+      "instance_id": "dmu11",
+      "known_optimum": null,
+      "lower_bound": 3402,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 3492,
+      "instance_id": "dmu12",
+      "known_optimum": null,
+      "lower_bound": 3481,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 3681,
+      "instance_id": "dmu13",
+      "known_optimum": 3681,
+      "lower_bound": 3681,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 3394,
+      "instance_id": "dmu14",
+      "known_optimum": 3394,
+      "lower_bound": 3394,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 3343,
+      "instance_id": "dmu15",
+      "known_optimum": 3343,
+      "lower_bound": 3343,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 3750,
+      "instance_id": "dmu16",
+      "known_optimum": null,
+      "lower_bound": 3734,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 3811,
+      "instance_id": "dmu17",
+      "known_optimum": null,
+      "lower_bound": 3733,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 3844,
+      "instance_id": "dmu18",
+      "known_optimum": 3844,
+      "lower_bound": 3844,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 3764,
+      "instance_id": "dmu19",
+      "known_optimum": null,
+      "lower_bound": 3707,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 3699,
+      "instance_id": "dmu20",
+      "known_optimum": null,
+      "lower_bound": 3632,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 4380,
+      "instance_id": "dmu21",
+      "known_optimum": 4380,
+      "lower_bound": 4380,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 4725,
+      "instance_id": "dmu22",
+      "known_optimum": 4725,
+      "lower_bound": 4725,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 4668,
+      "instance_id": "dmu23",
+      "known_optimum": 4668,
+      "lower_bound": 4668,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 4648,
+      "instance_id": "dmu24",
+      "known_optimum": 4648,
+      "lower_bound": 4648,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 4164,
+      "instance_id": "dmu25",
+      "known_optimum": 4164,
+      "lower_bound": 4164,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 4647,
+      "instance_id": "dmu26",
+      "known_optimum": 4647,
+      "lower_bound": 4647,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 4848,
+      "instance_id": "dmu27",
+      "known_optimum": 4848,
+      "lower_bound": 4848,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 4692,
+      "instance_id": "dmu28",
+      "known_optimum": 4692,
+      "lower_bound": 4692,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 4691,
+      "instance_id": "dmu29",
+      "known_optimum": 4691,
+      "lower_bound": 4691,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 4732,
+      "instance_id": "dmu30",
+      "known_optimum": 4732,
+      "lower_bound": 4732,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 5640,
+      "instance_id": "dmu31",
+      "known_optimum": 5640,
+      "lower_bound": 5640,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 5927,
+      "instance_id": "dmu32",
+      "known_optimum": 5927,
+      "lower_bound": 5927,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 5728,
+      "instance_id": "dmu33",
+      "known_optimum": 5728,
+      "lower_bound": 5728,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 5385,
+      "instance_id": "dmu34",
+      "known_optimum": 5385,
+      "lower_bound": 5385,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 5635,
+      "instance_id": "dmu35",
+      "known_optimum": 5635,
+      "lower_bound": 5635,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 5621,
+      "instance_id": "dmu36",
+      "known_optimum": 5621,
+      "lower_bound": 5621,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 5851,
+      "instance_id": "dmu37",
+      "known_optimum": 5851,
+      "lower_bound": 5851,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 5713,
+      "instance_id": "dmu38",
+      "known_optimum": 5713,
+      "lower_bound": 5713,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 5747,
+      "instance_id": "dmu39",
+      "known_optimum": 5747,
+      "lower_bound": 5747,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 5577,
+      "instance_id": "dmu40",
+      "known_optimum": 5577,
+      "lower_bound": 5577,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 3248,
+      "instance_id": "dmu41",
+      "known_optimum": null,
+      "lower_bound": 3176,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 3390,
+      "instance_id": "dmu42",
+      "known_optimum": null,
+      "lower_bound": 3339,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 3441,
+      "instance_id": "dmu43",
+      "known_optimum": 3441,
+      "lower_bound": 3441,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 3475,
+      "instance_id": "dmu44",
+      "known_optimum": null,
+      "lower_bound": 3414,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 3266,
+      "instance_id": "dmu45",
+      "known_optimum": null,
+      "lower_bound": 3217,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 4035,
+      "instance_id": "dmu46",
+      "known_optimum": null,
+      "lower_bound": 3780,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 3939,
+      "instance_id": "dmu47",
+      "known_optimum": null,
+      "lower_bound": 3714,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 3763,
+      "instance_id": "dmu48",
+      "known_optimum": null,
+      "lower_bound": 3628,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 3706,
+      "instance_id": "dmu49",
+      "known_optimum": null,
+      "lower_bound": 3543,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 3729,
+      "instance_id": "dmu50",
+      "known_optimum": null,
+      "lower_bound": 3618,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 4151,
+      "instance_id": "dmu51",
+      "known_optimum": null,
+      "lower_bound": 4070,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 4297,
+      "instance_id": "dmu52",
+      "known_optimum": null,
+      "lower_bound": 4203,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 4378,
+      "instance_id": "dmu53",
+      "known_optimum": null,
+      "lower_bound": 4248,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 4360,
+      "instance_id": "dmu54",
+      "known_optimum": null,
+      "lower_bound": 4277,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 4258,
+      "instance_id": "dmu55",
+      "known_optimum": null,
+      "lower_bound": 4191,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 4934,
+      "instance_id": "dmu56",
+      "known_optimum": null,
+      "lower_bound": 4755,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 4643,
+      "instance_id": "dmu57",
+      "known_optimum": null,
+      "lower_bound": 4462,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 4701,
+      "instance_id": "dmu58",
+      "known_optimum": null,
+      "lower_bound": 4484,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 4607,
+      "instance_id": "dmu59",
+      "known_optimum": null,
+      "lower_bound": 4366,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 4721,
+      "instance_id": "dmu60",
+      "known_optimum": null,
+      "lower_bound": 4468,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 5166,
+      "instance_id": "dmu61",
+      "known_optimum": null,
+      "lower_bound": 5038,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 5244,
+      "instance_id": "dmu62",
+      "known_optimum": null,
+      "lower_bound": 5176,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 5296,
+      "instance_id": "dmu63",
+      "known_optimum": null,
+      "lower_bound": 5245,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 5225,
+      "instance_id": "dmu64",
+      "known_optimum": null,
+      "lower_bound": 5155,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 5158,
+      "instance_id": "dmu65",
+      "known_optimum": null,
+      "lower_bound": 5122,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 5692,
+      "instance_id": "dmu66",
+      "known_optimum": null,
+      "lower_bound": 5526,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 5774,
+      "instance_id": "dmu67",
+      "known_optimum": null,
+      "lower_bound": 5661,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 5749,
+      "instance_id": "dmu68",
+      "known_optimum": null,
+      "lower_bound": 5513,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 5682,
+      "instance_id": "dmu69",
+      "known_optimum": null,
+      "lower_bound": 5511,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 5868,
+      "instance_id": "dmu70",
+      "known_optimum": null,
+      "lower_bound": 5633,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 6206,
+      "instance_id": "dmu71",
+      "known_optimum": null,
+      "lower_bound": 6129,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 6448,
+      "instance_id": "dmu72",
+      "known_optimum": null,
+      "lower_bound": 6434,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 6132,
+      "instance_id": "dmu73",
+      "known_optimum": null,
+      "lower_bound": 6107,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 6196,
+      "instance_id": "dmu74",
+      "known_optimum": null,
+      "lower_bound": 6168,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 6186,
+      "instance_id": "dmu75",
+      "known_optimum": null,
+      "lower_bound": 6123,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 6708,
+      "instance_id": "dmu76",
+      "known_optimum": null,
+      "lower_bound": 6479,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 6739,
+      "instance_id": "dmu77",
+      "known_optimum": null,
+      "lower_bound": 6520,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 6744,
+      "instance_id": "dmu78",
+      "known_optimum": null,
+      "lower_bound": 6643,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 6899,
+      "instance_id": "dmu79",
+      "known_optimum": null,
+      "lower_bound": 6720,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 6621,
+      "instance_id": "dmu80",
+      "known_optimum": null,
+      "lower_bound": 6460,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json (DMU bounds snapshot)",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 55,
+      "instance_id": "ft06",
+      "known_optimum": 55,
+      "lower_bound": 55,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 930,
+      "instance_id": "ft10",
+      "known_optimum": 930,
+      "lower_bound": 930,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1165,
+      "instance_id": "ft20",
+      "known_optimum": 1165,
+      "lower_bound": 1165,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 666,
+      "instance_id": "la01",
+      "known_optimum": 666,
+      "lower_bound": 666,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 655,
+      "instance_id": "la02",
+      "known_optimum": 655,
+      "lower_bound": 655,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 597,
+      "instance_id": "la03",
+      "known_optimum": 597,
+      "lower_bound": 597,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 590,
+      "instance_id": "la04",
+      "known_optimum": 590,
+      "lower_bound": 590,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 593,
+      "instance_id": "la05",
+      "known_optimum": 593,
+      "lower_bound": 593,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 926,
+      "instance_id": "la06",
+      "known_optimum": 926,
+      "lower_bound": 926,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 890,
+      "instance_id": "la07",
+      "known_optimum": 890,
+      "lower_bound": 890,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 863,
+      "instance_id": "la08",
+      "known_optimum": 863,
+      "lower_bound": 863,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 951,
+      "instance_id": "la09",
+      "known_optimum": 951,
+      "lower_bound": 951,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 958,
+      "instance_id": "la10",
+      "known_optimum": 958,
+      "lower_bound": 958,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1222,
+      "instance_id": "la11",
+      "known_optimum": 1222,
+      "lower_bound": 1222,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1039,
+      "instance_id": "la12",
+      "known_optimum": 1039,
+      "lower_bound": 1039,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1150,
+      "instance_id": "la13",
+      "known_optimum": 1150,
+      "lower_bound": 1150,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1292,
+      "instance_id": "la14",
+      "known_optimum": 1292,
+      "lower_bound": 1292,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1207,
+      "instance_id": "la15",
+      "known_optimum": 1207,
+      "lower_bound": 1207,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 945,
+      "instance_id": "la16",
+      "known_optimum": 945,
+      "lower_bound": 945,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 784,
+      "instance_id": "la17",
+      "known_optimum": 784,
+      "lower_bound": 784,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 848,
+      "instance_id": "la18",
+      "known_optimum": 848,
+      "lower_bound": 848,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 842,
+      "instance_id": "la19",
+      "known_optimum": 842,
+      "lower_bound": 842,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 902,
+      "instance_id": "la20",
+      "known_optimum": 902,
+      "lower_bound": 902,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1046,
+      "instance_id": "la21",
+      "known_optimum": 1046,
+      "lower_bound": 1046,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 927,
+      "instance_id": "la22",
+      "known_optimum": 927,
+      "lower_bound": 927,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1032,
+      "instance_id": "la23",
+      "known_optimum": 1032,
+      "lower_bound": 1032,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 935,
+      "instance_id": "la24",
+      "known_optimum": 935,
+      "lower_bound": 935,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 977,
+      "instance_id": "la25",
+      "known_optimum": 977,
+      "lower_bound": 977,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1218,
+      "instance_id": "la26",
+      "known_optimum": 1218,
+      "lower_bound": 1218,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1235,
+      "instance_id": "la27",
+      "known_optimum": 1235,
+      "lower_bound": 1235,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1216,
+      "instance_id": "la28",
+      "known_optimum": 1216,
+      "lower_bound": 1216,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1152,
+      "instance_id": "la29",
+      "known_optimum": 1152,
+      "lower_bound": 1152,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1355,
+      "instance_id": "la30",
+      "known_optimum": 1355,
+      "lower_bound": 1355,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1784,
+      "instance_id": "la31",
+      "known_optimum": 1784,
+      "lower_bound": 1784,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1850,
+      "instance_id": "la32",
+      "known_optimum": 1850,
+      "lower_bound": 1850,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1719,
+      "instance_id": "la33",
+      "known_optimum": 1719,
+      "lower_bound": 1719,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1721,
+      "instance_id": "la34",
+      "known_optimum": 1721,
+      "lower_bound": 1721,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1888,
+      "instance_id": "la35",
+      "known_optimum": 1888,
+      "lower_bound": 1888,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1268,
+      "instance_id": "la36",
+      "known_optimum": 1268,
+      "lower_bound": 1268,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1397,
+      "instance_id": "la37",
+      "known_optimum": 1397,
+      "lower_bound": 1397,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1196,
+      "instance_id": "la38",
+      "known_optimum": 1196,
+      "lower_bound": 1196,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1233,
+      "instance_id": "la39",
+      "known_optimum": 1233,
+      "lower_bound": 1233,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1222,
+      "instance_id": "la40",
+      "known_optimum": 1222,
+      "lower_bound": 1222,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1059,
+      "instance_id": "orb01",
+      "known_optimum": 1059,
+      "lower_bound": 1059,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 888,
+      "instance_id": "orb02",
+      "known_optimum": 888,
+      "lower_bound": 888,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1005,
+      "instance_id": "orb03",
+      "known_optimum": 1005,
+      "lower_bound": 1005,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1005,
+      "instance_id": "orb04",
+      "known_optimum": 1005,
+      "lower_bound": 1005,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 887,
+      "instance_id": "orb05",
+      "known_optimum": 887,
+      "lower_bound": 887,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1010,
+      "instance_id": "orb06",
+      "known_optimum": 1010,
+      "lower_bound": 1010,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 397,
+      "instance_id": "orb07",
+      "known_optimum": 397,
+      "lower_bound": 397,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 899,
+      "instance_id": "orb08",
+      "known_optimum": 899,
+      "lower_bound": 899,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 934,
+      "instance_id": "orb09",
+      "known_optimum": 934,
+      "lower_bound": 934,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 944,
+      "instance_id": "orb10",
+      "known_optimum": 944,
+      "lower_bound": 944,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1407,
+      "instance_id": "swv01",
+      "known_optimum": 1407,
+      "lower_bound": 1407,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1475,
+      "instance_id": "swv02",
+      "known_optimum": 1475,
+      "lower_bound": 1475,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1398,
+      "instance_id": "swv03",
+      "known_optimum": 1398,
+      "lower_bound": 1398,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1464,
+      "instance_id": "swv04",
+      "known_optimum": 1464,
+      "lower_bound": 1464,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1424,
+      "instance_id": "swv05",
+      "known_optimum": 1424,
+      "lower_bound": 1424,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1667,
+      "instance_id": "swv06",
+      "known_optimum": 1667,
+      "lower_bound": 1667,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1594,
+      "instance_id": "swv07",
+      "known_optimum": null,
+      "lower_bound": 1541,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 1751,
+      "instance_id": "swv08",
+      "known_optimum": null,
+      "lower_bound": 1694,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 1655,
+      "instance_id": "swv09",
+      "known_optimum": 1655,
+      "lower_bound": 1655,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1743,
+      "instance_id": "swv10",
+      "known_optimum": null,
+      "lower_bound": 1692,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 2983,
+      "instance_id": "swv11",
+      "known_optimum": 2983,
+      "lower_bound": 2983,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2972,
+      "instance_id": "swv12",
+      "known_optimum": 2972,
+      "lower_bound": 2972,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 3104,
+      "instance_id": "swv13",
+      "known_optimum": 3104,
+      "lower_bound": 3104,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2968,
+      "instance_id": "swv14",
+      "known_optimum": 2968,
+      "lower_bound": 2968,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2885,
+      "instance_id": "swv15",
+      "known_optimum": 2885,
+      "lower_bound": 2885,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2924,
+      "instance_id": "swv16",
+      "known_optimum": 2924,
+      "lower_bound": 2924,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2794,
+      "instance_id": "swv17",
+      "known_optimum": 2794,
+      "lower_bound": 2794,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2852,
+      "instance_id": "swv18",
+      "known_optimum": 2852,
+      "lower_bound": 2852,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2843,
+      "instance_id": "swv19",
+      "known_optimum": 2843,
+      "lower_bound": 2843,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2823,
+      "instance_id": "swv20",
+      "known_optimum": 2823,
+      "lower_bound": 2823,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1231,
+      "instance_id": "ta01",
+      "known_optimum": 1231,
+      "lower_bound": 1231,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1244,
+      "instance_id": "ta02",
+      "known_optimum": 1244,
+      "lower_bound": 1244,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1218,
+      "instance_id": "ta03",
+      "known_optimum": 1218,
+      "lower_bound": 1218,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1175,
+      "instance_id": "ta04",
+      "known_optimum": 1175,
+      "lower_bound": 1175,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1224,
+      "instance_id": "ta05",
+      "known_optimum": 1224,
+      "lower_bound": 1224,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1238,
+      "instance_id": "ta06",
+      "known_optimum": 1238,
+      "lower_bound": 1238,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1227,
+      "instance_id": "ta07",
+      "known_optimum": 1227,
+      "lower_bound": 1227,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1217,
+      "instance_id": "ta08",
+      "known_optimum": 1217,
+      "lower_bound": 1217,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1274,
+      "instance_id": "ta09",
+      "known_optimum": 1274,
+      "lower_bound": 1274,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1241,
+      "instance_id": "ta10",
+      "known_optimum": 1241,
+      "lower_bound": 1241,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1357,
+      "instance_id": "ta11",
+      "known_optimum": 1357,
+      "lower_bound": 1357,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1367,
+      "instance_id": "ta12",
+      "known_optimum": 1367,
+      "lower_bound": 1367,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1342,
+      "instance_id": "ta13",
+      "known_optimum": 1342,
+      "lower_bound": 1342,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1345,
+      "instance_id": "ta14",
+      "known_optimum": 1345,
+      "lower_bound": 1345,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1339,
+      "instance_id": "ta15",
+      "known_optimum": 1339,
+      "lower_bound": 1339,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1360,
+      "instance_id": "ta16",
+      "known_optimum": 1360,
+      "lower_bound": 1360,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1462,
+      "instance_id": "ta17",
+      "known_optimum": 1462,
+      "lower_bound": 1462,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1396,
+      "instance_id": "ta18",
+      "known_optimum": 1396,
+      "lower_bound": 1396,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1332,
+      "instance_id": "ta19",
+      "known_optimum": 1332,
+      "lower_bound": 1332,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1348,
+      "instance_id": "ta20",
+      "known_optimum": 1348,
+      "lower_bound": 1348,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1642,
+      "instance_id": "ta21",
+      "known_optimum": 1642,
+      "lower_bound": 1642,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1600,
+      "instance_id": "ta22",
+      "known_optimum": 1600,
+      "lower_bound": 1600,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1557,
+      "instance_id": "ta23",
+      "known_optimum": 1557,
+      "lower_bound": 1557,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1644,
+      "instance_id": "ta24",
+      "known_optimum": 1644,
+      "lower_bound": 1644,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1595,
+      "instance_id": "ta25",
+      "known_optimum": 1595,
+      "lower_bound": 1595,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1643,
+      "instance_id": "ta26",
+      "known_optimum": 1643,
+      "lower_bound": 1643,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1680,
+      "instance_id": "ta27",
+      "known_optimum": 1680,
+      "lower_bound": 1680,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1603,
+      "instance_id": "ta28",
+      "known_optimum": 1603,
+      "lower_bound": 1603,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1625,
+      "instance_id": "ta29",
+      "known_optimum": 1625,
+      "lower_bound": 1625,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1584,
+      "instance_id": "ta30",
+      "known_optimum": null,
+      "lower_bound": 1562,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 1764,
+      "instance_id": "ta31",
+      "known_optimum": 1764,
+      "lower_bound": 1764,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1783,
+      "instance_id": "ta32",
+      "known_optimum": null,
+      "lower_bound": 1774,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 1791,
+      "instance_id": "ta33",
+      "known_optimum": 1791,
+      "lower_bound": 1791,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1828,
+      "instance_id": "ta34",
+      "known_optimum": 1828,
+      "lower_bound": 1828,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2007,
+      "instance_id": "ta35",
+      "known_optimum": 2007,
+      "lower_bound": 2007,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1819,
+      "instance_id": "ta36",
+      "known_optimum": 1819,
+      "lower_bound": 1819,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1771,
+      "instance_id": "ta37",
+      "known_optimum": 1771,
+      "lower_bound": 1771,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1673,
+      "instance_id": "ta38",
+      "known_optimum": 1673,
+      "lower_bound": 1673,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1795,
+      "instance_id": "ta39",
+      "known_optimum": 1795,
+      "lower_bound": 1795,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 1669,
+      "instance_id": "ta40",
+      "known_optimum": null,
+      "lower_bound": 1658,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 2005,
+      "instance_id": "ta41",
+      "known_optimum": null,
+      "lower_bound": 1926,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 1937,
+      "instance_id": "ta42",
+      "known_optimum": null,
+      "lower_bound": 1900,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 1846,
+      "instance_id": "ta43",
+      "known_optimum": null,
+      "lower_bound": 1809,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 1978,
+      "instance_id": "ta44",
+      "known_optimum": null,
+      "lower_bound": 1961,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 1997,
+      "instance_id": "ta45",
+      "known_optimum": 1997,
+      "lower_bound": 1997,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2002,
+      "instance_id": "ta46",
+      "known_optimum": null,
+      "lower_bound": 1976,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 1889,
+      "instance_id": "ta47",
+      "known_optimum": null,
+      "lower_bound": 1827,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 1937,
+      "instance_id": "ta48",
+      "known_optimum": null,
+      "lower_bound": 1921,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 1960,
+      "instance_id": "ta49",
+      "known_optimum": null,
+      "lower_bound": 1938,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 1923,
+      "instance_id": "ta50",
+      "known_optimum": null,
+      "lower_bound": 1848,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "best_known_open"
+    },
+    {
+      "best_known_upper_bound": 2760,
+      "instance_id": "ta51",
+      "known_optimum": 2760,
+      "lower_bound": 2760,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2756,
+      "instance_id": "ta52",
+      "known_optimum": 2756,
+      "lower_bound": 2756,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2717,
+      "instance_id": "ta53",
+      "known_optimum": 2717,
+      "lower_bound": 2717,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2839,
+      "instance_id": "ta54",
+      "known_optimum": 2839,
+      "lower_bound": 2839,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2679,
+      "instance_id": "ta55",
+      "known_optimum": 2679,
+      "lower_bound": 2679,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2781,
+      "instance_id": "ta56",
+      "known_optimum": 2781,
+      "lower_bound": 2781,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2943,
+      "instance_id": "ta57",
+      "known_optimum": 2943,
+      "lower_bound": 2943,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2885,
+      "instance_id": "ta58",
+      "known_optimum": 2885,
+      "lower_bound": 2885,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2655,
+      "instance_id": "ta59",
+      "known_optimum": 2655,
+      "lower_bound": 2655,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2723,
+      "instance_id": "ta60",
+      "known_optimum": 2723,
+      "lower_bound": 2723,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2868,
+      "instance_id": "ta61",
+      "known_optimum": 2868,
+      "lower_bound": 2868,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2869,
+      "instance_id": "ta62",
+      "known_optimum": 2869,
+      "lower_bound": 2869,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2755,
+      "instance_id": "ta63",
+      "known_optimum": 2755,
+      "lower_bound": 2755,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2702,
+      "instance_id": "ta64",
+      "known_optimum": 2702,
+      "lower_bound": 2702,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2725,
+      "instance_id": "ta65",
+      "known_optimum": 2725,
+      "lower_bound": 2725,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2845,
+      "instance_id": "ta66",
+      "known_optimum": 2845,
+      "lower_bound": 2845,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2825,
+      "instance_id": "ta67",
+      "known_optimum": 2825,
+      "lower_bound": 2825,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2784,
+      "instance_id": "ta68",
+      "known_optimum": 2784,
+      "lower_bound": 2784,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 3071,
+      "instance_id": "ta69",
+      "known_optimum": 3071,
+      "lower_bound": 3071,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 2995,
+      "instance_id": "ta70",
+      "known_optimum": 2995,
+      "lower_bound": 2995,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 5464,
+      "instance_id": "ta71",
+      "known_optimum": 5464,
+      "lower_bound": 5464,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 5181,
+      "instance_id": "ta72",
+      "known_optimum": 5181,
+      "lower_bound": 5181,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 5568,
+      "instance_id": "ta73",
+      "known_optimum": 5568,
+      "lower_bound": 5568,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 5339,
+      "instance_id": "ta74",
+      "known_optimum": 5339,
+      "lower_bound": 5339,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 5392,
+      "instance_id": "ta75",
+      "known_optimum": 5392,
+      "lower_bound": 5392,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 5342,
+      "instance_id": "ta76",
+      "known_optimum": 5342,
+      "lower_bound": 5342,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 5436,
+      "instance_id": "ta77",
+      "known_optimum": 5436,
+      "lower_bound": 5436,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 5394,
+      "instance_id": "ta78",
+      "known_optimum": 5394,
+      "lower_bound": 5394,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 5358,
+      "instance_id": "ta79",
+      "known_optimum": 5358,
+      "lower_bound": 5358,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 5183,
+      "instance_id": "ta80",
+      "known_optimum": 5183,
+      "lower_bound": 5183,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 884,
+      "instance_id": "yn1",
+      "known_optimum": 884,
+      "lower_bound": 884,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 904,
+      "instance_id": "yn2",
+      "known_optimum": 904,
+      "lower_bound": 904,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 892,
+      "instance_id": "yn3",
+      "known_optimum": 892,
+      "lower_bound": 892,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    },
+    {
+      "best_known_upper_bound": 967,
+      "instance_id": "yn4",
+      "known_optimum": 967,
+      "lower_bound": 967,
+      "recorded_at": "2026-11-24",
+      "source": "SchedulingLab/jsp-instances classical.json & JSPLib instances.json",
+      "status": "proven_optimal"
+    }
+  ],
+  "proven_optimal_count": 182,
+  "recorded_at": "2026-11-24",
+  "schema_version": "jssp-track1-bounds-v1",
+  "snapshot_id": "track1-bks-2026-11-24",
+  "source": "SchedulingLab/jsp-instances classical.json cross-checked with tamy0612/JSPLib",
+  "total_instances": 242
+}

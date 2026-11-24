@@ -1,0 +1,9 @@
+schema_version = "jssp-phase-a-mwr-v1"
+work_metric = "dynamic_remaining_processing_time"
+tie_break_rule = "lowest_job_id"
+eligible_job_sort_order = "ascending_job_id"
+inverse_cdf_clamp_upper_epsilon = true
+primary_alpha = 1.0
+sensitivity_alphas = [0.5, 2.0]
+uniform_control_alpha = 0.0
+zero_remaining_work_fallback = "uniform_over_eligible"

@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: Rust & Python Test Suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install uv and Python 3.15.2
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.13.9"
+          python-version: "3.15.2"
+
+      - name: Install pinned Rust 1.100.0 toolchain
+        run: |
+          rustup toolchain install 1.100.0 --profile default -c rustfmt -c clippy
+          rustup default 1.100.0
+
+      - name: Sync Python dependencies and build native extension
+        run: |
+          uv lock --check
+          uv sync --locked --all-groups
+          uv run --locked maturin develop --manifest-path crates/jssp-python/Cargo.toml
+
+      - name: Run Rust formatting, check, tests, and clippy
+        run: |
+          export PYO3_PYTHON="$(uv run --locked which python)"
+          cargo fmt --all -- --check
+          cargo check --workspace --all-targets
+          cargo test --workspace
+          cargo clippy --workspace --all-targets --all-features -- -D warnings
+
+      - name: Run Python lint, format check, and pytest
+        run: |
+          uv lock --check
+          uv run --locked ruff check .
+          uv run --locked ruff format --check .
+          uv run --locked pytest

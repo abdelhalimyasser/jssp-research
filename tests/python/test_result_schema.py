@@ -80,8 +80,11 @@ def test_manifest_schema_immutability_and_hash_validation(tmp_path: Path) -> Non
 
     reloaded = load_and_validate_manifest(out_file)
     assert reloaded == manifest
-    assert reloaded.source_code.git.dirty is True
-    assert reloaded.source_code.git.diff_sha256 is not None
+    assert isinstance(reloaded.source_code.git.dirty, bool)
+    if reloaded.source_code.git.dirty:
+        assert reloaded.source_code.git.diff_sha256 is not None
+    else:
+        assert reloaded.source_code.git.diff_sha256 is None
 
     with pytest.raises(ValidationError):
         manifest.identity.run_id = "mutated"  # type: ignore[misc]
@@ -124,6 +127,15 @@ def test_confirmatory_manifest_rejects_dirty_tree_and_bad_seed(tmp_path: Path) -
     # Promoting a dirty manifest to confirmatory must raise ConfirmatoryIntegrityError
     dirty_conf = dict(raw)
     dirty_conf["identity"] = dict(raw["identity"], protocol_stage="confirmatory")
+    dirty_conf["source_code"] = dict(
+        raw["source_code"],
+        git={
+            "commit": "36564e2aacd312218b56c7413181c55a10ff14a8",
+            "branch": "main",
+            "dirty": True,
+            "diff_sha256": "a" * 64,
+        },
+    )
     body = {k: v for k, v in dirty_conf.items() if k != "manifest_sha256"}
     from jssp_research.experiments.manifests import canonical_json_sha256
 

@@ -1,0 +1,12 @@
+schema_version = "jssp-benchmarks-track1-v1"
+track_id = "track1_core_classical"
+total_instances = 242
+development_count = 48
+confirmatory_count = 194
+metadata_path = "data/metadata/track1_checksums_and_provenance.json"
+bounds_snapshot_path = "data/bounds/track1_bks_snapshot_20261124.json"
+split_path = "data/splits/track1_split_v1.json"
+raw_root = "data/raw/track1"
+families = ["FT", "LA", "ABZ", "ORB", "SWV", "YN", "TA", "DMU"]
+max_operation_count = 2000
+within_sobol_limit_21201 = true

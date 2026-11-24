@@ -1,0 +1,12 @@
+schema_version = "jssp-protocol-v1"
+stage = "confirmatory"
+track_id = "track1_core_classical"
+split = "confirmatory"
+instance_count = 194
+replicates = 20
+seed_schedule_id = "jssp-research-v1-sha256-20"
+pairing_mode = "paired_init"
+pairing_group = "phase_a_shared_init"
+require_clean_git = true
+bootstrap_resamples = 10000
+alpha = 0.05

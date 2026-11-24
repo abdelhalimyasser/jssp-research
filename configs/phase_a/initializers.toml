@@ -1,0 +1,6 @@
+schema_version = "jssp-phase-a-initializers-v1"
+population_size = 64
+deterministic_replicate_policy = "evaluate_layer_a_once_run_20_ga_seeds"
+gaussian_or_random_jitter_on_deterministic = false
+pairing_mode = "paired_init"
+pairing_group = "phase_a_shared_init"

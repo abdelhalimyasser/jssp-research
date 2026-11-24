@@ -1,0 +1,9 @@
+schema_version = "jssp-protocol-v1"
+stage = "stress_test"
+track_id = "track2b_stress"
+split = "stress_held_out"
+standard_sobol_excluded = true
+sobol_max_supported_dimension = 21201
+replicates = 5
+seed_schedule_id = "jssp-research-v1-sha256-20"
+require_clean_git = true

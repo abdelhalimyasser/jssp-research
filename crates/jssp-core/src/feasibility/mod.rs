@@ -8,6 +8,7 @@ use crate::error::JsspError;
 use crate::model::{JsspInstance, OperationId, Schedule, ScheduledOperation};
 use crate::objective::evaluate_makespan;
 
+pub use disjunctive_graph::check_disjunctive_graph_acyclicity;
 pub use machine_exclusivity::check_machine_exclusivity;
 pub use precedence::check_job_precedence;
 

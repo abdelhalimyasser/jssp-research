@@ -1,0 +1,9 @@
+schema_version = "jssp-problem-defaults-v1"
+problem_type = "deterministic_classical_rectangular_jssp"
+objective = "makespan"
+time_representation = "u64"
+allow_zero_duration_operation = true
+require_positive_job_work = true
+machine_capacity = 1
+allow_preemption = false
+rectangular_routing_required = true

@@ -1,0 +1,86 @@
+[
+  {
+    "strategy_name": "Simulated Annealing (SA)",
+    "n_runs_total": 2560,
+    "dev_mean_best_rpd": 5.5430695455245225,
+    "dev_mean_anytime_rpd_auc": 9.976882649678197,
+    "ho_mean_best_rpd": 6.092465215762243,
+    "ho_mean_anytime_rpd_auc": 11.242185793780026,
+    "mean_improvement_pct": 12.22280104076053,
+    "mean_hit_bks_rate": 0.13046875,
+    "mean_elapsed_ms": 338.8154943035156,
+    "mean_rejected_cyclic_moves": 0.01015625
+  },
+  {
+    "strategy_name": "Metropolis-Filtered ILS + Steepest Descent",
+    "n_runs_total": 2560,
+    "dev_mean_best_rpd": 6.6908119856978345,
+    "dev_mean_anytime_rpd_auc": 7.964765777204368,
+    "ho_mean_best_rpd": 7.415962897686612,
+    "ho_mean_anytime_rpd_auc": 9.018544984178167,
+    "mean_improvement_pct": 11.272146897664205,
+    "mean_hit_bks_rate": 0.130078125,
+    "mean_elapsed_ms": 191.0968089,
+    "mean_rejected_cyclic_moves": 0.0015625
+  },
+  {
+    "strategy_name": "Iterated Local Search (ILS)",
+    "n_runs_total": 2560,
+    "dev_mean_best_rpd": 6.775060262239774,
+    "dev_mean_anytime_rpd_auc": 8.240132185075737,
+    "ho_mean_best_rpd": 7.297219594541642,
+    "ho_mean_anytime_rpd_auc": 9.199699422110651,
+    "mean_improvement_pct": 11.293399147370499,
+    "mean_hit_bks_rate": 0.13359375,
+    "mean_elapsed_ms": 164.44183822109375,
+    "mean_rejected_cyclic_moves": 0.001171875
+  },
+  {
+    "strategy_name": "Tabu Search",
+    "n_runs_total": 2560,
+    "dev_mean_best_rpd": 6.911802585174156,
+    "dev_mean_anytime_rpd_auc": 8.512365109321278,
+    "ho_mean_best_rpd": 7.645058456138156,
+    "ho_mean_anytime_rpd_auc": 9.68303820679374,
+    "mean_improvement_pct": 11.082245984575085,
+    "mean_hit_bks_rate": 0.12578125,
+    "mean_elapsed_ms": 157.56823049531252,
+    "mean_rejected_cyclic_moves": 0.000390625
+  },
+  {
+    "strategy_name": "First Improvement",
+    "n_runs_total": 2560,
+    "dev_mean_best_rpd": 15.258353571112849,
+    "dev_mean_anytime_rpd_auc": 15.267814129491645,
+    "ho_mean_best_rpd": 18.36463856688409,
+    "ho_mean_anytime_rpd_auc": 18.373194606760514,
+    "mean_improvement_pct": 3.39483301661435,
+    "mean_hit_bks_rate": 0.0640625,
+    "mean_elapsed_ms": 1.283164372265625,
+    "mean_rejected_cyclic_moves": 0.0
+  },
+  {
+    "strategy_name": "Random Improvement",
+    "n_runs_total": 2560,
+    "dev_mean_best_rpd": 15.288078375376937,
+    "dev_mean_anytime_rpd_auc": 15.292580815162689,
+    "ho_mean_best_rpd": 18.277532701819457,
+    "ho_mean_anytime_rpd_auc": 18.282599688503183,
+    "mean_improvement_pct": 3.418002330187845,
+    "mean_hit_bks_rate": 0.065234375,
+    "mean_elapsed_ms": 0.8215665722656251,
+    "mean_rejected_cyclic_moves": 0.0
+  },
+  {
+    "strategy_name": "Steepest Descent",
+    "n_runs_total": 2560,
+    "dev_mean_best_rpd": 15.315238033069354,
+    "dev_mean_anytime_rpd_auc": 15.33378159190876,
+    "ho_mean_best_rpd": 18.40374682937682,
+    "ho_mean_anytime_rpd_auc": 18.42322308713553,
+    "mean_improvement_pct": 3.359592121552791,
+    "mean_hit_bks_rate": 0.066015625,
+    "mean_elapsed_ms": 1.7197064488281253,
+    "mean_rejected_cyclic_moves": 0.0
+  }
+]
