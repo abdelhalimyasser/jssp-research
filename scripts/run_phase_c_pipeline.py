@@ -291,6 +291,7 @@ def main() -> None:
     frozen_b_id = str(frozen_b["winner_config_id"])
     frozen_b_nb = str(frozen_b["winner_neighborhood"])
     frozen_b_strat = str(frozen_b["winner_strategy"])
+    memetic_ls_strategy = "steepest_descent"
 
     suite_doc = json.loads(SUITE_JSON.read_text("utf-8"))
     common_instances = [r for r in suite_doc["instances"] if r["in_common_pipeline_suite"]]
@@ -308,7 +309,7 @@ def main() -> None:
         f"Starting Phase C across {len(common_instances)} Common Suite instances x "
         f"{len(specs)} configs x {args.replicates} frozen seeds "
         f"(A*={frozen_a_id}, B*={frozen_b_id} [{frozen_b_strat} + {frozen_b_nb}], "
-        f"b_LS={args.max_ls_evals})...",
+        f"embedded_ls={memetic_ls_strategy} + {frozen_b_nb}, b_LS={args.max_ls_evals})...",
         flush=True,
     )
 
@@ -334,7 +335,7 @@ def main() -> None:
                 tasks,
                 initializer_id=frozen_a_id,
                 ls_neighborhood=frozen_b_nb,
-                ls_strategy=frozen_b_strat,
+                ls_strategy=memetic_ls_strategy,
                 max_ls_evals=args.max_ls_evals,
                 evaluation_budget=budget,
                 num_threads=0,
@@ -402,6 +403,7 @@ def main() -> None:
             "config_id": frozen_b_id,
             "neighborhood": frozen_b_nb,
             "strategy": frozen_b_strat,
+            "embedded_ls_strategy": memetic_ls_strategy,
             "winner_lock_sha256": frozen_b["winner_lock_sha256"],
         },
         "selection_protocol": (
@@ -438,6 +440,7 @@ def main() -> None:
         "frozen_winner_b_id": frozen_b_id,
         "frozen_b_neighborhood": frozen_b_nb,
         "frozen_b_strategy": frozen_b_strat,
+        "embedded_ls_strategy": memetic_ls_strategy,
         "max_ls_evals": args.max_ls_evals,
         "total_runs": len(all_rows),
         "selected_benchmark_suite_sha256": _sha256_file(SUITE_JSON),
@@ -455,8 +458,9 @@ def main() -> None:
         "",
         (
             f"- **Transferred Frozen Components:** $A^* =$ `{frozen_a_id}`, "
-            f"$B^* =$ `{frozen_b_id}` (`{frozen_b_strat} + {frozen_b_nb}`, "
-            f"$b_{{\\text{{LS}}}} = {args.max_ls_evals}$)"
+            f"$B^* =$ `{frozen_b_id}` (`{frozen_b_strat} + {frozen_b_nb}`); "
+            f"Embedded LS (`phase_c.md` §3): `{memetic_ls_strategy} + {frozen_b_nb}` "
+            f"($b_{{\\text{{LS}}}} = {args.max_ls_evals}$)"
         ),
         (
             f"- **Selected & Frozen Primary Winner ($C^*$):** **`{winner_id}` — "

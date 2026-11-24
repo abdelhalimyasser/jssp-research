@@ -212,8 +212,8 @@ def main() -> None:
     a_id = str(frozen_a["winner_config_id"])
     b_id = str(frozen_b["winner_config_id"])
     b_nb = str(frozen_b["winner_neighborhood"])
-    b_strat = str(frozen_b["winner_strategy"])
     c_id = str(frozen_c["winner_config_id"])
+    c_embedded_ls_strategy = "steepest_descent"
 
     suite_doc = json.loads(SUITE_JSON.read_text("utf-8"))
     common_instances = [r for r in suite_doc["instances"] if r["in_common_pipeline_suite"]]
@@ -287,7 +287,7 @@ def main() -> None:
                 p4_tasks,
                 initializer_id=a_id,
                 ls_neighborhood=b_nb,
-                ls_strategy=b_strat,
+                ls_strategy=c_embedded_ls_strategy,
                 max_ls_evals=50,
                 evaluation_budget=budget,
             )

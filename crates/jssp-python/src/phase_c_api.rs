@@ -384,7 +384,7 @@ pub fn run_integrated_acb_batch(
                     init_id,
                     c_budget,
                     b_cfg.neighborhood(),
-                    b_cfg.strategy(),
+                    jssp_core::metaheuristics::PhaseBStrategy::SteepestDescent,
                     max_ls_evals,
                 );
                 let c_res = core_run_phase_c_ga(&instance, &cfg_c, &mut streams)?;
