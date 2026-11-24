@@ -1,0 +1,35 @@
+# Python environments and bytecode/caches
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.hypothesis/
+.coverage
+htmlcov/
+
+# Rust build artifacts
+/target/
+
+# Native extension build artifacts
+*.so
+*.pyd
+*.dylib
+
+# Build and distribution artifacts
+/build/
+/dist/
+*.egg-info/
+
+# IDE and OS artifacts
+.idea/
+.DS_Store
+
+# Temporary research files, execution logs, and large checkpoints
+# (Keep uv.lock, Cargo.lock, configs/, data/metadata/, results/manifests/, reports/, and docs/ tracked)
+*.tmp
+*.log
+results/logs/*
+!results/logs/.gitignore
+results/checkpoints/*
+!results/checkpoints/.gitignore

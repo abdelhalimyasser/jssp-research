@@ -1,0 +1,11 @@
+[package]
+name = "jssp-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Core deterministic classical JSSP scheduling and metaheuristics engine."
+
+[dependencies]
+rand_chacha.workspace = true
+sha2.workspace = true
