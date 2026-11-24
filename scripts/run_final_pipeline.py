@@ -550,10 +550,10 @@ def main() -> None:
         "## 3. Integrated Pipeline Comparison (`P1`–`P5`, Equalized Evaluation Budget)",
         "",
         (
-            "| Pipeline | Dev Med RPD | Dev Best RPD | Dev Friedman Rank | "
-            "Held-Out Med RPD | Held-Out Best RPD | Held-Out Hit BKS | Mean ms |"
+            "| Pipeline | Dev Med RPD | Dev Best RPD | Dev Hit BKS | Dev Rank | Dev ms | "
+            "Held-Out Med RPD | Held-Out Best RPD | Held-Out Hit BKS | HO Rank | HO ms |"
         ),
-        "|---|---:|---:|---:|---:|---:|---:|---:|",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     ho_by_pid = {r["pipeline_id"]: r for r in ho_sum}
     for drow in dev_sum:
@@ -561,9 +561,10 @@ def main() -> None:
         hrow = ho_by_pid[pid]
         lines.append(
             f"| `{pid}` | {drow['median_rpd_mean']:.3f}% | {drow['best_rpd_mean']:.3f}% | "
-            f"{drow['friedman_rank']:.2f} | {hrow['median_rpd_mean']:.3f}% | "
+            f"{drow['hit_bks_rate']:.3f} | {drow['friedman_rank']:.2f} | "
+            f"{drow['mean_elapsed_ms']:.1f} | {hrow['median_rpd_mean']:.3f}% | "
             f"{hrow['best_rpd_mean']:.3f}% | {hrow['hit_bks_rate']:.3f} | "
-            f"{drow['mean_elapsed_ms']:.1f} |"
+            f"{hrow['friedman_rank']:.2f} | {hrow['mean_elapsed_ms']:.1f} |"
         )
 
     lines.extend(

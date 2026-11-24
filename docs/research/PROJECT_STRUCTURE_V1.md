@@ -1,8 +1,10 @@
 # PROJECT_STRUCTURE_V1 — Architecture & Repository Specification
 
-**Status:** M0 Architectural Specification (Grounded in Actual Checked-In Tree)
+**Status:** M0 Architectural Snapshot *(Historical baseline preserved below; subsequently implemented across M1–M5 and Phases A–C with 26 unused 0-byte stub placeholders cleaned up before merge to `main`)*
 **Project:** `jssp-research` (`jssp_research` / `crates/jssp-core` / `crates/jssp-python`)
 **Primary Sources:** Checked-in directory tree, [`pyproject.toml`](file:///home/abdelhalimyasser/Downloads/jssp-research/pyproject.toml), [`AGENTS.md`](file:///home/abdelhalimyasser/Downloads/jssp-research/AGENTS.md), [`README.md`](file:///home/abdelhalimyasser/Downloads/jssp-research/README.md)
+
+> **Post-M0 Addendum:** During M1–M6 implementation, the computational engine (`crates/jssp-core`), Python bindings (`crates/jssp-python`), active experiment runners (`scripts/run_phase_{a,b,c}_pipeline.py`, `scripts/run_final_pipeline.py`, `scripts/build_benchmark_selection.py`, `scripts/fetch_benchmarks.py`, `scripts/validate_benchmarks.py`), statistical modules (`src/jssp_research/analysis/statistics.py`), and `51` Rust + `37` Python tests were fully implemented, and `26` superseded 0-byte scaffold placeholders (`scripts/{build_experiment_matrix,make_paper_outputs,merge_results,run_phase}.py`, unreferenced empty submodules in `src/jssp_research/{analysis,reporting,experiments,utils}`, empty `benches/` stubs, optional `configs/benchmarks/{large_tai,stress_tai,synthetic_generalization,extensions}.toml`, `NOTICE`, `rustfmt.toml`) were removed for repository hygiene.
 
 ---
 

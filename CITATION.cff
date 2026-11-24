@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+title: "Classical Job-Shop Scheduling Research Framework (jssp-research)"
+message: "If you use this software or experimental artifacts, please cite this repository."
+type: software
+authors:
+  - given-names: Abdelhalim
+    family-names: Yasser
+    email: abdelhalimyasser88@gmail.com
+repository-code: "https://github.com/abdelhalimyasser/jssp-research"
+license: MIT
+keywords:
+  - job-shop scheduling
+  - makespan minimization
+  - quasi-monte carlo
+  - disjunctive graph
+  - metaheuristics
+  - memetic genetic algorithms
+  - dual-view memetic algorithm
