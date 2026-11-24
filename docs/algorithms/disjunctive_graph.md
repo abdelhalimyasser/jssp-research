@@ -1,7 +1,7 @@
 # Compact Oriented Disjunctive Graph Model (Milestone M4)
 
 **Status:** Implemented & Verified in `crates/jssp-core/src/graph/mod.rs` and exposed via PyO3 (`crates/jssp-python/src/graph_api.rs`).
-**Scope:** Deterministic disjunctive-graph representation, topological sorting, and directed cycle diagnostics from validated classical rectangular JSSP schedules. Neighborhood moves (`N5`–`N8`) and the inverse OBR adapter remain deferred to Milestone M5.
+**Scope:** Deterministic disjunctive-graph representation, topological sorting, validated machine-sequence construction (M5), and directed cycle diagnostics from validated classical rectangular JSSP schedules. Neighborhood moves (`N5`–`N8`) remain deferred beyond M5.
 
 ---
 
@@ -53,7 +53,8 @@ In classical rectangular JSSP (where every job visits each machine exactly once)
 ## 4. Input Validation, Acyclicity & Cycle Diagnostics
 
 - **`DisjunctiveGraph::from_schedule(instance, schedule)`** calls `crate::feasibility::validate_schedule(instance, schedule)?` before constructing the graph, rejecting invalid schedules through M2's `JsspError` variants without duplicating feasibility code, and immediately verifies acyclicity via `topological_sort()?`.
-- **`DisjunctiveGraph::from_machine_sequences_unchecked(instance, seqs, makespan)`** validates machine coverage/ownership and constructs the adjacency lists without rejecting cycles at build time so that `topological_sort()` (and `feasibility::check_disjunctive_graph_acyclicity`) can detect malformed cyclic graphs and report concrete cycle witnesses.
+- **`DisjunctiveGraph::from_target_machine_sequences(instance, seqs)`** *(added in M5)* validates machine sequence count/ownership/length (`InvalidDisjunctiveGraph`), operation bounds (`UnexpectedOperation`), machine assignment (`OperationMachineMismatch`), uniqueness (`DuplicateOperation`), and completeness (`MissingOperation`), verifies acyclicity via `topological_sort()?`, and populates the exact longest `Source`-to-`Sink` path makespan via checked `u64` arithmetic (`TimeOverflow`).
+- **`DisjunctiveGraph::from_machine_sequences_unchecked(instance, seqs, makespan)`** validates machine coverage/ownership and constructs the adjacency lists without rejecting cycles at build time so that `topological_sort()` (and `feasibility::check_disjunctive_graph_acyclicity`) can detect malformed cyclic graphs and report concrete cycle witnesses in tests and diagnostics.
 - **Deterministic Topological Sorting (Kahn + Min-Heap):**
   - Uses `std::collections::BinaryHeap<Reverse<VertexId>>` as the ready queue.
   - Because `VertexId` orders `Source (0) < Operation(0,0) < ... < Operation(J-1,M-1) < Sink (L+1)`, simultaneous ready operations break ties strictly by `(job, op_index)`, preserving `Source` first and `Sink` last.

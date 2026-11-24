@@ -285,6 +285,43 @@ impl DisjunctiveGraph {
         Ok(graph)
     }
 
+    /// Builds and validates a target acyclic disjunctive graph from complete per-machine
+    /// operation sequences, computing and attaching the exact longest-path makespan.
+    ///
+    /// # Errors
+    /// Returns [`JsspError::InvalidDisjunctiveGraph`], [`JsspError::UnexpectedOperation`],
+    /// [`JsspError::OperationMachineMismatch`], [`JsspError::DuplicateOperation`],
+    /// [`JsspError::MissingOperation`], [`JsspError::GraphCycleDetected`], or
+    /// [`JsspError::TimeOverflow`].
+    pub fn from_target_machine_sequences(
+        instance: &JsspInstance,
+        machine_sequences: &[MachineSequence],
+    ) -> Result<Self, JsspError> {
+        let mut graph = Self::build_from_machine_sequences(instance, machine_sequences, 0)?;
+        let topo = graph.topological_sort()?;
+        let num_vertices = graph.vertices.len();
+        let mut heads = vec![0u64; num_vertices];
+        for &u in &topo {
+            let incoming = graph.incoming_arcs(u)?;
+            if incoming.is_empty() {
+                continue;
+            }
+            let mut best = 0u64;
+            for &arc_id in incoming {
+                let pred = graph.arcs[arc_id.0].from;
+                let cand = heads[pred.0]
+                    .checked_add(graph.vertices[pred.0].processing_time)
+                    .ok_or(JsspError::TimeOverflow)?;
+                if cand > best {
+                    best = cand;
+                }
+            }
+            heads[u.0] = best;
+        }
+        graph.metadata.schedule_makespan = heads[graph.sink_vertex_id().0];
+        Ok(graph)
+    }
+
     /// Builds a compact oriented disjunctive graph from machine sequences **without**
     /// running acyclicity verification at construction time.
     ///
@@ -373,30 +410,27 @@ impl DisjunctiveGraph {
                 });
             }
             for &op_id in &seq.operations {
-                let op_spec =
-                    instance
-                        .operation(op_id)
-                        .ok_or(JsspError::InvalidDisjunctiveGraph {
-                            detail: format!(
-                                "machine {m} sequence references out-of-bounds operation ({}, {})",
-                                op_id.job.0, op_id.op_index.0
-                            ),
-                        })?;
+                let op_spec = instance
+                    .operation(op_id)
+                    .ok_or(JsspError::UnexpectedOperation {
+                        job: op_id.job.0,
+                        op_index: op_id.op_index.0,
+                        num_jobs,
+                        num_machines,
+                    })?;
                 if op_spec.machine.0 != m {
-                    return Err(JsspError::InvalidDisjunctiveGraph {
-                        detail: format!(
-                            "operation ({}, {}) belongs to machine {}, not machine {m}",
-                            op_id.job.0, op_id.op_index.0, op_spec.machine.0
-                        ),
+                    return Err(JsspError::OperationMachineMismatch {
+                        job: op_id.job.0,
+                        op_index: op_id.op_index.0,
+                        expected_machine: op_spec.machine.0,
+                        actual_machine: m,
                     });
                 }
                 let flat = op_id.flat_index(num_jobs, num_machines)?;
                 if seen[flat] {
-                    return Err(JsspError::InvalidDisjunctiveGraph {
-                        detail: format!(
-                            "operation ({}, {}) appears multiple times across machine sequences",
-                            op_id.job.0, op_id.op_index.0
-                        ),
+                    return Err(JsspError::DuplicateOperation {
+                        job: op_id.job.0,
+                        op_index: op_id.op_index.0,
                     });
                 }
                 seen[flat] = true;
@@ -406,11 +440,9 @@ impl DisjunctiveGraph {
 
         if let Some((missing_flat, _)) = seen.iter().enumerate().find(|&(_, &present)| !present) {
             let missing_op = OperationId::from_flat_index(missing_flat, num_jobs, num_machines)?;
-            return Err(JsspError::InvalidDisjunctiveGraph {
-                detail: format!(
-                    "operation ({}, {}) is missing from machine sequences",
-                    missing_op.job.0, missing_op.op_index.0
-                ),
+            return Err(JsspError::MissingOperation {
+                job: missing_op.job.0,
+                op_index: missing_op.op_index.0,
             });
         }
 

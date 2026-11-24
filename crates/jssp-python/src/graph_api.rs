@@ -1,13 +1,22 @@
 //! PyO3 disjunctive-graph, critical-path, head/tail, and critical-block entrypoints.
 
 use jssp_core::decoder::decode_obr as core_decode_obr;
-use jssp_core::graph::{CriticalPathAnalysis, DisjunctiveGraph, GraphVertexKind, analyze_schedule};
+use jssp_core::graph::{
+    CriticalPathAnalysis, DisjunctiveGraph, GraphVertexKind, analyze_disjunctive_graph,
+    analyze_schedule,
+};
 use jssp_core::model::{MachineId, MachineSequence, OperationId};
-use jssp_core::representation::ObrChromosome;
+use jssp_core::representation::{
+    AdapterAuditReport, EncodedObrResult, ObrChromosome, encode_graph_to_obr,
+    round_trip_machine_sequences as core_round_trip_machine_sequences,
+    round_trip_schedule as core_round_trip_schedule,
+};
 use pyo3::prelude::*;
 
 use crate::instance_api::{jssp_err_to_py, parse_instance};
-use crate::result_api::{ScheduledOpTuple, py_ops_to_schedule};
+use crate::result_api::{
+    DecodedSchedulePayload, ScheduledOpTuple, py_ops_to_schedule, schedule_to_py_payload,
+};
 
 type MetadataTuple = (
     usize,
@@ -239,8 +248,44 @@ pub fn validate_machine_sequences_dag(
     machine_sequences: Vec<Vec<(usize, usize)>>,
 ) -> PyResult<Vec<TopoVertexTuple>> {
     let instance = parse_instance(jobs)?;
-    let seqs: Vec<MachineSequence> = machine_sequences
+    let seqs = parse_machine_sequences(machine_sequences);
+    let graph = DisjunctiveGraph::from_machine_sequences_unchecked(&instance, &seqs, 0)
+        .map_err(jssp_err_to_py)?;
+    let order = graph.topological_sort().map_err(jssp_err_to_py)?;
+    order
         .into_iter()
+        .map(|v| vertex_tuple(&graph, v.0))
+        .collect()
+}
+
+type EncodedObrTuple = (
+    Vec<usize>,
+    Vec<(usize, usize)>,
+    Vec<(usize, usize, u64, u64)>,
+    usize,
+    Vec<usize>,
+    bool,
+    bool,
+);
+
+type AuditHashesTuple = (String, String, String);
+type AuditMakespansTuple = (u64, u64, i128);
+type AuditShiftsTuple = (usize, usize, usize);
+type AuditMachineTuple = (usize, usize, bool);
+type AuditValidityTuple = (bool, bool, bool, bool);
+type AdapterAuditTuple = (
+    AuditHashesTuple,
+    AuditMakespansTuple,
+    AuditShiftsTuple,
+    AuditMachineTuple,
+    AuditValidityTuple,
+    &'static str,
+    usize,
+);
+pub type RoundTripPayload = (EncodedObrTuple, DecodedSchedulePayload, AdapterAuditTuple);
+
+fn parse_machine_sequences(raw: Vec<Vec<(usize, usize)>>) -> Vec<MachineSequence> {
+    raw.into_iter()
         .enumerate()
         .map(|(m, ops)| {
             let op_ids = ops
@@ -249,12 +294,124 @@ pub fn validate_machine_sequences_dag(
                 .collect();
             MachineSequence::new(MachineId(m), op_ids)
         })
-        .collect();
-    let graph = DisjunctiveGraph::from_machine_sequences_unchecked(&instance, &seqs, 0)
-        .map_err(jssp_err_to_py)?;
-    let order = graph.topological_sort().map_err(jssp_err_to_py)?;
-    order
-        .into_iter()
-        .map(|v| vertex_tuple(&graph, v.0))
         .collect()
+}
+
+fn encoded_obr_to_py(encoded: &EncodedObrResult) -> EncodedObrTuple {
+    (
+        encoded.chromosome.to_job_indices(),
+        encoded
+            .canonical_operations
+            .iter()
+            .map(|o| (o.job.0, o.op_index.0))
+            .collect(),
+        encoded
+            .operation_keys
+            .iter()
+            .map(|k| (k.job, k.op_index, k.head, k.completion))
+            .collect(),
+        encoded.chromosome_length,
+        encoded.job_multiplicities.clone(),
+        encoded.technological_order_preserved,
+        encoded.obr_valid,
+    )
+}
+
+fn audit_to_py(audit: &AdapterAuditReport) -> AdapterAuditTuple {
+    (
+        (
+            audit.target_graph_hash.clone(),
+            audit.generated_obr_hash.clone(),
+            audit.decoded_schedule_hash.clone(),
+        ),
+        (
+            audit.target_graph_makespan,
+            audit.decoded_schedule_makespan,
+            audit.signed_makespan_diff,
+        ),
+        (
+            audit.adapter_left_shift_count,
+            audit.adapter_right_shift_count,
+            audit.adapter_unchanged_start_count,
+        ),
+        (
+            audit.machine_order_inversion_count,
+            audit.mismatched_machine_arc_count,
+            audit.exact_machine_order_preserved,
+        ),
+        (
+            audit.exact_start_times_preserved,
+            audit.exact_completion_times_preserved,
+            audit.obr_valid,
+            audit.technological_order_preserved,
+        ),
+        audit.status.as_str(),
+        audit.total_operation_count,
+    )
+}
+
+/// Validates complete target machine sequences, builds an acyclic disjunctive graph with
+/// exact longest-path makespan, and runs M4 critical-path/block analysis in Rust.
+#[pyfunction]
+pub fn build_machine_sequence_graph(
+    jobs: Vec<Vec<(usize, u64)>>,
+    machine_sequences: Vec<Vec<(usize, usize)>>,
+) -> PyResult<GraphAnalysisPayload> {
+    let instance = parse_instance(jobs)?;
+    let seqs = parse_machine_sequences(machine_sequences);
+    let graph = DisjunctiveGraph::from_target_machine_sequences(&instance, &seqs)
+        .map_err(jssp_err_to_py)?;
+    let analysis = analyze_disjunctive_graph(&graph).map_err(jssp_err_to_py)?;
+    analysis_to_py_payload(&graph, &analysis)
+}
+
+/// Validates target machine sequences and encodes the resulting acyclic DAG into a canonical
+/// `D01-B` OBR chromosome, returning chromosome genes, canonical operations, and sort keys.
+#[pyfunction]
+pub fn encode_machine_sequences_to_obr(
+    jobs: Vec<Vec<(usize, u64)>>,
+    machine_sequences: Vec<Vec<(usize, usize)>>,
+) -> PyResult<EncodedObrTuple> {
+    let instance = parse_instance(jobs)?;
+    let seqs = parse_machine_sequences(machine_sequences);
+    let graph = DisjunctiveGraph::from_target_machine_sequences(&instance, &seqs)
+        .map_err(jssp_err_to_py)?;
+    let analysis = analyze_disjunctive_graph(&graph).map_err(jssp_err_to_py)?;
+    let encoded = encode_graph_to_obr(&instance, &graph, &analysis).map_err(jssp_err_to_py)?;
+    Ok(encoded_obr_to_py(&encoded))
+}
+
+/// Runs the complete validated machine-sequence -> canonical OBR -> M2 Serial SGS decode ->
+/// audit report pipeline in Rust.
+#[pyfunction]
+pub fn round_trip_machine_sequences(
+    jobs: Vec<Vec<(usize, u64)>>,
+    machine_sequences: Vec<Vec<(usize, usize)>>,
+) -> PyResult<RoundTripPayload> {
+    let instance = parse_instance(jobs)?;
+    let seqs = parse_machine_sequences(machine_sequences);
+    let bundle = core_round_trip_machine_sequences(&instance, &seqs).map_err(jssp_err_to_py)?;
+    Ok((
+        encoded_obr_to_py(&bundle.encoded),
+        schedule_to_py_payload(&bundle.decoded_schedule),
+        audit_to_py(&bundle.audit),
+    ))
+}
+
+/// Decodes an OBR chromosome with M2 Serial SGS and audits its canonical D01-B round-trip back
+/// through the disjunctive graph and M2 decoder.
+#[pyfunction]
+pub fn round_trip_obr_schedule(
+    jobs: Vec<Vec<(usize, u64)>>,
+    chromosome: Vec<usize>,
+) -> PyResult<RoundTripPayload> {
+    let instance = parse_instance(jobs)?;
+    let obr = ObrChromosome::from_job_indices(&chromosome);
+    let schedule = core_decode_obr(&instance, &obr).map_err(jssp_err_to_py)?;
+    let bundle = core_round_trip_schedule(&instance, &schedule).map_err(jssp_err_to_py)?;
+    Ok((
+        encoded_obr_to_py(&bundle.encoded),
+        schedule_to_py_payload(&bundle.decoded_schedule),
+        audit_to_py(&bundle.audit),
+    ))
 }

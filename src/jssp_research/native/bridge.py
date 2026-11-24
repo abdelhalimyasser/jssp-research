@@ -283,6 +283,90 @@ class DisjunctiveGraphAnalysisResult:
         }
 
 
+@dataclass(frozen=True, slots=True)
+class CanonicalOperationKeyRecord:
+    """Canonical `D01-B` sorting key `(head, completion, job, op_index)`."""
+
+    job: int
+    op_index: int
+    head: int
+    completion: int
+
+
+@dataclass(frozen=True, slots=True)
+class EncodedObrResultRecord:
+    """Immutable Python container mirroring Rust `EncodedObrResult`."""
+
+    chromosome: tuple[int, ...]
+    canonical_operations: tuple[tuple[int, int], ...]
+    operation_keys: tuple[CanonicalOperationKeyRecord, ...]
+    chromosome_length: int
+    job_multiplicities: tuple[int, ...]
+    technological_order_preserved: bool
+    obr_valid: bool
+
+
+@dataclass(frozen=True, slots=True)
+class AdapterAuditReportRecord:
+    """Immutable Python container mirroring Rust `AdapterAuditReport`."""
+
+    target_graph_hash: str
+    generated_obr_hash: str
+    decoded_schedule_hash: str
+    target_graph_makespan: int
+    decoded_schedule_makespan: int
+    signed_makespan_diff: int
+    adapter_left_shift_count: int
+    adapter_right_shift_count: int
+    adapter_unchanged_start_count: int
+    machine_order_inversion_count: int
+    mismatched_machine_arc_count: int
+    exact_machine_order_preserved: bool
+    exact_start_times_preserved: bool
+    exact_completion_times_preserved: bool
+    obr_valid: bool
+    technological_order_preserved: bool
+    status: str
+    total_operation_count: int
+
+    @property
+    def is_exact(self) -> bool:
+        """Return `True` iff the round-trip status is strictly `'exact'`."""
+        return self.status == "exact"
+
+    def to_dict(self) -> dict[str, object]:
+        """Serialize the adapter audit telemetry to JSON-compatible primitives."""
+        return {
+            "target_graph_hash": self.target_graph_hash,
+            "generated_obr_hash": self.generated_obr_hash,
+            "decoded_schedule_hash": self.decoded_schedule_hash,
+            "target_graph_makespan": self.target_graph_makespan,
+            "decoded_schedule_makespan": self.decoded_schedule_makespan,
+            "signed_makespan_diff": self.signed_makespan_diff,
+            "adapter_left_shift_count": self.adapter_left_shift_count,
+            "adapter_right_shift_count": self.adapter_right_shift_count,
+            "adapter_unchanged_start_count": self.adapter_unchanged_start_count,
+            "machine_order_inversion_count": self.machine_order_inversion_count,
+            "mismatched_machine_arc_count": self.mismatched_machine_arc_count,
+            "exact_machine_order_preserved": self.exact_machine_order_preserved,
+            "exact_start_times_preserved": self.exact_start_times_preserved,
+            "exact_completion_times_preserved": self.exact_completion_times_preserved,
+            "obr_valid": self.obr_valid,
+            "technological_order_preserved": self.technological_order_preserved,
+            "status": self.status,
+            "total_operation_count": self.total_operation_count,
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class AdapterRoundTripResult:
+    """Complete Python bundle for an OBR <-> Machine-Sequence adapter round-trip check."""
+
+    encoded: EncodedObrResultRecord
+    decoded_schedule: DecodedScheduleResult
+    audit: AdapterAuditReportRecord
+
+
 def _normalize_jobs(jobs: InstanceSpec) -> list[list[tuple[int, int]]]:
     return [[(int(machine), int(duration)) for machine, duration in job_row] for job_row in jobs]
 
@@ -763,4 +847,115 @@ def validate_machine_sequences_dag(
     return tuple(
         GraphVertexRecord(vertex_id=int(v_id), kind=str(kind), op_id=_pair_or_none(op))
         for v_id, kind, op in topo_raw
+    )
+
+
+def _encoded_payload_to_record(
+    payload: tuple[
+        list[int],
+        list[tuple[int, int]],
+        list[tuple[int, int, int, int]],
+        int,
+        list[int],
+        bool,
+        bool,
+    ],
+) -> EncodedObrResultRecord:
+    genes, canon_ops, op_keys, chrom_len, multiplicities, tech_ok, obr_valid = payload
+    return EncodedObrResultRecord(
+        chromosome=tuple(int(g) for g in genes),
+        canonical_operations=tuple((int(j), int(k)) for j, k in canon_ops),
+        operation_keys=tuple(
+            CanonicalOperationKeyRecord(job=int(j), op_index=int(k), head=int(h), completion=int(c))
+            for j, k, h, c in op_keys
+        ),
+        chromosome_length=int(chrom_len),
+        job_multiplicities=tuple(int(m) for m in multiplicities),
+        technological_order_preserved=bool(tech_ok),
+        obr_valid=bool(obr_valid),
+    )
+
+
+def _audit_payload_to_record(
+    payload: tuple[
+        tuple[str, str, str],
+        tuple[int, int, int],
+        tuple[int, int, int],
+        tuple[int, int, bool],
+        tuple[bool, bool, bool, bool],
+        str,
+        int,
+    ],
+) -> AdapterAuditReportRecord:
+    hashes, makespans, shifts, machine_diff, preservation, status, total_ops = payload
+    return AdapterAuditReportRecord(
+        target_graph_hash=str(hashes[0]),
+        generated_obr_hash=str(hashes[1]),
+        decoded_schedule_hash=str(hashes[2]),
+        target_graph_makespan=int(makespans[0]),
+        decoded_schedule_makespan=int(makespans[1]),
+        signed_makespan_diff=int(makespans[2]),
+        adapter_left_shift_count=int(shifts[0]),
+        adapter_right_shift_count=int(shifts[1]),
+        adapter_unchanged_start_count=int(shifts[2]),
+        machine_order_inversion_count=int(machine_diff[0]),
+        mismatched_machine_arc_count=int(machine_diff[1]),
+        exact_machine_order_preserved=bool(machine_diff[2]),
+        exact_start_times_preserved=bool(preservation[0]),
+        exact_completion_times_preserved=bool(preservation[1]),
+        obr_valid=bool(preservation[2]),
+        technological_order_preserved=bool(preservation[3]),
+        status=str(status),
+        total_operation_count=int(total_ops),
+    )
+
+
+def build_machine_sequence_graph(
+    jobs: InstanceSpec,
+    machine_sequences: Sequence[Sequence[tuple[int, int]]],
+) -> DisjunctiveGraphAnalysisResult:
+    """Validate machine sequences, build an acyclic DAG, and compute critical-path analysis."""
+    seqs = [[(int(j), int(k)) for j, k in seq] for seq in machine_sequences]
+    payload = _native.build_machine_sequence_graph(_normalize_jobs(jobs), seqs)
+    return _graph_payload_to_result(payload)
+
+
+def encode_machine_sequences_to_obr(
+    jobs: InstanceSpec,
+    machine_sequences: Sequence[Sequence[tuple[int, int]]],
+) -> EncodedObrResultRecord:
+    """Encode a validated machine-sequence graph into a canonical `D01-B` OBR chromosome."""
+    seqs = [[(int(j), int(k)) for j, k in seq] for seq in machine_sequences]
+    payload = _native.encode_machine_sequences_to_obr(_normalize_jobs(jobs), seqs)
+    return _encoded_payload_to_record(payload)
+
+
+def round_trip_machine_sequences(
+    jobs: InstanceSpec,
+    machine_sequences: Sequence[Sequence[tuple[int, int]]],
+) -> AdapterRoundTripResult:
+    """Validate machine sequences, encode to OBR, decode with Serial SGS, and return audit."""
+    seqs = [[(int(j), int(k)) for j, k in seq] for seq in machine_sequences]
+    encoded_raw, schedule_raw, audit_raw = _native.round_trip_machine_sequences(
+        _normalize_jobs(jobs), seqs
+    )
+    return AdapterRoundTripResult(
+        encoded=_encoded_payload_to_record(encoded_raw),
+        decoded_schedule=_payload_to_result(schedule_raw),
+        audit=_audit_payload_to_record(audit_raw),
+    )
+
+
+def round_trip_obr_schedule(
+    jobs: InstanceSpec,
+    chromosome: Sequence[int],
+) -> AdapterRoundTripResult:
+    """Decode an OBR chromosome via M2 Serial SGS and audit its canonical D01-B round trip."""
+    encoded_raw, schedule_raw, audit_raw = _native.round_trip_obr_schedule(
+        _normalize_jobs(jobs), [int(gene) for gene in chromosome]
+    )
+    return AdapterRoundTripResult(
+        encoded=_encoded_payload_to_record(encoded_raw),
+        decoded_schedule=_payload_to_result(schedule_raw),
+        audit=_audit_payload_to_record(audit_raw),
     )

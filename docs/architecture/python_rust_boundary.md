@@ -40,6 +40,10 @@
 | `get_critical_blocks(jobs, schedule)` | `jobs`, `DecodedScheduleResult` | `tuple[CriticalBlockRecord, ...]` | Returns maximal contiguous critical machine runs of length `>= 2`. |
 | `get_graph_makespan(jobs, schedule)` | `jobs`, `DecodedScheduleResult` | `int` | Returns verified longest `Source`-to-`Sink` path length matching schedule makespan. |
 | `validate_machine_sequences_dag(jobs, machine_sequences)` | `jobs`, per-machine `(job, op_index)` lists | `tuple[GraphVertexRecord, ...]` | Verifies machine-sequence DAG acyclicity in Rust or raises `ValueError` with cycle witness. |
+| `build_machine_sequence_graph(jobs, machine_sequences)` | `jobs`, per-machine `(job, op_index)` lists | `DisjunctiveGraphAnalysisResult` | Validates complete machine sequences, builds acyclic DAG with longest-path makespan, and computes M4 analysis in Rust. |
+| `encode_machine_sequences_to_obr(jobs, machine_sequences)` | `jobs`, per-machine `(job, op_index)` lists | `EncodedObrResultRecord` | Validates target machine sequences and returns canonical `D01-B` OBR chromosome, sorted operations, and `(head, completion, job, op_index)` keys. |
+| `round_trip_machine_sequences(jobs, machine_sequences)` | `jobs`, per-machine `(job, op_index)` lists | `AdapterRoundTripResult` | Runs target graph validation $\to$ OBR encoding $\to$ M2 `decode_obr` $\to$ quantitative `AdapterAuditReportRecord` in Rust. |
+| `round_trip_obr_schedule(jobs, chromosome)` | `jobs`, `Sequence[int]` | `AdapterRoundTripResult` | Decodes OBR via M2 Serial SGS and audits canonical `D01-B` round-trip preservation back through Rust. |
 
 ---
 
@@ -49,7 +53,7 @@
 - **Scheduled Operation Tuple (`RawScheduledOperationTuple`):**
   `(job, op_index, machine, start_time, completion_time, processing_time)` mapped in Python to frozen dataclass `ScheduledOperationRecord`.
 - **Machine Sequences:** `tuple[tuple[tuple[int, int], ...], ...]` ordered by machine index `0..M-1` and processing interval order `(start_time, completion_time, job, op_index)`.
-- **Disjunctive Graph Analysis Records:** Frozen dataclasses `GraphMetadataRecord`, `GraphVertexRecord`, `GraphArcRecord`, `OperationCriticalityRecord`, `CriticalBlockRecord`, `RepresentativeCriticalPathRecord`, and `DisjunctiveGraphAnalysisResult` (with `.to_dict()` returning JSON-serializable primitives).
+- **Disjunctive Graph & Adapter Records:** Frozen dataclasses `GraphMetadataRecord`, `GraphVertexRecord`, `GraphArcRecord`, `OperationCriticalityRecord`, `CriticalBlockRecord`, `RepresentativeCriticalPathRecord`, `DisjunctiveGraphAnalysisResult`, `CanonicalOperationKeyRecord`, `EncodedObrResultRecord`, `AdapterAuditReportRecord`, and `AdapterRoundTripResult` (with `.to_dict()` returning JSON-serializable primitives).
 
 ---
 

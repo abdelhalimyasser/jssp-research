@@ -48,5 +48,18 @@ fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
         graph_api::validate_machine_sequences_dag,
         m
     )?)?;
+    m.add_function(wrap_pyfunction!(
+        graph_api::build_machine_sequence_graph,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        graph_api::encode_machine_sequences_to_obr,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        graph_api::round_trip_machine_sequences,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(graph_api::round_trip_obr_schedule, m)?)?;
     Ok(())
 }
