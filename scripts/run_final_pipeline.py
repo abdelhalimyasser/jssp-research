@@ -577,8 +577,8 @@ def main() -> None:
     )
     for wr in ho_stats["paired_wilcoxon_holm"]:
         lines.append(
-            f"| `{wr['method_a']}` vs `{wr['method_b']}` | {wr['p_value_raw']:.3e} | "
-            f"{wr['p_value_holm']:.3e} | {wr['significant_0_05']} | "
+            f"| `{wr['candidate']}` vs `{wr['reference']}` | {wr['raw_p']:.3e} | "
+            f"{wr['holm_p']:.3e} | {wr['significant_0_05']} | "
             f"{wr['vargha_delaney_a12']:.3f} | {wr['cliffs_delta']:.3f} |"
         )
 

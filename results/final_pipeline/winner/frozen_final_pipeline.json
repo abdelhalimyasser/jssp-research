@@ -1,0 +1,43 @@
+{
+  "schema_version": "jssp-final-pipeline-winner-v1",
+  "frozen_at_utc": "2026-11-24T19:52:04.022364+00:00",
+  "components": {
+    "A_star": "A11",
+    "B_star": "B21",
+    "C_star": "C02"
+  },
+  "best_overall_pipeline": "P3_FrozenA_FrozenB",
+  "development_metrics": {
+    "pipeline_id": "P3_FrozenA_FrozenB",
+    "n_instances": 16,
+    "n_runs": 320,
+    "feasible_rate": 1.0,
+    "best_rpd_mean": 2.155544851240893,
+    "mean_rpd_mean": 3.875883276021174,
+    "median_rpd_mean": 3.7823453879123763,
+    "best_cmax_mean": 1317.1875,
+    "median_cmax_mean": 1342.3125,
+    "within_instance_std_mean": 16.341350927748277,
+    "anytime_rpd_auc_mean": 5.320452364741828,
+    "hit_bks_rate": 0.240625,
+    "mean_elapsed_ms": 544.392838375,
+    "friedman_rank": 1.5625
+  },
+  "held_out_validation_metrics": {
+    "pipeline_id": "P3_FrozenA_FrozenB",
+    "n_instances": 16,
+    "n_runs": 320,
+    "feasible_rate": 1.0,
+    "best_rpd_mean": 1.74172986339826,
+    "mean_rpd_mean": 4.030984115766485,
+    "median_rpd_mean": 3.9587688762988993,
+    "best_cmax_mean": 1141.8125,
+    "median_cmax_mean": 1168.90625,
+    "within_instance_std_mean": 17.49913673260626,
+    "anytime_rpd_auc_mean": 5.689364277879665,
+    "hit_bks_rate": 0.021875,
+    "mean_elapsed_ms": 532.025637571875,
+    "friedman_rank": 1.25
+  },
+  "winner_lock_sha256": "9541b421f0137a170a849624ae08d6818fcca46503c8e5e7f738e82b42a47787"
+}
