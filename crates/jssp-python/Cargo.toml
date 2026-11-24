@@ -1,0 +1,17 @@
+[package]
+name = "jssp-python"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "PyO3 Python extension module for the jssp-research framework."
+
+[lib]
+name = "_native"
+crate-type = ["cdylib"]
+test = false
+doctest = false
+
+[dependencies]
+jssp-core.workspace = true
+pyo3.workspace = true

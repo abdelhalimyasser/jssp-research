@@ -1,0 +1,5 @@
+# Classical 3x3 JSSP fixture (Xie et al., 2023 Table 1; 0-based machine IDs)
+3 3
+0 2 1 1 2 3
+0 1 2 2 1 2
+1 5 0 2 2 1

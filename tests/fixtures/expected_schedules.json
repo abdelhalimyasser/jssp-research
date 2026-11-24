@@ -1,0 +1,87 @@
+{
+  "fixtures": {
+    "tiny_jssp": {
+      "relative_path": "tests/fixtures/tiny_jssp.txt",
+      "format_id": "standard_jssp_0based_v1",
+      "parser_version": "1.0.0",
+      "source": "Xie et al. (2023), Table 1 / docs/algorithms/obr_decoder.md Section 4",
+      "source_version_or_date": "2023 (verified against M2 worked fixture 2026-11-23)",
+      "license": "Academic research benchmark fixture",
+      "retrieval_date": "2026-11-23",
+      "num_jobs": 3,
+      "num_machines": 3,
+      "machine_routes": [
+        [0, 1, 2],
+        [0, 2, 1],
+        [1, 0, 2]
+      ],
+      "processing_times": [
+        [2, 1, 3],
+        [1, 2, 2],
+        [5, 2, 1]
+      ],
+      "raw_sha256": "7cf72303e042fdfa980f7507cf5a1c4795291faf5cf5adc69940453d1ea192c7",
+      "canonical_sha256": "29ca8e5c1acd6ff11cf73475c2a6bb62f24647f02b93211aca5f006734d09ee4",
+      "expected_gap_insertion_schedule": {
+        "obr": [1, 2, 2, 2, 1, 0, 0, 0, 1],
+        "makespan": 11
+      }
+    },
+    "ft06": {
+      "relative_path": "tests/fixtures/medium_jssp.txt",
+      "format_id": "standard_jssp_0based_v1",
+      "parser_version": "1.0.0",
+      "source": "H. Fisher and G. L. Thompson (1963), Industrial Scheduling / JSPLib",
+      "source_version_or_date": "OR-Library / JSPLib standard ft06 (retrieved 2026-11-23)",
+      "license": "Public academic OR benchmark (JSPLib / OR-Library)",
+      "retrieval_date": "2026-11-23",
+      "num_jobs": 6,
+      "num_machines": 6,
+      "proven_optimum": 55,
+      "machine_routes": [
+        [2, 0, 1, 3, 5, 4],
+        [1, 2, 4, 5, 0, 3],
+        [2, 3, 5, 0, 1, 4],
+        [1, 0, 2, 3, 4, 5],
+        [2, 1, 4, 5, 0, 3],
+        [1, 3, 5, 0, 4, 2]
+      ],
+      "processing_times": [
+        [1, 3, 6, 7, 3, 6],
+        [8, 5, 10, 10, 10, 4],
+        [5, 4, 8, 9, 1, 7],
+        [5, 5, 5, 3, 8, 9],
+        [9, 3, 5, 4, 3, 1],
+        [3, 3, 9, 10, 4, 1]
+      ],
+      "raw_sha256": "e8effb107e91728e101a3b257bd2d23c59bd398c75510df69650eea394370d48",
+      "canonical_sha256": "1c2c4a9a1a5d13f5ec463e5f264e27c04499aadb6760038fb2aaa1ce98a74ad8"
+    }
+  },
+  "embedded_format_fixtures": {
+    "tiny_jssp_1based": {
+      "format_id": "standard_jssp_1based_v1",
+      "parser_version": "1.0.0",
+      "source": "1-based machine indexing representation of Xie et al. (2023) Table 1",
+      "source_version_or_date": "2026-11-23",
+      "license": "Academic research benchmark fixture",
+      "num_jobs": 3,
+      "num_machines": 3,
+      "text": "# 1-based machines test fixture\n3 3\n1 2 2 1 3 3\n1 1 3 2 2 2\n2 5 1 2 3 1\n",
+      "raw_sha256": "6f71319d4c60796965b7e423b2fc0e8743ca2a1602b01784ca9278b4a83d5d2a",
+      "canonical_sha256": "29ca8e5c1acd6ff11cf73475c2a6bb62f24647f02b93211aca5f006734d09ee4"
+    },
+    "ft06_taillard": {
+      "format_id": "taillard_matrix_v1",
+      "parser_version": "1.0.0",
+      "source": "Taillard (1993) dual-matrix representation of Fisher & Thompson (1963) ft06",
+      "source_version_or_date": "2026-11-23",
+      "license": "Public academic OR benchmark fixture",
+      "num_jobs": 6,
+      "num_machines": 6,
+      "text": "6 6\nTimes\n1 3 6 7 3 6\n8 5 10 10 10 4\n5 4 8 9 1 7\n5 5 5 3 8 9\n9 3 5 4 3 1\n3 3 9 10 4 1\nMachines\n3 1 2 4 6 5\n2 3 5 6 1 4\n3 4 6 1 2 5\n2 1 3 4 5 6\n3 2 5 6 1 4\n2 4 6 1 5 3\n",
+      "raw_sha256": "81392b76856eee4383a192f4192bf23ab03601e8e5266f2e10573f578eabb378",
+      "canonical_sha256": "1c2c4a9a1a5d13f5ec463e5f264e27c04499aadb6760038fb2aaa1ce98a74ad8"
+    }
+  }
+}
