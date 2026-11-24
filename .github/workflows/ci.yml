@@ -23,7 +23,7 @@ jobs:
 
       - name: Install pinned Rust 1.100.0 toolchain
         run: |
-          rustup toolchain install 1.100.0 --profile default --component rustfmt clippy
+          rustup toolchain install 1.100.0 --profile default -c rustfmt -c clippy
           rustup default 1.100.0
 
       - name: Sync Python dependencies and build native extension
