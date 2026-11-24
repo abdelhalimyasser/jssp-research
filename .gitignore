@@ -34,3 +34,7 @@ results/logs/*
 results/checkpoints/*
 !results/checkpoints/.gitignore
 results/raw/phase_a/
+results/phase_a/raw/
+results/phase_b/raw/
+results/phase_c/raw/
+results/final_pipeline/raw/

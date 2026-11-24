@@ -71,7 +71,7 @@ type RngMetadataTuple = (
 
 type DerivedStreamRow = (String, String, String, Vec<u64>);
 
-fn build_pairing_policy(
+pub(crate) fn build_pairing_policy(
     pairing_mode: &str,
     pairing_group: String,
     configuration_id: String,

@@ -44,6 +44,11 @@
 | `encode_machine_sequences_to_obr(jobs, machine_sequences)` | `jobs`, per-machine `(job, op_index)` lists | `EncodedObrResultRecord` | Validates target machine sequences and returns canonical `D01-B` OBR chromosome, sorted operations, and `(head, completion, job, op_index)` keys. |
 | `round_trip_machine_sequences(jobs, machine_sequences)` | `jobs`, per-machine `(job, op_index)` lists | `AdapterRoundTripResult` | Runs target graph validation $\to$ OBR encoding $\to$ M2 `decode_obr` $\to$ quantitative `AdapterAuditReportRecord` in Rust. |
 | `round_trip_obr_schedule(jobs, chromosome)` | `jobs`, `Sequence[int]` | `AdapterRoundTripResult` | Decodes OBR via M2 Serial SGS and audits canonical `D01-B` round-trip preservation back through Rust. |
+| `list_phase_a_initializers()` | None | `tuple[PhaseAInitializerSpec, ...]` | Returns authoritative metadata for all 24 Phase A initializers (`A01`–`A24`). |
+| `default_phase_a_ga_budget(num_jobs, num_machines)` | `int, int` | `int` | Computes `clamp(64 * ceil(2.5 * J * M), 6400, 64000)`. |
+| `evaluate_phase_a_initializer(...)` | `jobs`, `initializer_id`, `instance_id`, seed args | `InitializerEvaluationResult` | Executes standalone Layer A initialization, M2 decoding, feasibility validation, and diversity/discrepancy diagnostics in Rust. |
+| `run_phase_a_single(...)` | `jobs`, `initializer_id`, `instance_id`, GA & seed args | `PhaseARunResultRecord` | Executes one complete `(initializer -> Classical GA C01)` run inside Rust. |
+| `run_phase_a_batch(...)` | `jobs`, `instance_id`, task list, GA args, `num_threads` | `tuple[PhaseARunResultRecord, ...]` | Releases Python GIL (`py.detach`) and executes batch of `(initializer, replicate)` tasks via Rust `std::thread::scope`. |
 
 ---
 

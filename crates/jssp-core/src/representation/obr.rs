@@ -67,6 +67,11 @@ impl ObrChromosome {
         &self.genes
     }
 
+    /// Mutable slice of typed job IDs for in-place validity-preserving genetic operators.
+    pub fn genes_mut(&mut self) -> &mut [JobId] {
+        &mut self.genes
+    }
+
     /// Returns the chromosome as plain `usize` job indices.
     #[must_use]
     pub fn to_job_indices(&self) -> Vec<usize> {

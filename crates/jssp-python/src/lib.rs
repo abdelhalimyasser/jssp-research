@@ -6,6 +6,7 @@
 
 mod graph_api;
 mod instance_api;
+mod phase_a_api;
 mod result_api;
 mod run_api;
 mod validation_api;
@@ -61,5 +62,13 @@ fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
         m
     )?)?;
     m.add_function(wrap_pyfunction!(graph_api::round_trip_obr_schedule, m)?)?;
+    m.add_function(wrap_pyfunction!(phase_a_api::list_phase_a_initializers, m)?)?;
+    m.add_function(wrap_pyfunction!(phase_a_api::default_phase_a_ga_budget, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        phase_a_api::evaluate_phase_a_initializer,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(phase_a_api::run_phase_a_single, m)?)?;
+    m.add_function(wrap_pyfunction!(phase_a_api::run_phase_a_batch, m)?)?;
     Ok(())
 }

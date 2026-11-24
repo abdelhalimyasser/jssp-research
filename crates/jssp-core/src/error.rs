@@ -138,6 +138,15 @@ pub enum JsspError {
         head_plus_proc_plus_tail: u64,
         graph_makespan: u64,
     },
+    /// Standard Sobol sequence dimension exceeded supported table size (`d_max = 21,201`).
+    UnsupportedQmcDimension {
+        requested_dimension: usize,
+        max_supported_dimension: usize,
+    },
+    /// Invalid Phase A initializer identifier or parameter configuration.
+    InvalidInitializerConfiguration { detail: String },
+    /// Invalid Classical GA parameter or evaluation budget configuration.
+    InvalidGeneticConfiguration { detail: String },
 }
 
 impl fmt::Display for JsspError {
@@ -343,6 +352,19 @@ impl fmt::Display for JsspError {
                 f,
                 "operation ({job}, {op_index}) has negative slack: head+p+tail={head_plus_proc_plus_tail} > C_max={graph_makespan}"
             ),
+            Self::UnsupportedQmcDimension {
+                requested_dimension,
+                max_supported_dimension,
+            } => write!(
+                f,
+                "QMC dimension {requested_dimension} exceeds maximum supported Sobol dimension {max_supported_dimension}"
+            ),
+            Self::InvalidInitializerConfiguration { detail } => {
+                write!(f, "invalid Phase A initializer configuration: {detail}")
+            }
+            Self::InvalidGeneticConfiguration { detail } => {
+                write!(f, "invalid Classical GA configuration: {detail}")
+            }
         }
     }
 }

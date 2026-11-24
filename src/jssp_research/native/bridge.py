@@ -959,3 +959,277 @@ def round_trip_obr_schedule(
         decoded_schedule=_payload_to_result(schedule_raw),
         audit=_audit_payload_to_record(audit_raw),
     )
+
+
+@dataclass(frozen=True, slots=True)
+class PhaseAInitializerSpec:
+    """Metadata describing one Phase A initial population configuration (`A01`–`A24`)."""
+
+    code: str
+    name: str
+    alpha: float | None
+    is_deterministic: bool
+    uses_sobol: bool
+    has_dyadic_sobol_net_balance: bool
+
+
+@dataclass(frozen=True, slots=True)
+class PopulationDiagnosticsRecord:
+    """Immutable Layer A / final-population diagnostic statistics returned from Rust."""
+
+    population_size: int
+    feasible_count: int
+    unique_chromosomes: int
+    unique_schedules: int
+    best_makespan: int
+    worst_makespan: int
+    mean_makespan: float
+    median_makespan: float
+    std_makespan: float
+    obr_duplicate_rate: float
+    schedule_duplicate_rate: float
+    obr_hamming_diversity: float
+    schedule_diversity: float
+    qmc_1d_ks_discrepancy: float | None
+    generation_elapsed_ns: int
+    decode_elapsed_ns: int
+
+
+@dataclass(frozen=True, slots=True)
+class GenerationSnapshotRecord:
+    """Single generation telemetry record from a Classical GA (`C01`) trajectory."""
+
+    generation: int
+    evals_used: int
+    best_makespan: int
+    mean_makespan: float
+    obr_hamming_diversity: float
+    unique_chromosomes: int
+
+
+@dataclass(frozen=True, slots=True)
+class InitializerEvaluationResult:
+    """Output from standalone Layer A initial population evaluation."""
+
+    diagnostics: PopulationDiagnosticsRecord
+    chromosomes: tuple[tuple[int, ...], ...]
+    makespans: tuple[int, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class PhaseARunResultRecord:
+    """Complete Layer A + Layer B telemetry bundle from one `(initializer, C01)` GA run."""
+
+    initializer_id: str
+    pop_size: int
+    evaluation_budget: int
+    evals_used: int
+    generations_executed: int
+    best_makespan: int
+    best_found_eval: int
+    best_found_generation: int
+    best_schedule_hash: str
+    anytime_cmax_auc: float
+    crossover_count: int
+    mutation_count: int
+    total_elapsed_ns: int
+    initial: PopulationDiagnosticsRecord
+    final_pop: PopulationDiagnosticsRecord
+    best_chromosome: tuple[int, ...]
+    trajectory: tuple[GenerationSnapshotRecord, ...]
+
+
+def _diag_payload_to_record(
+    payload: tuple[
+        tuple[int, int, int, int],
+        tuple[int, int, float, float, float],
+        tuple[float, float, float, float, float | None],
+        tuple[int, int],
+    ],
+) -> PopulationDiagnosticsRecord:
+    counts, cmax, div, timing = payload
+    return PopulationDiagnosticsRecord(
+        population_size=int(counts[0]),
+        feasible_count=int(counts[1]),
+        unique_chromosomes=int(counts[2]),
+        unique_schedules=int(counts[3]),
+        best_makespan=int(cmax[0]),
+        worst_makespan=int(cmax[1]),
+        mean_makespan=float(cmax[2]),
+        median_makespan=float(cmax[3]),
+        std_makespan=float(cmax[4]),
+        obr_duplicate_rate=float(div[0]),
+        schedule_duplicate_rate=float(div[1]),
+        obr_hamming_diversity=float(div[2]),
+        schedule_diversity=float(div[3]),
+        qmc_1d_ks_discrepancy=(float(div[4]) if div[4] is not None else None),
+        generation_elapsed_ns=int(timing[0]),
+        decode_elapsed_ns=int(timing[1]),
+    )
+
+
+def _phase_a_run_payload_to_record(
+    payload: tuple[
+        tuple[str, int, int, int, int, int, int, int, str, float],
+        tuple[int, int, int],
+        tuple,
+        tuple,
+        list[int],
+        list[tuple[int, int, int, float, float, int]],
+    ],
+) -> PhaseARunResultRecord:
+    summary, op_counts, init_raw, final_raw, best_chr, traj_raw = payload
+    return PhaseARunResultRecord(
+        initializer_id=str(summary[0]),
+        pop_size=int(summary[1]),
+        evaluation_budget=int(summary[2]),
+        evals_used=int(summary[3]),
+        generations_executed=int(summary[4]),
+        best_makespan=int(summary[5]),
+        best_found_eval=int(summary[6]),
+        best_found_generation=int(summary[7]),
+        best_schedule_hash=str(summary[8]),
+        anytime_cmax_auc=float(summary[9]),
+        crossover_count=int(op_counts[0]),
+        mutation_count=int(op_counts[1]),
+        total_elapsed_ns=int(op_counts[2]),
+        initial=_diag_payload_to_record(init_raw),
+        final_pop=_diag_payload_to_record(final_raw),
+        best_chromosome=tuple(int(g) for g in best_chr),
+        trajectory=tuple(
+            GenerationSnapshotRecord(
+                generation=int(g),
+                evals_used=int(ev),
+                best_makespan=int(bm),
+                mean_makespan=float(mm),
+                obr_hamming_diversity=float(hd),
+                unique_chromosomes=int(uc),
+            )
+            for g, ev, bm, mm, hd, uc in traj_raw
+        ),
+    )
+
+
+def list_phase_a_initializers() -> tuple[PhaseAInitializerSpec, ...]:
+    """Return authoritative Rust metadata across all 24 Phase A initializers (`A01`–`A24`)."""
+    return tuple(
+        PhaseAInitializerSpec(
+            code=str(code),
+            name=str(name),
+            alpha=(float(alpha) if alpha is not None else None),
+            is_deterministic=bool(det),
+            uses_sobol=bool(sobol),
+            has_dyadic_sobol_net_balance=bool(dyadic),
+        )
+        for code, name, alpha, det, sobol, dyadic in _native.list_phase_a_initializers()
+    )
+
+
+def default_phase_a_ga_budget(num_jobs: int, num_machines: int) -> int:
+    """Return the size-scaled Phase A Classical GA evaluation budget from Rust."""
+    return int(_native.default_phase_a_ga_budget(int(num_jobs), int(num_machines)))
+
+
+def evaluate_phase_a_initializer(
+    jobs: InstanceSpec,
+    initializer_id: str,
+    instance_id: str,
+    *,
+    pop_size: int = 64,
+    replicate_index: int = 0,
+    master_seed_override: int | None = None,
+    pairing_mode: str = "paired_init",
+    pairing_group: str = "phase_a_shared_init",
+    configuration_id: str | None = None,
+) -> InitializerEvaluationResult:
+    """Generate and decode one standalone Layer A initial population in Rust."""
+    diag_raw, chrs_raw, cmax_raw = _native.evaluate_phase_a_initializer(
+        _normalize_jobs(jobs),
+        initializer_id,
+        instance_id,
+        int(pop_size),
+        int(replicate_index),
+        master_seed_override,
+        pairing_mode,
+        pairing_group,
+        configuration_id,
+    )
+    return InitializerEvaluationResult(
+        diagnostics=_diag_payload_to_record(diag_raw),
+        chromosomes=tuple(tuple(int(g) for g in chr_row) for chr_row in chrs_raw),
+        makespans=tuple(int(m) for m in cmax_raw),
+    )
+
+
+def run_phase_a_single(
+    jobs: InstanceSpec,
+    initializer_id: str,
+    instance_id: str,
+    *,
+    pop_size: int = 64,
+    tournament_size: int = 2,
+    crossover_rate: float = 0.85,
+    mutation_rate: float = 0.15,
+    elitism_count: int = 2,
+    evaluation_budget: int | None = None,
+    replicate_index: int = 0,
+    master_seed_override: int | None = None,
+    pairing_mode: str = "paired_init",
+    pairing_group: str = "phase_a_shared_init",
+    configuration_id: str | None = None,
+    trajectory_mode: str = "full",
+) -> PhaseARunResultRecord:
+    """Run one Phase A `(initializer -> Classical GA C01)` experiment cleanly inside Rust."""
+    payload = _native.run_phase_a_single(
+        _normalize_jobs(jobs),
+        initializer_id,
+        instance_id,
+        int(pop_size),
+        int(tournament_size),
+        float(crossover_rate),
+        float(mutation_rate),
+        int(elitism_count),
+        (int(evaluation_budget) if evaluation_budget is not None else None),
+        int(replicate_index),
+        master_seed_override,
+        pairing_mode,
+        pairing_group,
+        configuration_id,
+        trajectory_mode,
+    )
+    return _phase_a_run_payload_to_record(payload)
+
+
+def run_phase_a_batch(
+    jobs: InstanceSpec,
+    instance_id: str,
+    tasks: Sequence[tuple[str, int, int | None, str, str, str]],
+    *,
+    pop_size: int = 64,
+    tournament_size: int = 2,
+    crossover_rate: float = 0.85,
+    mutation_rate: float = 0.15,
+    elitism_count: int = 2,
+    evaluation_budget: int | None = None,
+    num_threads: int = 0,
+    trajectory_mode: str = "sampled",
+) -> tuple[PhaseARunResultRecord, ...]:
+    """Run a multi-threaded Rust batch of Phase A `(initializer, replicate)` tasks."""
+    normalized_tasks = [
+        (str(init_id), int(rep), seed_ov, str(pmode), str(pgroup), str(cfg_id))
+        for init_id, rep, seed_ov, pmode, pgroup, cfg_id in tasks
+    ]
+    raw_list = _native.run_phase_a_batch(
+        _normalize_jobs(jobs),
+        instance_id,
+        normalized_tasks,
+        int(pop_size),
+        int(tournament_size),
+        float(crossover_rate),
+        float(mutation_rate),
+        int(elitism_count),
+        (int(evaluation_budget) if evaluation_budget is not None else None),
+        int(num_threads),
+        trajectory_mode,
+    )
+    return tuple(_phase_a_run_payload_to_record(item) for item in raw_list)

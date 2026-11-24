@@ -1,0 +1,7 @@
+schema_version = "jssp-decoder-defaults-v1"
+decoder_id = "serial_sgs_earliest_gap"
+schedule_class = "active"
+idle_gap_insertion = true
+tie_break_rule = "obr_left_to_right_then_start_end_job_op"
+checked_u64_arithmetic = true
+independent_feasibility_validation = true

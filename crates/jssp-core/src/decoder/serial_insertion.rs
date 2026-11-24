@@ -105,58 +105,188 @@ fn decode_obr_internal(
     chromosome: &ObrChromosome,
     allow_gap_insertion: bool,
 ) -> Result<Schedule, JsspError> {
-    let resolved_ops: Vec<OperationId> = chromosome.resolve_operations(instance)?;
+    let mut workspace = SerialDecoderWorkspace::new(instance);
+    workspace.decode(instance, chromosome, allow_gap_insertion)
+}
 
-    let num_jobs = instance.num_jobs();
-    let num_machines = instance.num_machines();
-    let num_ops = instance.num_operations();
+/// Reusable scratch buffers for zero-allocation repeated calls to the canonical
+/// M2 Serial SGS decoder inside inner search loops.
+///
+/// Produces bit-for-bit identical machine placements, start/completion times, and
+/// `u64` makespans to [`decode_obr`].
+#[derive(Debug, Clone)]
+pub struct SerialDecoderWorkspace {
+    machine_timelines: Vec<Vec<ScheduledOperation>>,
+    job_next_op: Vec<usize>,
+    job_ready_time: Vec<u64>,
+    job_counts: Vec<usize>,
+    scheduled_by_flat_id: Vec<Option<ScheduledOperation>>,
+}
 
-    let mut job_ready_time = vec![0u64; num_jobs];
-    let mut machine_timelines: Vec<Vec<ScheduledOperation>> =
-        vec![Vec::with_capacity(num_jobs); num_machines];
-    let mut scheduled_by_flat_id: Vec<Option<ScheduledOperation>> = vec![None; num_ops];
-    let mut makespan: u64 = 0;
-
-    for op_id in resolved_ops {
-        let spec_op = instance.operation_by_indices(op_id.job.0, op_id.op_index.0)?;
-        let ready = job_ready_time[op_id.job.0];
-        let timeline = &mut machine_timelines[spec_op.machine.0];
-
-        let (start_time, completion_time, insert_idx) = if allow_gap_insertion {
-            find_earliest_gap_slot(timeline, ready, spec_op.processing_time)?
-        } else {
-            find_append_slot(timeline, ready, spec_op.processing_time)?
-        };
-
-        let scheduled = ScheduledOperation {
-            op_id,
-            machine: spec_op.machine,
-            start_time,
-            completion_time,
-            processing_time: spec_op.processing_time,
-        };
-
-        timeline.insert(insert_idx, scheduled);
-        job_ready_time[op_id.job.0] = completion_time;
-        makespan = makespan.max(completion_time);
-
-        let flat_idx = op_id.flat_index(num_jobs, num_machines)?;
-        scheduled_by_flat_id[flat_idx] = Some(scheduled);
-    }
-
-    let mut operations = Vec::with_capacity(num_ops);
-    for (flat_idx, slot) in scheduled_by_flat_id.into_iter().enumerate() {
-        match slot {
-            Some(op) => operations.push(op),
-            None => {
-                let op_id = OperationId::from_flat_index(flat_idx, num_jobs, num_machines)?;
-                return Err(JsspError::MissingOperation {
-                    job: op_id.job.0,
-                    op_index: op_id.op_index.0,
-                });
-            }
+impl SerialDecoderWorkspace {
+    /// Allocates reusable decoder scratch storage sized for `instance`.
+    #[must_use]
+    pub fn new(instance: &JsspInstance) -> Self {
+        let num_jobs = instance.num_jobs();
+        let num_machines = instance.num_machines();
+        let num_ops = instance.num_operations();
+        Self {
+            machine_timelines: (0..num_machines)
+                .map(|_| Vec::with_capacity(num_jobs))
+                .collect(),
+            job_next_op: vec![0; num_jobs],
+            job_ready_time: vec![0; num_jobs],
+            job_counts: vec![0; num_jobs],
+            scheduled_by_flat_id: vec![None; num_ops],
         }
     }
 
-    Ok(Schedule::new(num_jobs, num_machines, operations, makespan))
+    fn reset_for(&mut self, instance: &JsspInstance) {
+        let num_jobs = instance.num_jobs();
+        let num_machines = instance.num_machines();
+        let num_ops = instance.num_operations();
+
+        if self.machine_timelines.len() != num_machines {
+            self.machine_timelines
+                .resize_with(num_machines, || Vec::with_capacity(num_jobs));
+        }
+        for tl in &mut self.machine_timelines {
+            tl.clear();
+        }
+        self.job_next_op.resize(num_jobs, 0);
+        self.job_next_op.fill(0);
+        self.job_ready_time.resize(num_jobs, 0);
+        self.job_ready_time.fill(0);
+        self.job_counts.resize(num_jobs, 0);
+        self.job_counts.fill(0);
+        self.scheduled_by_flat_id.resize(num_ops, None);
+        self.scheduled_by_flat_id.fill(None);
+    }
+
+    fn decode_core(
+        &mut self,
+        instance: &JsspInstance,
+        chromosome: &ObrChromosome,
+        allow_gap_insertion: bool,
+        store_operations: bool,
+    ) -> Result<u64, JsspError> {
+        let num_jobs = instance.num_jobs();
+        let num_machines = instance.num_machines();
+        let num_ops = instance.num_operations();
+        let genes = chromosome.genes();
+        if genes.len() != num_ops {
+            return Err(JsspError::InvalidChromosomeLength {
+                expected: num_ops,
+                actual: genes.len(),
+            });
+        }
+
+        self.reset_for(instance);
+        let mut makespan: u64 = 0;
+
+        for (pos, &job_id) in genes.iter().enumerate() {
+            if job_id.0 >= num_jobs {
+                return Err(JsspError::InvalidJobId {
+                    position: pos,
+                    job: job_id.0,
+                    num_jobs,
+                });
+            }
+            let op_idx = self.job_next_op[job_id.0];
+            if op_idx >= num_machines {
+                return Err(JsspError::InvalidJobMultiplicity {
+                    job: job_id.0,
+                    expected: num_machines,
+                    actual: op_idx + 1,
+                });
+            }
+            self.job_next_op[job_id.0] = op_idx + 1;
+            self.job_counts[job_id.0] += 1;
+
+            let op_id = OperationId::from_indices(job_id.0, op_idx);
+            let spec_op = instance.operation_by_indices(job_id.0, op_idx)?;
+            let ready = self.job_ready_time[job_id.0];
+            let timeline = &mut self.machine_timelines[spec_op.machine.0];
+
+            let (start_time, completion_time, insert_idx) = if allow_gap_insertion {
+                find_earliest_gap_slot(timeline, ready, spec_op.processing_time)?
+            } else {
+                find_append_slot(timeline, ready, spec_op.processing_time)?
+            };
+
+            let scheduled = ScheduledOperation {
+                op_id,
+                machine: spec_op.machine,
+                start_time,
+                completion_time,
+                processing_time: spec_op.processing_time,
+            };
+
+            timeline.insert(insert_idx, scheduled);
+            self.job_ready_time[job_id.0] = completion_time;
+            makespan = makespan.max(completion_time);
+
+            if store_operations {
+                let flat_idx = op_id.flat_index(num_jobs, num_machines)?;
+                self.scheduled_by_flat_id[flat_idx] = Some(scheduled);
+            }
+        }
+
+        for (job_idx, &count) in self.job_counts.iter().enumerate() {
+            if count != num_machines {
+                return Err(JsspError::InvalidJobMultiplicity {
+                    job: job_idx,
+                    expected: num_machines,
+                    actual: count,
+                });
+            }
+        }
+
+        Ok(makespan)
+    }
+
+    /// Decodes `chromosome` into a complete [`Schedule`] using identical M2 semantics.
+    ///
+    /// # Errors
+    /// Returns [`JsspError`] if OBR validation fails or checked `u64` time arithmetic overflows.
+    pub fn decode(
+        &mut self,
+        instance: &JsspInstance,
+        chromosome: &ObrChromosome,
+        allow_gap_insertion: bool,
+    ) -> Result<Schedule, JsspError> {
+        let num_jobs = instance.num_jobs();
+        let num_machines = instance.num_machines();
+        let num_ops = instance.num_operations();
+        let makespan = self.decode_core(instance, chromosome, allow_gap_insertion, true)?;
+
+        let mut operations = Vec::with_capacity(num_ops);
+        for (flat_idx, slot) in self.scheduled_by_flat_id.iter().enumerate() {
+            match slot {
+                Some(op) => operations.push(*op),
+                None => {
+                    let op_id = OperationId::from_flat_index(flat_idx, num_jobs, num_machines)?;
+                    return Err(JsspError::MissingOperation {
+                        job: op_id.job.0,
+                        op_index: op_id.op_index.0,
+                    });
+                }
+            }
+        }
+
+        Ok(Schedule::new(num_jobs, num_machines, operations, makespan))
+    }
+
+    /// Decodes `chromosome` via canonical earliest-gap Serial SGS and returns its exact
+    /// integer makespan `C_max` without constructing a heap-allocated [`Schedule`] vector.
+    ///
+    /// # Errors
+    /// Returns [`JsspError`] if OBR validation fails or `u64` time addition overflows.
+    pub fn decode_makespan_only(
+        &mut self,
+        instance: &JsspInstance,
+        chromosome: &ObrChromosome,
+    ) -> Result<u64, JsspError> {
+        self.decode_core(instance, chromosome, true, false)
+    }
 }

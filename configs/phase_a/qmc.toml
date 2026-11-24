@@ -1,0 +1,24 @@
+schema_version = "jssp-phase-a-qmc-v1"
+rng_scramble_stream = "qmc_scramble"
+continuous_low_discrepancy_disclaimer = "sequential_discrete_obr_mapping_is_state_dependent_and_discontinuous"
+
+[halton]
+base_sequence = "consecutive_primes"
+index_base = 1
+unscrambled_prefix_start = 1
+scrambled_prefix_start = 1
+scrambling_scheme = "per_dimension_digit_level_partial_fisher_yates"
+
+[sobol]
+direction_numbers_source = "joe_kuo_2008_new_joe_kuo_6_21201"
+bit_precision = 32
+max_supported_dimension = 21201
+reject_exceeding_dimension_with = "UnsupportedQmcDimension"
+unscrambled_prefix_start = 1
+scrambled_prefix_start = 0
+scrambling_scheme = "matousek_1998_msb_ordered_gf2_linear_plus_xor_shift"
+dyadic_power_of_two_population = true
+
+[mixed]
+ratio_tolerance = 1e-12
+empirical_non_dyadic_ids = ["A13"]

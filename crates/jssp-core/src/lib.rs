@@ -7,11 +7,14 @@
 pub mod decoder;
 pub mod error;
 pub mod feasibility;
+pub mod genetic;
 pub mod graph;
+pub mod initialization;
 pub mod model;
 pub mod objective;
 pub mod representation;
 pub mod rng;
+pub mod telemetry;
 
 /// Canonical crate identifier for workspace and FFI verification.
 pub const CRATE_NAME: &str = env!("CARGO_PKG_NAME");
