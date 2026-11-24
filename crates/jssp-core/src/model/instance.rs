@@ -7,8 +7,8 @@ use crate::model::operation::Operation;
 /// Validated deterministic classical rectangular JSSP instance.
 ///
 /// Every job `0..num_jobs` consists of `num_machines` operations whose machines
-/// form a permutation of `0..num_machines`, each with strictly positive `u64`
-/// processing time.
+/// form a permutation of `0..num_machines`, each with non-negative `u64`
+/// processing time and strictly positive total processing time per job.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct JsspInstance {
     num_jobs: usize,
@@ -21,9 +21,12 @@ pub struct JsspInstance {
 impl JsspInstance {
     /// Constructs and validates a rectangular JSSP instance from per-job `(machine, duration)` lists.
     ///
+    /// Individual operations may have zero duration (e.g., classical instance `orb07`),
+    /// provided every job has strictly positive total processing time (`sum p_{j,k} > 0`).
+    ///
     /// # Errors
     /// Rejects empty jobs, empty machines, non-rectangular job rows, out-of-range
-    /// machine IDs, duplicate machines within a job, zero processing times, or
+    /// machine IDs, duplicate machines within a job, zero-total-work jobs, or
     /// overflowing dimensions / total processing duration.
     pub fn new(raw_jobs: Vec<Vec<(usize, u64)>>) -> Result<Self, JsspError> {
         let num_jobs = raw_jobs.len();
@@ -54,6 +57,7 @@ impl JsspInstance {
 
             let mut seen_machines = vec![false; num_machines];
             let mut job_ops = Vec::with_capacity(num_machines);
+            let mut job_work: u64 = 0;
 
             for (op_idx, (machine, duration)) in row.into_iter().enumerate() {
                 if machine >= num_machines {
@@ -72,6 +76,9 @@ impl JsspInstance {
                 }
                 seen_machines[machine] = true;
 
+                job_work = job_work
+                    .checked_add(duration)
+                    .ok_or(JsspError::TimeOverflow)?;
                 total_processing_time = total_processing_time
                     .checked_add(duration)
                     .ok_or(JsspError::TimeOverflow)?;
@@ -82,6 +89,14 @@ impl JsspInstance {
                     duration,
                 )?;
                 job_ops.push(op);
+            }
+
+            if job_work == 0 {
+                return Err(JsspError::NonPositiveProcessingTime {
+                    job: job_idx,
+                    op_index: 0,
+                    duration: 0,
+                });
             }
 
             jobs.push(job_ops);

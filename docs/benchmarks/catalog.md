@@ -6,17 +6,17 @@
 
 ## 1. Cataloged Tracks vs. Locally Acquired Files
 
-Important distinction (`M3.1 E04`): cataloging metadata for all **536 planned instances** validates metadata schemas, unique IDs, parser references, deferral boundaries, and split disjointness (`metadata_entries_validated = 536`), whereas **actual benchmark-file parsing and SHA-256 verification** applies **only** to files physically present on disk (`local_files_parsed_and_verified = 1` cataloged entry `ft06` in `medium_jssp.txt`, plus standalone fixture `tiny_jssp.txt` and two embedded format fixtures in `expected_schedules.json`). Unacquired external files (`491` pending entries across Tracks 1–3) carry `AcquisitionStatus.METADATA_CATALOGED_FILE_PENDING` with `source_verification_status = "pending_raw_archive_acquisition"`.
+Important distinction (`M3.1 E04` & `Phase A0`): cataloging metadata for all **536 planned instances** validates metadata schemas, unique IDs, parser references, deferral boundaries, and split disjointness (`metadata_entries_validated = 536`). Following Phase A0 benchmark acquisition (`scripts/fetch_benchmarks.py` & `scripts/validate_benchmarks.py`), **all 242 Track 1 core classical instances** have been locally acquired into `data/raw/track1/` (gitignored), parsed, Rust-validated, SHA-256 verified against `data/metadata/track1_checksums_and_provenance.json`, and linked to the frozen snapshot `data/bounds/track1_bks_snapshot_20261124.json` (`182` proven optima, `60` open BKS upper/lower bounds). External raw archives for Tracks 2–3 (`250` entries) remain `AcquisitionStatus.METADATA_CATALOGED_FILE_PENDING` with `source_verification_status = "pending_raw_archive_acquisition"`, while Tracks 4–5 (`44` entries) remain explicitly deferred.
 
-| Track | Families | Total Cataloged | Split Breakdown | Local Files Available (M3.1) | Status |
+| Track | Families | Total Cataloged | Split Breakdown | Local Files Available | Status |
 |---|---|---:|---|---:|---|
-| **Track 1** | `FT` (3), `LA` (40), `ABZ` (5), `ORB` (10), `SWV` (20), `YN` (4), `TA` (80), `DMU` (80) | **242** | **48** Dev / **194** Confirmatory | **1** (`ft06` in `medium_jssp.txt`) *(+ standalone `tiny_jssp.txt`)* | Metadata validated; `241` raw files pending |
+| **Track 1** | `FT` (3), `LA` (40), `ABZ` (5), `ORB` (10), `SWV` (20), `YN` (4), `TA` (80), `DMU` (80) | **242** | **48** Dev / **194** Confirmatory | **242** (`data/raw/track1/`, gitignored) + standalone `tiny_jssp.txt` | **Acquired, Rust-validated, SHA-256 & BKS verified** |
 | **Track 2a** | `LARGE_TA` (`lta01`–`lta80`, $< 1000\times 1000$) | **80** | **80** `scalability_held_out` | 0 | Metadata validated; raw files pending |
 | **Track 2b** | `STRESS_TAI` (`lta81`–`lta90`, $1000\times 1000$) | **10** | **10** `stress_held_out` | 0 | Metadata validated; raw files pending |
 | **Track 3** | `STRASSL_MUSLIU` (`sm001`–`sm160` of 4,225) | **160** | **40** Dev / **120** Confirmatory | 0 | Metadata validated; archive SHA-256 `None` (`pending_raw_archive_acquisition`) |
 | **Track 4** | `DCT_VARIABLE_ROUTE` (`dct_ko01`–`dct_ko24`) | **24** | **24** `deferred` | 0 | **DEFERRED (`D07-C`)** |
 | **Track 5** | `BEL_INDUSTRIAL` (`bel01`–`bel20`) | **20** | **20** `deferred` | 0 | **DEFERRED (`D07-C`)** |
-| **Total** | **13 Cataloged Families** | **536** | — | **1 cataloged + 1 standalone fixture** | **Metadata validated (file checks pending acquisition)** |
+| **Total** | **13 Cataloged Families** | **536** | — | **242 Track 1 + 1 standalone fixture** | **Track 1 verified; Tracks 2–3 pending; Tracks 4–5 deferred** |
 
 ---
 

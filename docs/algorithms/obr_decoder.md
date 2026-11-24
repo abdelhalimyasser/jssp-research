@@ -46,7 +46,7 @@ Following Giffler & Thompson (1960, DOI `10.1287/opre.8.4.487`) and Sprecher, Ko
 
 ## 3. Deterministic Implementation Rules & Pseudocode
 
-1. **Integer Time Representation:** All processing times, start times, completion times, and $C_{\max}$ use `u64` (`Time = u64`). Additions use `checked_add`, returning `JsspError::TimeOverflow` on overflow (never wrapping). Zero-duration operations ($p_o = 0$) are explicitly supported as instantaneous transitions (`[t, t)` does not block machine intervals of nonzero duration, though classical benchmarks satisfy $p_o \ge 1$).
+1. **Integer Time Representation:** All processing times, start times, completion times, and $C_{\max}$ use `u64` (`Time = u64`). Additions use `checked_add`, returning `JsspError::TimeOverflow` on overflow (never wrapping). Zero-duration operations ($p_o = 0$) are explicitly supported as instantaneous transitions (`[t, t)` does not block machine intervals of nonzero duration), provided every job has strictly positive total processing time ($\sum_k p_{j,k} > 0$). Note that classical Track 1 benchmark `orb07` contains `O(9, 9) = (M0, 0)` with Job 9 total work `206`.
 2. **Machine Idle-Gap Search Order:** For each machine $r \in \{0,\dots,m-1\}$, maintain a sorted list `intervals[r]` of scheduled pairs `(start, end, op_id)` ordered by `(start, end)`. Given `job_ready = C_{j,k-1}` (or `0` if `k == 0`):
    - Start `prev_end = 0`. Scan `(s_i, e_i, _)` in ascending order in `intervals[r]`.
    - Candidate start `cand = max(job_ready, prev_end)`.

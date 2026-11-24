@@ -36,6 +36,8 @@ from jssp_research.benchmarks.splits import (
 
 DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[3]
 EXPECTED_FIXTURES_REL_PATH = Path("tests/fixtures/expected_schedules.json")
+TRACK1_METADATA_REL_PATH = Path("data/metadata/track1_checksums_and_provenance.json")
+TRACK1_BOUNDS_REL_PATH = Path("data/bounds/track1_bks_snapshot_20261124.json")
 
 
 @dataclass(frozen=True, slots=True)
@@ -82,6 +84,47 @@ def _load_fixture_metadata(repo_root: Path) -> dict[str, dict[str, object]]:
     payload = json.loads(meta_path.read_text(encoding="utf-8"))
     fixtures = payload.get("fixtures", {})
     return fixtures if isinstance(fixtures, dict) else {}
+
+
+def _load_track1_acquired_metadata(repo_root: Path) -> dict[str, dict[str, object]]:
+    meta_path = repo_root / TRACK1_METADATA_REL_PATH
+    if not meta_path.is_file():
+        return {}
+    payload = json.loads(meta_path.read_text(encoding="utf-8"))
+    rows = payload.get("instances", [])
+    if not isinstance(rows, list):
+        return {}
+    return {str(row["instance_id"]): row for row in rows if isinstance(row, dict)}
+
+
+def _load_track1_bounds_snapshot(repo_root: Path) -> dict[str, BoundProvenance]:
+    bounds_path = repo_root / TRACK1_BOUNDS_REL_PATH
+    if not bounds_path.is_file():
+        return {}
+    payload = json.loads(bounds_path.read_text(encoding="utf-8"))
+    rows = payload.get("bounds", [])
+    out: dict[str, BoundProvenance] = {}
+    if not isinstance(rows, list):
+        return out
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        inst_id = str(row["instance_id"])
+        out[inst_id] = BoundProvenance(
+            status=BoundStatus(str(row["status"])),
+            known_optimum=(
+                int(row["known_optimum"]) if row.get("known_optimum") is not None else None
+            ),
+            best_known_upper_bound=(
+                int(row["best_known_upper_bound"])
+                if row.get("best_known_upper_bound") is not None
+                else None
+            ),
+            lower_bound=(int(row["lower_bound"]) if row.get("lower_bound") is not None else None),
+            source=str(row["source"]),
+            recorded_at=str(row["recorded_at"]),
+        )
+    return out
 
 
 def _track1_specs() -> list[tuple[str, str, int, int, BoundProvenance, SourceProvenance]]:
@@ -216,14 +259,22 @@ def _track1_specs() -> list[tuple[str, str, int, int, BoundProvenance, SourcePro
         license_or_terms=orlib_terms,
     )
     dmu_strata = [
-        (1, 10, 20, 15),
-        (11, 20, 20, 20),
-        (21, 30, 30, 15),
-        (31, 40, 30, 20),
-        (41, 50, 40, 15),
-        (51, 60, 40, 20),
-        (61, 70, 50, 15),
-        (71, 80, 50, 20),
+        (1, 5, 20, 15),
+        (6, 10, 20, 20),
+        (11, 15, 30, 15),
+        (16, 20, 30, 20),
+        (21, 25, 40, 15),
+        (26, 30, 40, 20),
+        (31, 35, 50, 15),
+        (36, 40, 50, 20),
+        (41, 45, 20, 15),
+        (46, 50, 20, 20),
+        (51, 55, 30, 15),
+        (56, 60, 30, 20),
+        (61, 65, 40, 15),
+        (66, 70, 40, 20),
+        (71, 75, 50, 15),
+        (76, 80, 50, 20),
     ]
     for start, end, j, m in dmu_strata:
         for idx in range(start, end + 1):
@@ -235,12 +286,32 @@ def _track1_specs() -> list[tuple[str, str, int, int, BoundProvenance, SourcePro
 def build_benchmark_catalog(repo_root: Path = DEFAULT_REPO_ROOT) -> list[BenchmarkCatalogEntry]:
     """Construct the complete 536-entry benchmark catalog across Tracks 1–5."""
     fixture_meta = _load_fixture_metadata(repo_root)
+    acquired_meta = _load_track1_acquired_metadata(repo_root)
+    bounds_snapshot = _load_track1_bounds_snapshot(repo_root)
     entries: list[BenchmarkCatalogEntry] = []
 
-    for inst_id, family, j, m, bounds, src in _track1_specs():
+    for inst_id, family, j, m, default_bounds, src in _track1_specs():
         split = split_for_track1_instance(inst_id)
+        bounds = bounds_snapshot.get(inst_id, default_bounds)
+        acq = acquired_meta.get(inst_id)
         local_meta = fixture_meta.get(inst_id)
-        if local_meta is not None:
+
+        if acq is not None and (repo_root / str(acq["raw_relative_path"])).is_file():
+            rel_path = str(acq["raw_relative_path"])
+            status = AcquisitionStatus.ACQUIRED_VERIFIED_LOCAL
+            raw_sha = str(acq["raw_sha256"])
+            canon_sha = str(acq["canonical_sha256"])
+            src = SourceProvenance(
+                citation=src.citation,
+                source_url=str(acq["source_url"]),
+                retrieval_date=str(acq["retrieval_utc"])[:10],
+                license_or_terms=str(acq["license"]),
+            )
+            dist_label = (
+                f"classical_discrete_uniform "
+                f"(p in [{acq['min_processing_time']}, {acq['max_processing_time']}])"
+            )
+        elif local_meta is not None:
             rel_path = str(local_meta["relative_path"])
             status = AcquisitionStatus.COMMITTED_FIXTURE
             raw_sha = str(local_meta["raw_sha256"])
@@ -251,11 +322,25 @@ def build_benchmark_catalog(repo_root: Path = DEFAULT_REPO_ROOT) -> list[Benchma
                 retrieval_date=str(local_meta.get("retrieval_date", "2026-11-23")),
                 license_or_terms=str(local_meta.get("license", src.license_or_terms)),
             )
+            dist_label = "classical_discrete_uniform"
+        elif acq is not None:
+            rel_path = None
+            status = AcquisitionStatus.METADATA_CATALOGED_FILE_PENDING
+            raw_sha = str(acq["raw_sha256"])
+            canon_sha = str(acq["canonical_sha256"])
+            src = SourceProvenance(
+                citation=src.citation,
+                source_url=str(acq["source_url"]),
+                retrieval_date=str(acq["retrieval_utc"])[:10],
+                license_or_terms=str(acq["license"]),
+            )
+            dist_label = "classical_discrete_uniform_pending_fetch"
         else:
             rel_path = None
             status = AcquisitionStatus.METADATA_CATALOGED_FILE_PENDING
             raw_sha = None
             canon_sha = None
+            dist_label = "classical_integer_pending_file_scan"
 
         entries.append(
             BenchmarkCatalogEntry(
@@ -267,9 +352,7 @@ def build_benchmark_catalog(repo_root: Path = DEFAULT_REPO_ROOT) -> list[Benchma
                 num_jobs=j,
                 num_machines=m,
                 operation_count=j * m,
-                processing_time_distribution="classical_integer_pending_file_scan"
-                if rel_path is None
-                else "classical_discrete_uniform",
+                processing_time_distribution=dist_label,
                 format_id="standard_jssp_0based_v1",
                 parser_version="1.0.0",
                 local_relative_path=rel_path,
@@ -471,7 +554,13 @@ def family_summary(repo_root: Path = DEFAULT_REPO_ROOT) -> list[FamilySummaryRow
                 family=family,
                 total=len(group),
                 available_locally=sum(
-                    1 for e in group if e.status == AcquisitionStatus.COMMITTED_FIXTURE
+                    1
+                    for e in group
+                    if e.status
+                    in {
+                        AcquisitionStatus.COMMITTED_FIXTURE,
+                        AcquisitionStatus.ACQUIRED_VERIFIED_LOCAL,
+                    }
                 ),
                 development=sum(1 for e in group if e.split == SplitAssignment.DEVELOPMENT),
                 confirmatory_or_held_out=sum(
@@ -531,7 +620,10 @@ def validate_catalog(repo_root: Path = DEFAULT_REPO_ROOT) -> CatalogValidationRe
                     f"{entry.instance_id}: unsupported track unexpectedly references parser"
                 )
 
-        if entry.status == AcquisitionStatus.COMMITTED_FIXTURE:
+        if entry.status in {
+            AcquisitionStatus.COMMITTED_FIXTURE,
+            AcquisitionStatus.ACQUIRED_VERIFIED_LOCAL,
+        }:
             if not entry.local_relative_path:
                 errors.append(f"{entry.instance_id}: COMMITTED_FIXTURE missing local_relative_path")
                 continue

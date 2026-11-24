@@ -28,7 +28,7 @@ pub enum JsspError {
     },
     /// A job visits the same machine more than once (violating classical JSSP permutation routing).
     DuplicateMachineInJob { job: usize, machine: usize },
-    /// Classical JSSP operations must have strictly positive integer processing times (`p > 0`).
+    /// Classical JSSP jobs must have strictly positive total processing time (`sum p > 0`).
     NonPositiveProcessingTime {
         job: usize,
         op_index: usize,

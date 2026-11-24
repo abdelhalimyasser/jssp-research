@@ -1,0 +1,4 @@
+# Ignore downloaded external raw benchmark archives (regenerated via scripts/fetch_benchmarks.py)
+track1/
+track2/
+track3/

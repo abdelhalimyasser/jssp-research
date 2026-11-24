@@ -15,11 +15,16 @@
 
 ---
 
-## 2. Bounds Policy & Pending Snapshot Discipline
+## 2. Track 1 Acquisition & Date-Stamped BKS Snapshot (`Phase A0`, `2026-11-24`)
 
-- `BoundProvenance` explicitly separates `PROVEN_OPTIMAL`, `BEST_KNOWN_OPEN`, and `PENDING_SNAPSHOT`.
-- Proven optima are only recorded where verified (`ft06 = 55`, `ft10 = 930`, `ft20 = 1165` per Fisher & Thompson 1963 / Carlier & Pinson 1989 / JSPLib, recorded `2026-11-23`).
-- All remaining external Track 1–5 instances carry `BoundStatus.PENDING_SNAPSHOT` with `None` bounds and `AcquisitionStatus.METADATA_CATALOGED_FILE_PENDING` (or `DEFERRED_UNSUPPORTED_MODEL`) until full raw files and a date-stamped JSPLib bounds snapshot are acquired in a dedicated data-acquisition step. Missing bounds or file checksums are never fabricated.
+- **Source & License:** All **242 Track 1 core classical instances** (`FT`: 3, `LA`: 40, `ABZ`: 5, `ORB`: 10, `SWV`: 20, `YN`: 4, `TA`: 80, `DMU`: 80) were retrieved into `data/raw/track1/` (gitignored; reproducible via [`scripts/fetch_benchmarks.py`](file:///home/abdelhalimyasser/Downloads/jssp-research/scripts/fetch_benchmarks.py) and verified via [`scripts/validate_benchmarks.py`](file:///home/abdelhalimyasser/Downloads/jssp-research/scripts/validate_benchmarks.py)) from [`SchedulingLab/jsp-instances`](https://github.com/SchedulingLab/jsp-instances) (`classical.json`, MIT License) and cross-verified across all 162 non-DMU instances against [`tamy0612/JSPLib`](https://github.com/tamy0612/JSPLib) (`instances.json`).
+- **Committed Checksums, Bounds & Split Manifests:**
+  - [`data/metadata/track1_checksums_and_provenance.json`](file:///home/abdelhalimyasser/Downloads/jssp-research/data/metadata/track1_checksums_and_provenance.json): raw & canonical SHA-256 digests, parsed dimensions, min/max/total processing times, and retrieval provenance for all 242 instances (`ft06` canonical SHA-256 matches [`medium_jssp.txt`](file:///home/abdelhalimyasser/Downloads/jssp-research/tests/fixtures/medium_jssp.txt)).
+  - [`data/bounds/track1_bks_snapshot_20261124.json`](file:///home/abdelhalimyasser/Downloads/jssp-research/data/bounds/track1_bks_snapshot_20261124.json): date-stamped bounds snapshot (`182` `proven_optimal` + `60` `best_known_open` with recorded upper and lower bounds).
+  - [`data/splits/track1_split_v1.json`](file:///home/abdelhalimyasser/Downloads/jssp-research/data/splits/track1_split_v1.json): frozen **48 development / 194 confirmatory** family-stratified split (`0` overlap).
+- **Zero-Duration Classical Benchmark Edge Case (`orb07`):** Applegate & Cook (1991) `orb07` (`10x10`, proven optimum `397`, identical in `SchedulingLab/jsp-instances` and `JSPLib`) contains a single zero-duration terminal operation `O(9, 9) = (M0, 0)` while Job 9 has 9 positive operations summing to `206`. `JsspInstance::new` explicitly supports non-negative individual operations ($p_o \ge 0$) while requiring strictly positive per-job total work ($\sum_k p_{j,k} > 0$).
+- **DMU Stratification Verification:** Actual DMU files (`dmu01`–`dmu80`) occur in 5-instance size blocks alternating between `15` and `20` machines across `J in {20, 30, 40, 50}` (`catalog.py` updated to match verified file dimensions).
+- **Remaining Pending Tracks:** External raw archives for Tracks 2–3 remain `BoundStatus.PENDING_SNAPSHOT` and `AcquisitionStatus.METADATA_CATALOGED_FILE_PENDING`; Tracks 4–5 remain `DEFERRED_UNSUPPORTED_MODEL` (`D07-C`). Missing bounds or file checksums are never fabricated.
 
 ---
 

@@ -234,12 +234,29 @@ fn instance_validation_rejects_malformed_inputs_and_overflow() {
         Err(JsspError::DuplicateMachineInJob { job: 0, machine: 0 })
     );
     assert_eq!(
-        JsspInstance::new(vec![vec![(0, 1), (1, 0)], vec![(0, 1), (1, 2)]]),
+        JsspInstance::new(vec![vec![(0, 0), (1, 0)], vec![(0, 1), (1, 2)]]),
         Err(JsspError::NonPositiveProcessingTime {
             job: 0,
-            op_index: 1,
+            op_index: 0,
             duration: 0
         })
+    );
+    let zero_op_inst = JsspInstance::new(vec![vec![(0, 2), (1, 0)], vec![(1, 3), (0, 2)]])
+        .expect("zero-duration operation inside positive-work job (like orb07) must validate");
+    let zero_chr = ObrChromosome::from_job_indices(&[0, 0, 1, 1]);
+    let zero_sched =
+        jssp_core::decoder::decode_obr(&zero_op_inst, &zero_chr).expect("decode with p=0 op");
+    assert!(jssp_core::feasibility::validate_schedule(&zero_op_inst, &zero_sched).is_ok());
+    let zero_graph = jssp_core::graph::DisjunctiveGraph::from_schedule(&zero_op_inst, &zero_sched)
+        .expect("graph with p=0 op");
+    let zero_cpa =
+        jssp_core::graph::analyze_disjunctive_graph(&zero_graph).expect("cpa with p=0 op");
+    assert_eq!(zero_cpa.graph_makespan(), zero_sched.makespan());
+    let zero_rt = jssp_core::representation::round_trip_schedule(&zero_op_inst, &zero_sched)
+        .expect("round-trip with p=0 op");
+    assert_eq!(
+        zero_rt.audit.decoded_schedule_makespan,
+        zero_sched.makespan()
     );
     assert_eq!(
         JsspInstance::new(vec![vec![(0, u64::MAX), (1, 1)], vec![(0, 1), (1, 1)],]),

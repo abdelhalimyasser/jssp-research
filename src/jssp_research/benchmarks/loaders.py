@@ -148,7 +148,7 @@ def _parse_interleaved_jssp(
                     )
                 machine = raw_machine
 
-            if duration <= 0:
+            if duration < 0:
                 raise BenchmarkParseError(
                     f"operation ({job_idx}, {op_idx}) has non-positive processing time {duration}",
                     source=source,
@@ -221,6 +221,13 @@ def _parse_taillard_matrix_v1(
                 source=source,
                 line=line_no,
             )
+        for op_idx, duration in enumerate(row):
+            if duration < 0:
+                raise BenchmarkParseError(
+                    f"operation ({job_idx}, {op_idx}) has non-positive processing time {duration}",
+                    source=source,
+                    line=line_no,
+                )
         times_matrix.append(row)
     idx += num_jobs
 
