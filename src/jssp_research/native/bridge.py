@@ -76,6 +76,213 @@ class DecodedScheduleResult:
         ]
 
 
+@dataclass(frozen=True, slots=True)
+class GraphMetadataRecord:
+    """Summary counts for a constructed compact oriented disjunctive graph."""
+
+    num_jobs: int
+    num_machines: int
+    num_operations: int
+    num_vertices: int
+    num_arcs: int
+    num_job_precedence_arcs: int
+    num_machine_order_arcs: int
+    num_source_arcs: int
+    num_sink_arcs: int
+
+
+@dataclass(frozen=True, slots=True)
+class GraphVertexRecord:
+    """Vertex entry in deterministic topological order."""
+
+    vertex_id: int
+    kind: str
+    op_id: tuple[int, int] | None
+
+
+@dataclass(frozen=True, slots=True)
+class GraphArcRecord:
+    """Immutable Python record mirroring a classified Rust `AnalyzedArc`."""
+
+    arc_id: int
+    from_vertex: int
+    to_vertex: int
+    from_op: tuple[int, int] | None
+    to_op: tuple[int, int] | None
+    arc_type: str
+    owner_id: int | None
+    is_head_tight: bool
+    is_critical: bool
+
+
+@dataclass(frozen=True, slots=True)
+class OperationCriticalityRecord:
+    """Immutable Python record mirroring a Rust `OperationCriticality` entry."""
+
+    job: int
+    op_index: int
+    vertex_id: int
+    machine: int
+    processing_time: int
+    head: int
+    tail: int
+    slack: int
+    is_critical: bool
+    maximizing_predecessors: tuple[tuple[int, int], ...]
+    representative_predecessor: tuple[int, int] | None
+    maximizing_successors: tuple[tuple[int, int], ...]
+    representative_successor: tuple[int, int] | None
+
+
+@dataclass(frozen=True, slots=True)
+class CriticalBlockRecord:
+    """Immutable Python record mirroring a maximal extracted `CriticalBlock`."""
+
+    block_id: int
+    machine: int
+    operations: tuple[tuple[int, int], ...]
+    first_operation: tuple[int, int]
+    last_operation: tuple[int, int]
+    length: int
+    critical_machine_arc_ids: tuple[int, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class RepresentativeCriticalPathRecord:
+    """Deterministic representative Source-to-Sink critical path from Rust."""
+
+    operations: tuple[tuple[int, int], ...]
+    arc_ids: tuple[int, ...]
+    total_processing_time: int
+
+
+@dataclass(frozen=True, slots=True)
+class DisjunctiveGraphAnalysisResult:
+    """Immutable Python container holding Rust disjunctive-graph & critical-path analysis."""
+
+    graph_makespan: int
+    schedule_makespan: int
+    metadata: GraphMetadataRecord
+    topological_order: tuple[GraphVertexRecord, ...]
+    operations: tuple[OperationCriticalityRecord, ...]
+    arcs: tuple[GraphArcRecord, ...]
+    critical_operations: tuple[tuple[int, int], ...]
+    critical_arc_ids: tuple[int, ...]
+    critical_machine_arc_ids: tuple[int, ...]
+    critical_job_arc_ids: tuple[int, ...]
+    representative_critical_path: RepresentativeCriticalPathRecord
+    critical_blocks: tuple[CriticalBlockRecord, ...]
+
+    def operation(self, job: int, op_index: int) -> OperationCriticalityRecord:
+        """Return the `OperationCriticalityRecord` matching `(job, op_index)`."""
+        for op in self.operations:
+            if op.job == job and op.op_index == op_index:
+                return op
+        raise KeyError(f"Operation ({job}, {op_index}) not found in graph analysis")
+
+    @property
+    def critical_arcs(self) -> tuple[GraphArcRecord, ...]:
+        """Return all classified critical arcs in canonical arc order."""
+        return tuple(self.arcs[arc_id] for arc_id in self.critical_arc_ids)
+
+    @property
+    def critical_machine_arcs(self) -> tuple[GraphArcRecord, ...]:
+        """Return all critical `machine_order` arcs in canonical arc order."""
+        return tuple(self.arcs[arc_id] for arc_id in self.critical_machine_arc_ids)
+
+    @property
+    def critical_job_arcs(self) -> tuple[GraphArcRecord, ...]:
+        """Return all critical `job_precedence` arcs in canonical arc order."""
+        return tuple(self.arcs[arc_id] for arc_id in self.critical_job_arc_ids)
+
+    def to_dict(self) -> dict[str, object]:
+        """Convert the complete graph analysis to deterministic JSON-serializable primitives."""
+        return {
+            "graph_makespan": self.graph_makespan,
+            "schedule_makespan": self.schedule_makespan,
+            "metadata": {
+                "num_jobs": self.metadata.num_jobs,
+                "num_machines": self.metadata.num_machines,
+                "num_operations": self.metadata.num_operations,
+                "num_vertices": self.metadata.num_vertices,
+                "num_arcs": self.metadata.num_arcs,
+                "num_job_precedence_arcs": self.metadata.num_job_precedence_arcs,
+                "num_machine_order_arcs": self.metadata.num_machine_order_arcs,
+                "num_source_arcs": self.metadata.num_source_arcs,
+                "num_sink_arcs": self.metadata.num_sink_arcs,
+            },
+            "topological_order": [
+                {
+                    "vertex_id": v.vertex_id,
+                    "kind": v.kind,
+                    "op_id": list(v.op_id) if v.op_id is not None else None,
+                }
+                for v in self.topological_order
+            ],
+            "operations": [
+                {
+                    "job": op.job,
+                    "op_index": op.op_index,
+                    "vertex_id": op.vertex_id,
+                    "machine": op.machine,
+                    "processing_time": op.processing_time,
+                    "head": op.head,
+                    "tail": op.tail,
+                    "slack": op.slack,
+                    "is_critical": op.is_critical,
+                    "maximizing_predecessors": [list(p) for p in op.maximizing_predecessors],
+                    "representative_predecessor": (
+                        list(op.representative_predecessor)
+                        if op.representative_predecessor is not None
+                        else None
+                    ),
+                    "maximizing_successors": [list(s) for s in op.maximizing_successors],
+                    "representative_successor": (
+                        list(op.representative_successor)
+                        if op.representative_successor is not None
+                        else None
+                    ),
+                }
+                for op in self.operations
+            ],
+            "arcs": [
+                {
+                    "arc_id": arc.arc_id,
+                    "from_vertex": arc.from_vertex,
+                    "to_vertex": arc.to_vertex,
+                    "from_op": list(arc.from_op) if arc.from_op is not None else None,
+                    "to_op": list(arc.to_op) if arc.to_op is not None else None,
+                    "arc_type": arc.arc_type,
+                    "owner_id": arc.owner_id,
+                    "is_head_tight": arc.is_head_tight,
+                    "is_critical": arc.is_critical,
+                }
+                for arc in self.arcs
+            ],
+            "critical_operations": [list(op) for op in self.critical_operations],
+            "critical_arc_ids": list(self.critical_arc_ids),
+            "critical_machine_arc_ids": list(self.critical_machine_arc_ids),
+            "critical_job_arc_ids": list(self.critical_job_arc_ids),
+            "representative_critical_path": {
+                "operations": [list(op) for op in self.representative_critical_path.operations],
+                "arc_ids": list(self.representative_critical_path.arc_ids),
+                "total_processing_time": self.representative_critical_path.total_processing_time,
+            },
+            "critical_blocks": [
+                {
+                    "block_id": blk.block_id,
+                    "machine": blk.machine,
+                    "operations": [list(op) for op in blk.operations],
+                    "first_operation": list(blk.first_operation),
+                    "last_operation": list(blk.last_operation),
+                    "length": blk.length,
+                    "critical_machine_arc_ids": list(blk.critical_machine_arc_ids),
+                }
+                for blk in self.critical_blocks
+            ],
+        }
+
+
 def _normalize_jobs(jobs: InstanceSpec) -> list[list[tuple[int, int]]]:
     return [[(int(machine), int(duration)) for machine, duration in job_row] for job_row in jobs]
 
@@ -284,3 +491,276 @@ def rng_sample_range_and_shuffle(
         int(shuffle_len),
     )
     return ([int(x) for x in samples], [int(i) for i in permutation])
+
+
+def _pair_or_none(value: tuple[int, int] | None) -> tuple[int, int] | None:
+    if value is None:
+        return None
+    return (int(value[0]), int(value[1]))
+
+
+def _graph_payload_to_result(
+    payload: tuple[
+        int,
+        int,
+        tuple[int, int, int, int, int, int, int, int, int],
+        list[tuple[int, str, tuple[int, int] | None]],
+        list[
+            tuple[
+                tuple[int, int],
+                int,
+                int,
+                int,
+                tuple[int, int, int, bool],
+                list[tuple[int, int]],
+                tuple[int, int] | None,
+                list[tuple[int, int]],
+                tuple[int, int] | None,
+            ]
+        ],
+        list[
+            tuple[
+                int,
+                int,
+                int,
+                tuple[int, int] | None,
+                tuple[int, int] | None,
+                str,
+                int | None,
+                bool,
+                bool,
+            ]
+        ],
+        tuple[list[tuple[int, int]], list[int], list[int], list[int]],
+        tuple[list[tuple[int, int]], list[int], int],
+        list[
+            tuple[
+                int,
+                int,
+                list[tuple[int, int]],
+                tuple[int, int],
+                tuple[int, int],
+                int,
+                list[int],
+            ]
+        ],
+    ],
+) -> DisjunctiveGraphAnalysisResult:
+    (
+        graph_makespan,
+        schedule_makespan,
+        meta_raw,
+        topo_raw,
+        ops_raw,
+        arcs_raw,
+        subgraph_raw,
+        rep_path_raw,
+        blocks_raw,
+    ) = payload
+
+    metadata = GraphMetadataRecord(
+        num_jobs=int(meta_raw[0]),
+        num_machines=int(meta_raw[1]),
+        num_operations=int(meta_raw[2]),
+        num_vertices=int(meta_raw[3]),
+        num_arcs=int(meta_raw[4]),
+        num_job_precedence_arcs=int(meta_raw[5]),
+        num_machine_order_arcs=int(meta_raw[6]),
+        num_source_arcs=int(meta_raw[7]),
+        num_sink_arcs=int(meta_raw[8]),
+    )
+    topological_order = tuple(
+        GraphVertexRecord(vertex_id=int(v_id), kind=str(kind), op_id=_pair_or_none(op))
+        for v_id, kind, op in topo_raw
+    )
+    operations = tuple(
+        OperationCriticalityRecord(
+            job=int(op_pair[0]),
+            op_index=int(op_pair[1]),
+            vertex_id=int(v_id),
+            machine=int(machine),
+            processing_time=int(proc_time),
+            head=int(timing[0]),
+            tail=int(timing[1]),
+            slack=int(timing[2]),
+            is_critical=bool(timing[3]),
+            maximizing_predecessors=tuple((int(j), int(k)) for j, k in max_preds),
+            representative_predecessor=_pair_or_none(rep_pred),
+            maximizing_successors=tuple((int(j), int(k)) for j, k in max_succs),
+            representative_successor=_pair_or_none(rep_succ),
+        )
+        for (
+            op_pair,
+            v_id,
+            machine,
+            proc_time,
+            timing,
+            max_preds,
+            rep_pred,
+            max_succs,
+            rep_succ,
+        ) in ops_raw
+    )
+    arcs = tuple(
+        GraphArcRecord(
+            arc_id=int(arc_id),
+            from_vertex=int(from_v),
+            to_vertex=int(to_v),
+            from_op=_pair_or_none(from_op),
+            to_op=_pair_or_none(to_op),
+            arc_type=str(arc_type),
+            owner_id=int(owner_id) if owner_id is not None else None,
+            is_head_tight=bool(is_tight),
+            is_critical=bool(is_crit),
+        )
+        for (
+            arc_id,
+            from_v,
+            to_v,
+            from_op,
+            to_op,
+            arc_type,
+            owner_id,
+            is_tight,
+            is_crit,
+        ) in arcs_raw
+    )
+    crit_ops_raw, crit_arcs_raw, crit_machine_arcs_raw, crit_job_arcs_raw = subgraph_raw
+    rep_ops_raw, rep_arcs_raw, rep_total_time = rep_path_raw
+    representative_critical_path = RepresentativeCriticalPathRecord(
+        operations=tuple((int(j), int(k)) for j, k in rep_ops_raw),
+        arc_ids=tuple(int(a) for a in rep_arcs_raw),
+        total_processing_time=int(rep_total_time),
+    )
+    critical_blocks = tuple(
+        CriticalBlockRecord(
+            block_id=int(b_id),
+            machine=int(machine),
+            operations=tuple((int(j), int(k)) for j, k in ops),
+            first_operation=(int(first_op[0]), int(first_op[1])),
+            last_operation=(int(last_op[0]), int(last_op[1])),
+            length=int(length),
+            critical_machine_arc_ids=tuple(int(a) for a in arc_ids),
+        )
+        for b_id, machine, ops, first_op, last_op, length, arc_ids in blocks_raw
+    )
+
+    return DisjunctiveGraphAnalysisResult(
+        graph_makespan=int(graph_makespan),
+        schedule_makespan=int(schedule_makespan),
+        metadata=metadata,
+        topological_order=topological_order,
+        operations=operations,
+        arcs=arcs,
+        critical_operations=tuple((int(j), int(k)) for j, k in crit_ops_raw),
+        critical_arc_ids=tuple(int(a) for a in crit_arcs_raw),
+        critical_machine_arc_ids=tuple(int(a) for a in crit_machine_arcs_raw),
+        critical_job_arc_ids=tuple(int(a) for a in crit_job_arcs_raw),
+        representative_critical_path=representative_critical_path,
+        critical_blocks=critical_blocks,
+    )
+
+
+def analyze_raw_schedule_graph(
+    jobs: InstanceSpec,
+    operations: Sequence[RawScheduledOperationTuple],
+    makespan: int,
+) -> DisjunctiveGraphAnalysisResult:
+    """Build and analyze the compact oriented disjunctive graph from raw schedule tuples."""
+    raw_ops = [(int(j), int(k), int(m), int(s), int(c), int(p)) for j, k, m, s, c, p in operations]
+    payload = _native.analyze_schedule_graph(_normalize_jobs(jobs), raw_ops, int(makespan))
+    return _graph_payload_to_result(payload)
+
+
+def analyze_schedule_graph(
+    jobs: InstanceSpec,
+    schedule: DecodedScheduleResult,
+) -> DisjunctiveGraphAnalysisResult:
+    """Build the compact oriented disjunctive graph and run critical-path analysis in Rust."""
+    return analyze_raw_schedule_graph(jobs, schedule.to_raw_operations(), schedule.makespan)
+
+
+def build_disjunctive_graph(
+    jobs: InstanceSpec,
+    schedule: DecodedScheduleResult,
+) -> DisjunctiveGraphAnalysisResult:
+    """Construct and analyze a validated disjunctive graph from a schedule."""
+    return analyze_schedule_graph(jobs, schedule)
+
+
+def analyze_obr_graph(
+    jobs: InstanceSpec,
+    chromosome: Sequence[int],
+) -> DisjunctiveGraphAnalysisResult:
+    """Decode an OBR chromosome and analyze its disjunctive graph & critical blocks in Rust."""
+    payload = _native.analyze_obr_graph(_normalize_jobs(jobs), [int(gene) for gene in chromosome])
+    return _graph_payload_to_result(payload)
+
+
+def compute_head_tail_times(
+    jobs: InstanceSpec,
+    schedule: DecodedScheduleResult,
+) -> tuple[OperationCriticalityRecord, ...]:
+    """Compute head, tail, slack, and maximizing predecessor/successor ties in Rust."""
+    return analyze_schedule_graph(jobs, schedule).operations
+
+
+def get_critical_operations(
+    jobs: InstanceSpec,
+    schedule: DecodedScheduleResult,
+) -> tuple[tuple[int, int], ...]:
+    """Return all critical `(job, op_index)` pairs from Rust critical-path analysis."""
+    return analyze_schedule_graph(jobs, schedule).critical_operations
+
+
+def get_critical_arcs(
+    jobs: InstanceSpec,
+    schedule: DecodedScheduleResult,
+) -> tuple[GraphArcRecord, ...]:
+    """Return all critical arcs (Boundary, JobPrecedence, MachineOrder) from Rust."""
+    return analyze_schedule_graph(jobs, schedule).critical_arcs
+
+
+def get_critical_machine_arcs(
+    jobs: InstanceSpec,
+    schedule: DecodedScheduleResult,
+) -> tuple[GraphArcRecord, ...]:
+    """Return all critical machine-order arcs from Rust."""
+    return analyze_schedule_graph(jobs, schedule).critical_machine_arcs
+
+
+def get_representative_critical_path(
+    jobs: InstanceSpec,
+    schedule: DecodedScheduleResult,
+) -> RepresentativeCriticalPathRecord:
+    """Return the deterministic representative Source-to-Sink critical path from Rust."""
+    return analyze_schedule_graph(jobs, schedule).representative_critical_path
+
+
+def get_critical_blocks(
+    jobs: InstanceSpec,
+    schedule: DecodedScheduleResult,
+) -> tuple[CriticalBlockRecord, ...]:
+    """Return all maximal extracted machine critical blocks (`length >= 2`) from Rust."""
+    return analyze_schedule_graph(jobs, schedule).critical_blocks
+
+
+def get_graph_makespan(
+    jobs: InstanceSpec,
+    schedule: DecodedScheduleResult,
+) -> int:
+    """Return the longest Source-to-Sink path length verified against schedule makespan."""
+    return analyze_schedule_graph(jobs, schedule).graph_makespan
+
+
+def validate_machine_sequences_dag(
+    jobs: InstanceSpec,
+    machine_sequences: Sequence[Sequence[tuple[int, int]]],
+) -> tuple[GraphVertexRecord, ...]:
+    """Verify machine-sequence acyclicity in Rust and return topological vertex ordering."""
+    seqs = [[(int(j), int(k)) for j, k in seq] for seq in machine_sequences]
+    topo_raw = _native.validate_machine_sequences_dag(_normalize_jobs(jobs), seqs)
+    return tuple(
+        GraphVertexRecord(vertex_id=int(v_id), kind=str(kind), op_id=_pair_or_none(op))
+        for v_id, kind, op in topo_raw
+    )

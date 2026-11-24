@@ -4,6 +4,7 @@
 //! independent schedule feasibility verification, and makespan evaluation
 //! backed by `jssp-core`.
 
+mod graph_api;
 mod instance_api;
 mod result_api;
 mod run_api;
@@ -41,5 +42,11 @@ fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(run_api::derive_rng_streams, m)?)?;
     m.add_function(wrap_pyfunction!(run_api::derive_rng_streams_with_seed, m)?)?;
     m.add_function(wrap_pyfunction!(run_api::rng_sample_range_and_shuffle, m)?)?;
+    m.add_function(wrap_pyfunction!(graph_api::analyze_schedule_graph, m)?)?;
+    m.add_function(wrap_pyfunction!(graph_api::analyze_obr_graph, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        graph_api::validate_machine_sequences_dag,
+        m
+    )?)?;
     Ok(())
 }

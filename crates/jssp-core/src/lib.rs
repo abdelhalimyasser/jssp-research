@@ -7,6 +7,7 @@
 pub mod decoder;
 pub mod error;
 pub mod feasibility;
+pub mod graph;
 pub mod model;
 pub mod objective;
 pub mod representation;

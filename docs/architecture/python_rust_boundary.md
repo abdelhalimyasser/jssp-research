@@ -31,6 +31,15 @@
 | `get_rng_metadata()` | None | `RngMetadataRecord` | Returns authoritative Rust RNG algorithm, pinned crate versions, rounds, schema, and roles. |
 | `derive_rng_streams(...)` / `derive_rng_streams_with_seed(...)` | `replicate_index`, `instance_id`, pairing args, `preview_count` | `tuple[DerivedStreamPreview, ...]` | Derives all 9 D07-A stream SHA-256 seeds and preview `u64` draws in Rust. |
 | `rng_sample_range_and_shuffle(seed_hex, upper, count, shuffle_len)` | 64-hex seed, bounds, lengths | `tuple[list[int], list[int]]` | Executes Rust ChaCha20 rejection range sampling and Fisher–Yates shuffle for verification/inspection. |
+| `analyze_schedule_graph(jobs, schedule)` / `build_disjunctive_graph(...)` / `analyze_raw_schedule_graph(...)` | `jobs`, `schedule` or raw op tuples + makespan | `DisjunctiveGraphAnalysisResult` | Validates schedule, builds disjunctive DAG, computes heads/tails, critical ops/arcs, rep path, and critical blocks in Rust. |
+| `analyze_obr_graph(jobs, chromosome)` | `jobs`, `Sequence[int]` | `DisjunctiveGraphAnalysisResult` | Decodes OBR via Serial SGS and runs full M4 graph/critical-path/block analysis in one call. |
+| `compute_head_tail_times(jobs, schedule)` | `jobs`, `DecodedScheduleResult` | `tuple[OperationCriticalityRecord, ...]` | Returns per-operation `(head, tail, slack, is_critical, maximizing_predecessors, maximizing_successors)` computed in Rust. |
+| `get_critical_operations(jobs, schedule)` | `jobs`, `DecodedScheduleResult` | `tuple[tuple[int, int], ...]` | Returns all critical `(job, op_index)` pairs (`slack == 0`). |
+| `get_critical_arcs(jobs, schedule)` / `get_critical_machine_arcs(...)` | `jobs`, `DecodedScheduleResult` | `tuple[GraphArcRecord, ...]` | Returns classified critical arcs (all or `machine_order` only) obeying head-tightness + critical-target criterion. |
+| `get_representative_critical_path(jobs, schedule)` | `jobs`, `DecodedScheduleResult` | `RepresentativeCriticalPathRecord` | Returns deterministic Sink-backtracked longest path (operations, arc IDs, duration sum). |
+| `get_critical_blocks(jobs, schedule)` | `jobs`, `DecodedScheduleResult` | `tuple[CriticalBlockRecord, ...]` | Returns maximal contiguous critical machine runs of length `>= 2`. |
+| `get_graph_makespan(jobs, schedule)` | `jobs`, `DecodedScheduleResult` | `int` | Returns verified longest `Source`-to-`Sink` path length matching schedule makespan. |
+| `validate_machine_sequences_dag(jobs, machine_sequences)` | `jobs`, per-machine `(job, op_index)` lists | `tuple[GraphVertexRecord, ...]` | Verifies machine-sequence DAG acyclicity in Rust or raises `ValueError` with cycle witness. |
 
 ---
 
@@ -40,6 +49,7 @@
 - **Scheduled Operation Tuple (`RawScheduledOperationTuple`):**
   `(job, op_index, machine, start_time, completion_time, processing_time)` mapped in Python to frozen dataclass `ScheduledOperationRecord`.
 - **Machine Sequences:** `tuple[tuple[tuple[int, int], ...], ...]` ordered by machine index `0..M-1` and processing interval order `(start_time, completion_time, job, op_index)`.
+- **Disjunctive Graph Analysis Records:** Frozen dataclasses `GraphMetadataRecord`, `GraphVertexRecord`, `GraphArcRecord`, `OperationCriticalityRecord`, `CriticalBlockRecord`, `RepresentativeCriticalPathRecord`, and `DisjunctiveGraphAnalysisResult` (with `.to_dict()` returning JSON-serializable primitives).
 
 ---
 
@@ -48,7 +58,7 @@
 Typed `jssp_core::error::JsspError` values returned from Rust are converted at the `crates/jssp-python` boundary without panicking:
 
 - **`JsspError::TimeOverflow` & `JsspError::DimensionOverflow`** $\longrightarrow$ Python **`OverflowError`**
-- **All remaining validation, OBR, precedence, overlap, coverage, metadata, and makespan errors** $\longrightarrow$ Python **`ValueError`** (preserving the structured `Display` diagnostic message)
+- **All remaining validation, OBR, precedence, overlap, coverage, metadata, makespan, graph-cycle (`GraphCycleDetected`), invalid graph, graph makespan mismatch, and negative slack errors** $\longrightarrow$ Python **`ValueError`** (preserving the structured `Display` diagnostic message)
 - Out-of-range negative integers passed from Python fail PyO3 `usize`/`u64` conversion cleanly with `OverflowError` / `TypeError`.
 
 ---

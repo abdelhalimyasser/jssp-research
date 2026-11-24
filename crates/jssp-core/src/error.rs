@@ -119,6 +119,25 @@ pub enum JsspError {
     },
     /// Invalid pairing policy identifier or hexadecimal seed payload passed to RNG helpers.
     InvalidRngConfiguration { detail: String },
+    /// Topological sorting detected a directed cycle in the disjunctive graph.
+    GraphCycleDetected {
+        unvisited_vertices: usize,
+        cycle_operations: Vec<(usize, usize)>,
+    },
+    /// Structural disjunctive-graph input violated invariants.
+    InvalidDisjunctiveGraph { detail: String },
+    /// Longest-path makespan on the disjunctive graph disagrees with schedule makespan.
+    GraphMakespanMismatch {
+        schedule_makespan: u64,
+        graph_makespan: u64,
+    },
+    /// Critical-path consistency failure: `head[u] + p[u] + tail[u] > C_max`.
+    NegativeOperationSlack {
+        job: usize,
+        op_index: usize,
+        head_plus_proc_plus_tail: u64,
+        graph_makespan: u64,
+    },
 }
 
 impl fmt::Display for JsspError {
@@ -291,6 +310,39 @@ impl fmt::Display for JsspError {
             Self::InvalidRngConfiguration { detail } => {
                 write!(f, "invalid RNG configuration: {detail}")
             }
+            Self::GraphCycleDetected {
+                unvisited_vertices,
+                cycle_operations,
+            } => {
+                let cycle_str: Vec<String> = cycle_operations
+                    .iter()
+                    .map(|(j, k)| format!("O({j},{k})"))
+                    .collect();
+                write!(
+                    f,
+                    "disjunctive graph contains a directed cycle ({unvisited_vertices} unvisited vertices, cycle witness: [{}])",
+                    cycle_str.join(" -> ")
+                )
+            }
+            Self::InvalidDisjunctiveGraph { detail } => {
+                write!(f, "invalid disjunctive graph: {detail}")
+            }
+            Self::GraphMakespanMismatch {
+                schedule_makespan,
+                graph_makespan,
+            } => write!(
+                f,
+                "disjunctive graph makespan {graph_makespan} disagrees with schedule makespan {schedule_makespan}"
+            ),
+            Self::NegativeOperationSlack {
+                job,
+                op_index,
+                head_plus_proc_plus_tail,
+                graph_makespan,
+            } => write!(
+                f,
+                "operation ({job}, {op_index}) has negative slack: head+p+tail={head_plus_proc_plus_tail} > C_max={graph_makespan}"
+            ),
         }
     }
 }

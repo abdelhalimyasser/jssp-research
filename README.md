@@ -573,7 +573,7 @@ Use this checklist as the living project tracker. Check an item only when its im
 - [x] Implement and validate the OBR decoder.
 - [x] Independently verify job precedence and machine exclusivity.
 - [x] Validate makespan calculations against hand-computed fixtures.
-- [ ] Validate critical paths and critical blocks on small instances.
+- [x] Validate critical paths and critical blocks on small instances.
 - [x] Document decoder tie-breaking and deterministic behavior.
 
 ### 3. Phase A — Initializers and QMC
