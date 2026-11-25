@@ -85,5 +85,13 @@ fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(phase_c_api::run_phase_c_single, m)?)?;
     m.add_function(wrap_pyfunction!(phase_c_api::run_phase_c_batch, m)?)?;
     m.add_function(wrap_pyfunction!(phase_c_api::run_integrated_acb_batch, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        phase_c_api::run_dual_view_exploratory_single,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        phase_c_api::run_dual_view_exploratory_batch,
+        m
+    )?)?;
     Ok(())
 }

@@ -6,9 +6,12 @@ use jssp_core::decoder::decode_obr as core_decode_obr;
 use jssp_core::feasibility::validate_schedule as core_validate_schedule;
 use jssp_core::initialization::InitializerId;
 use jssp_core::memetic::{
-    PhaseCBatchTask, PhaseCConfigId, PhaseCGaConfig,
-    default_phase_c_budget as core_default_c_budget, run_phase_c_batch as core_run_phase_c_batch,
-    run_phase_c_ga as core_run_phase_c_ga,
+    DualViewExploratoryResult, DualViewExploratoryTask, DualViewLsAllocationConfig,
+    ExploratoryLsStrategy, PhaseCBatchTask, PhaseCConfigId, PhaseCGaConfig,
+    default_phase_c_budget as core_default_c_budget,
+    run_dual_view_exploratory_batch as core_run_dv_exp_batch,
+    run_dual_view_ls_allocation as core_run_dv_exp_single,
+    run_phase_c_batch as core_run_phase_c_batch, run_phase_c_ga as core_run_phase_c_ga,
 };
 use jssp_core::metaheuristics::{
     PhaseBConfigId, run_phase_b_from_schedule as core_run_phase_b_from_schedule,
@@ -468,6 +471,334 @@ pub fn run_integrated_acb_batch(
         })
         .map_err(jssp_err_to_py)?;
     Ok(results)
+}
+
+type ExploratoryCoreTuple = (
+    String,
+    &'static str,
+    &'static str,
+    &'static str,
+    &'static str,
+    usize,
+    f64,
+    usize,
+    usize,
+);
+
+type ExploratoryPerfTuple = (
+    usize,
+    usize,
+    usize,
+    usize,
+    u64,
+    usize,
+    usize,
+    bool,
+    f64,
+    u64,
+);
+
+type ExploratoryDivTuple = (
+    f64,
+    f64,
+    f64,
+    Option<f64>,
+    u64,
+    u64,
+    usize,
+    usize,
+    usize,
+    usize,
+);
+
+type ExploratoryBranchTuple = (
+    usize,
+    usize,
+    usize,
+    usize,
+    usize,
+    usize,
+    usize,
+    usize,
+    usize,
+    usize,
+);
+
+type ExploratoryRunTuple = (
+    ExploratoryCoreTuple,
+    ExploratoryPerfTuple,
+    ExploratoryDivTuple,
+    ExploratoryBranchTuple,
+    ExploratoryBranchTuple,
+    Vec<(usize, f64)>,
+    Vec<(usize, f64, f64, f64)>,
+    Vec<(usize, u64)>,
+    Vec<usize>,
+    MachineSequenceList,
+);
+
+type ExploratoryBatchTaskSpec = (
+    String,
+    String,
+    String,
+    String,
+    usize,
+    f64,
+    u32,
+    Option<u64>,
+    String,
+    String,
+    String,
+);
+
+fn exploratory_result_to_tuple(res: DualViewExploratoryResult) -> ExploratoryRunTuple {
+    let core: ExploratoryCoreTuple = (
+        res.experiment_id,
+        res.base_config_id,
+        res.initializer_id,
+        res.ls_neighborhood,
+        res.ls_strategy,
+        res.max_ls_evals,
+        res.candidate_fraction,
+        res.genotype_capacity,
+        res.evaluation_budget,
+    );
+    let perf: ExploratoryPerfTuple = (
+        res.evals_used,
+        res.init_evals,
+        res.search_evals,
+        res.generations_executed,
+        res.best_makespan,
+        res.best_found_eval,
+        res.best_found_generation,
+        res.feasible_final,
+        res.anytime_cmax_auc,
+        res.total_elapsed_ns,
+    );
+    let div: ExploratoryDivTuple = (
+        res.final_obr_diversity,
+        res.final_lam_diversity,
+        res.final_bald_diversity,
+        res.final_gate_p,
+        res.lam_best_makespan,
+        res.bald_best_makespan,
+        res.crossover_count,
+        res.mutation_count,
+        res.writeback_count,
+        res.migrations_applied,
+    );
+    let lam_b: ExploratoryBranchTuple = (
+        res.lam_branch.decode_evals,
+        res.lam_branch.ls_evals,
+        res.lam_branch.ls_calls,
+        res.lam_branch.improving_calls,
+        res.lam_branch.evaluated_moves,
+        res.lam_branch.feasible_moves,
+        res.lam_branch.rejected_cyclic_moves,
+        res.lam_branch.improving_moves,
+        res.lam_branch.accepted_moves,
+        res.lam_branch.rejected_moves(),
+    );
+    let bald_b: ExploratoryBranchTuple = (
+        res.bald_branch.decode_evals,
+        res.bald_branch.ls_evals,
+        res.bald_branch.ls_calls,
+        res.bald_branch.improving_calls,
+        res.bald_branch.evaluated_moves,
+        res.bald_branch.feasible_moves,
+        res.bald_branch.rejected_cyclic_moves,
+        res.bald_branch.improving_moves,
+        res.bald_branch.accepted_moves,
+        res.bald_branch.rejected_moves(),
+    );
+    (
+        core,
+        perf,
+        div,
+        lam_b,
+        bald_b,
+        res.gate_p_trajectory,
+        res.diversity_trajectory,
+        res.best_milestones,
+        res.best_chromosome,
+        res.best_machine_sequences,
+    )
+}
+
+/// Runs one exploratory Dual-View LS budget allocation experiment inside Rust.
+#[pyfunction]
+#[pyo3(signature = (
+    jobs,
+    experiment_id,
+    instance_id,
+    base_config_id="C06",
+    initializer_id="A11",
+    ls_neighborhood="N5",
+    ls_strategy="steepest_descent",
+    max_ls_evals=50,
+    candidate_fraction=1.0,
+    pop_size=64,
+    tournament_size=2,
+    crossover_rate=0.85,
+    mutation_rate=0.15,
+    elitism_count=2,
+    evaluation_budget=None,
+    replicate_index=0,
+    master_seed_override=None,
+    pairing_mode="paired_init",
+    pairing_group="phase_c_shared_init",
+    configuration_id=None,
+))]
+#[allow(clippy::too_many_arguments)]
+pub fn run_dual_view_exploratory_single(
+    jobs: Vec<Vec<(usize, u64)>>,
+    experiment_id: String,
+    instance_id: String,
+    base_config_id: &str,
+    initializer_id: &str,
+    ls_neighborhood: &str,
+    ls_strategy: &str,
+    max_ls_evals: usize,
+    candidate_fraction: f64,
+    pop_size: usize,
+    tournament_size: usize,
+    crossover_rate: f64,
+    mutation_rate: f64,
+    elitism_count: usize,
+    evaluation_budget: Option<usize>,
+    replicate_index: u32,
+    master_seed_override: Option<u64>,
+    pairing_mode: &str,
+    pairing_group: &str,
+    configuration_id: Option<String>,
+) -> PyResult<ExploratoryRunTuple> {
+    let instance = parse_instance(jobs)?;
+    let cfg_id = PhaseCConfigId::from_code(base_config_id).map_err(jssp_err_to_py)?;
+    let init_id = InitializerId::from_code(initializer_id).map_err(jssp_err_to_py)?;
+    let nb_id = NeighborhoodId::from_code(ls_neighborhood).map_err(jssp_err_to_py)?;
+    let strat = ExploratoryLsStrategy::from_code(ls_strategy).map_err(jssp_err_to_py)?;
+    let budget = evaluation_budget
+        .unwrap_or_else(|| core_default_c_budget(instance.num_jobs(), instance.num_machines()));
+    let cfg_label = configuration_id.unwrap_or_else(|| base_config_id.to_owned());
+    let config = DualViewLsAllocationConfig {
+        experiment_id,
+        base_config_id: cfg_id,
+        initializer: init_id,
+        population_size: pop_size,
+        tournament_size,
+        crossover_rate,
+        mutation_rate,
+        elitism_count,
+        evaluation_budget: budget,
+        neighborhood: nb_id,
+        strategy: strat,
+        max_ls_evals,
+        candidate_fraction,
+    };
+    let context = build_seed_context(
+        replicate_index,
+        master_seed_override,
+        instance_id,
+        pairing_mode,
+        pairing_group.to_owned(),
+        cfg_label,
+    )?;
+    let mut streams = context.all_streams();
+    let res = core_run_dv_exp_single(&instance, &config, &mut streams).map_err(jssp_err_to_py)?;
+    Ok(exploratory_result_to_tuple(res))
+}
+
+/// Runs a multi-threaded Rust batch of exploratory Dual-View LS budget experiments.
+#[pyfunction]
+#[pyo3(signature = (
+    jobs,
+    instance_id,
+    tasks,
+    initializer_id="A11",
+    pop_size=64,
+    tournament_size=2,
+    crossover_rate=0.85,
+    mutation_rate=0.15,
+    elitism_count=2,
+    evaluation_budget=None,
+    num_threads=0,
+))]
+#[allow(clippy::too_many_arguments)]
+pub fn run_dual_view_exploratory_batch(
+    py: Python<'_>,
+    jobs: Vec<Vec<(usize, u64)>>,
+    instance_id: String,
+    tasks: Vec<ExploratoryBatchTaskSpec>,
+    initializer_id: &str,
+    pop_size: usize,
+    tournament_size: usize,
+    crossover_rate: f64,
+    mutation_rate: f64,
+    elitism_count: usize,
+    evaluation_budget: Option<usize>,
+    num_threads: usize,
+) -> PyResult<Vec<ExploratoryRunTuple>> {
+    let instance = parse_instance(jobs)?;
+    let init_id = InitializerId::from_code(initializer_id).map_err(jssp_err_to_py)?;
+    let budget = evaluation_budget
+        .unwrap_or_else(|| core_default_c_budget(instance.num_jobs(), instance.num_machines()));
+
+    let mut batch_tasks = Vec::with_capacity(tasks.len());
+    for (
+        exp_id,
+        base_code,
+        nb_code,
+        strat_code,
+        max_ls_evals,
+        candidate_fraction,
+        rep_idx,
+        seed_override,
+        pairing_mode,
+        pairing_group,
+        cfg_label,
+    ) in tasks
+    {
+        let cfg_id = PhaseCConfigId::from_code(&base_code).map_err(jssp_err_to_py)?;
+        let nb_id = NeighborhoodId::from_code(&nb_code).map_err(jssp_err_to_py)?;
+        let strat = ExploratoryLsStrategy::from_code(&strat_code).map_err(jssp_err_to_py)?;
+        let config = DualViewLsAllocationConfig {
+            experiment_id: exp_id,
+            base_config_id: cfg_id,
+            initializer: init_id,
+            population_size: pop_size,
+            tournament_size,
+            crossover_rate,
+            mutation_rate,
+            elitism_count,
+            evaluation_budget: budget,
+            neighborhood: nb_id,
+            strategy: strat,
+            max_ls_evals,
+            candidate_fraction,
+        };
+        config.validate().map_err(jssp_err_to_py)?;
+        let context = build_seed_context(
+            rep_idx,
+            seed_override,
+            instance_id.clone(),
+            &pairing_mode,
+            pairing_group,
+            cfg_label,
+        )?;
+        batch_tasks.push(DualViewExploratoryTask {
+            config,
+            seed_context: context,
+        });
+    }
+
+    let raw_results = py
+        .detach(|| core_run_dv_exp_batch(&instance, &batch_tasks, num_threads))
+        .map_err(jssp_err_to_py)?;
+
+    Ok(raw_results
+        .into_iter()
+        .map(exploratory_result_to_tuple)
+        .collect())
 }
 
 fn build_seed_context_rust(

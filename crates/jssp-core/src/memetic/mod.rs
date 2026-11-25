@@ -32,6 +32,11 @@ use crate::rng::{RunRngStreams, SeedDerivationContext};
 use crate::telemetry::{EvalCounter, compute_obr_hamming_diversity};
 
 use self::baldwinian::apply_baldwinian_preservation;
+pub use self::dual_view::{
+    BranchLsTelemetry, DualViewExploratoryResult, DualViewExploratoryTask,
+    DualViewLsAllocationConfig, ExploratoryLsStrategy, run_dual_view_exploratory_batch,
+    run_dual_view_ls_allocation,
+};
 use self::dual_view::{run_dual_view_model_a, run_unpaired_dual_pool_control};
 use self::lamarckian::{MemeticEvalOutcome, apply_lamarckian_writeback};
 use self::partial_lamarckian::apply_partial_lamarckian_even_ranks;

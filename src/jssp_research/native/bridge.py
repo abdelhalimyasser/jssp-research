@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass
+from typing import Any
 
 from jssp_research import _native
 
@@ -1705,3 +1706,228 @@ def run_integrated_acb_batch(
         )
         for pid, tb, eu, cb, fb, cbe, fbe, feas, auc, ns in raw
     )
+
+
+@dataclass(frozen=True, slots=True)
+class BranchLsTelemetryRecord:
+    """Per-branch decode, local-search evaluation, and move-acceptance counters."""
+
+    decode_evals: int
+    ls_evals: int
+    ls_calls: int
+    improving_calls: int
+    evaluated_moves: int
+    feasible_moves: int
+    rejected_cyclic_moves: int
+    improving_moves: int
+    accepted_moves: int
+    rejected_moves: int
+
+
+@dataclass(frozen=True, slots=True)
+class DualViewExploratoryResultRecord:
+    """Complete telemetry returned from one exploratory Dual-View LS budget run."""
+
+    experiment_id: str
+    base_config_id: str
+    initializer_id: str
+    ls_neighborhood: str
+    ls_strategy: str
+    max_ls_evals: int
+    candidate_fraction: float
+    genotype_capacity: int
+    evaluation_budget: int
+    evals_used: int
+    init_evals: int
+    search_evals: int
+    generations_executed: int
+    best_makespan: int
+    best_found_eval: int
+    best_found_generation: int
+    feasible_final: bool
+    anytime_cmax_auc: float
+    total_elapsed_ns: int
+    final_obr_diversity: float
+    final_lam_diversity: float
+    final_bald_diversity: float
+    final_gate_p: float | None
+    lam_best_makespan: int
+    bald_best_makespan: int
+    crossover_count: int
+    mutation_count: int
+    writeback_count: int
+    migrations_applied: int
+    lam_branch: BranchLsTelemetryRecord
+    bald_branch: BranchLsTelemetryRecord
+    gate_p_trajectory: tuple[tuple[int, float], ...]
+    diversity_trajectory: tuple[tuple[int, float, float, float], ...]
+    best_milestones: tuple[tuple[int, int], ...]
+    best_chromosome: tuple[int, ...]
+    best_machine_sequences: tuple[tuple[tuple[int, int], ...], ...]
+
+
+def _branch_tuple_to_record(raw: tuple[int, ...]) -> BranchLsTelemetryRecord:
+    return BranchLsTelemetryRecord(
+        decode_evals=int(raw[0]),
+        ls_evals=int(raw[1]),
+        ls_calls=int(raw[2]),
+        improving_calls=int(raw[3]),
+        evaluated_moves=int(raw[4]),
+        feasible_moves=int(raw[5]),
+        rejected_cyclic_moves=int(raw[6]),
+        improving_moves=int(raw[7]),
+        accepted_moves=int(raw[8]),
+        rejected_moves=int(raw[9]),
+    )
+
+
+def _exploratory_payload_to_record(payload: tuple[Any, ...]) -> DualViewExploratoryResultRecord:
+    c, p, d, lam_b, bald_b, gate_t, div_t, milestones, best_chr, seqs = payload
+    return DualViewExploratoryResultRecord(
+        experiment_id=str(c[0]),
+        base_config_id=str(c[1]),
+        initializer_id=str(c[2]),
+        ls_neighborhood=str(c[3]),
+        ls_strategy=str(c[4]),
+        max_ls_evals=int(c[5]),
+        candidate_fraction=float(c[6]),
+        genotype_capacity=int(c[7]),
+        evaluation_budget=int(c[8]),
+        evals_used=int(p[0]),
+        init_evals=int(p[1]),
+        search_evals=int(p[2]),
+        generations_executed=int(p[3]),
+        best_makespan=int(p[4]),
+        best_found_eval=int(p[5]),
+        best_found_generation=int(p[6]),
+        feasible_final=bool(p[7]),
+        anytime_cmax_auc=float(p[8]),
+        total_elapsed_ns=int(p[9]),
+        final_obr_diversity=float(d[0]),
+        final_lam_diversity=float(d[1]),
+        final_bald_diversity=float(d[2]),
+        final_gate_p=(float(d[3]) if d[3] is not None else None),
+        lam_best_makespan=int(d[4]),
+        bald_best_makespan=int(d[5]),
+        crossover_count=int(d[6]),
+        mutation_count=int(d[7]),
+        writeback_count=int(d[8]),
+        migrations_applied=int(d[9]),
+        lam_branch=_branch_tuple_to_record(lam_b),
+        bald_branch=_branch_tuple_to_record(bald_b),
+        gate_p_trajectory=tuple((int(g), float(gv)) for g, gv in gate_t),
+        diversity_trajectory=tuple(
+            (int(g), float(od), float(ld), float(bd)) for g, od, ld, bd in div_t
+        ),
+        best_milestones=tuple((int(ev), int(cm)) for ev, cm in milestones),
+        best_chromosome=tuple(int(x) for x in best_chr),
+        best_machine_sequences=tuple(tuple((int(j), int(op)) for j, op in ms) for ms in seqs),
+    )
+
+
+def run_dual_view_exploratory_single(
+    jobs: InstanceSpec,
+    experiment_id: str,
+    instance_id: str,
+    *,
+    base_config_id: str = "C06",
+    initializer_id: str = "A11",
+    ls_neighborhood: str = "N5",
+    ls_strategy: str = "steepest_descent",
+    max_ls_evals: int = 50,
+    candidate_fraction: float = 1.0,
+    pop_size: int = 64,
+    tournament_size: int = 2,
+    crossover_rate: float = 0.85,
+    mutation_rate: float = 0.15,
+    elitism_count: int = 2,
+    evaluation_budget: int | None = None,
+    replicate_index: int = 0,
+    master_seed_override: int | None = None,
+    pairing_mode: str = "paired_init",
+    pairing_group: str = "phase_c_shared_init",
+    configuration_id: str | None = None,
+) -> DualViewExploratoryResultRecord:
+    """Execute one exploratory Dual-View LS budget allocation run in Rust."""
+    payload = _native.run_dual_view_exploratory_single(
+        _normalize_jobs(jobs),
+        experiment_id,
+        instance_id,
+        base_config_id,
+        initializer_id,
+        ls_neighborhood,
+        ls_strategy,
+        int(max_ls_evals),
+        float(candidate_fraction),
+        int(pop_size),
+        int(tournament_size),
+        float(crossover_rate),
+        float(mutation_rate),
+        int(elitism_count),
+        (int(evaluation_budget) if evaluation_budget is not None else None),
+        int(replicate_index),
+        master_seed_override,
+        pairing_mode,
+        pairing_group,
+        configuration_id,
+    )
+    return _exploratory_payload_to_record(payload)
+
+
+def run_dual_view_exploratory_batch(
+    jobs: InstanceSpec,
+    instance_id: str,
+    tasks: Sequence[tuple[str, str, str, str, int, float, int, int | None, str, str, str]],
+    *,
+    initializer_id: str = "A11",
+    pop_size: int = 64,
+    tournament_size: int = 2,
+    crossover_rate: float = 0.85,
+    mutation_rate: float = 0.15,
+    elitism_count: int = 2,
+    evaluation_budget: int | None = None,
+    num_threads: int = 0,
+) -> tuple[DualViewExploratoryResultRecord, ...]:
+    """Run a multi-threaded batch of exploratory Dual-View LS budget runs in Rust."""
+    norm_tasks = [
+        (
+            str(exp_id),
+            str(base_cfg),
+            str(nb),
+            str(strat),
+            int(b_ls),
+            float(frac),
+            int(rep),
+            seed_ov,
+            str(pmode),
+            str(pgroup),
+            str(cfg_label),
+        )
+        for (
+            exp_id,
+            base_cfg,
+            nb,
+            strat,
+            b_ls,
+            frac,
+            rep,
+            seed_ov,
+            pmode,
+            pgroup,
+            cfg_label,
+        ) in tasks
+    ]
+    raw_list = _native.run_dual_view_exploratory_batch(
+        _normalize_jobs(jobs),
+        instance_id,
+        norm_tasks,
+        initializer_id,
+        int(pop_size),
+        int(tournament_size),
+        float(crossover_rate),
+        float(mutation_rate),
+        int(elitism_count),
+        (int(evaluation_budget) if evaluation_budget is not None else None),
+        int(num_threads),
+    )
+    return tuple(_exploratory_payload_to_record(item) for item in raw_list)

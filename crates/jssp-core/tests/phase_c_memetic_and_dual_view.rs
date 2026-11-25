@@ -12,8 +12,9 @@ use jssp_core::memetic::dual_view::{
 use jssp_core::memetic::lamarckian::{MemeticEvalOutcome, apply_lamarckian_writeback};
 use jssp_core::memetic::partial_lamarckian::apply_partial_lamarckian_even_ranks;
 use jssp_core::memetic::{
-    PhaseCBatchTask, PhaseCConfigId, PhaseCGaConfig, default_phase_c_budget, run_phase_c_batch,
-    run_phase_c_ga,
+    DualViewLsAllocationConfig, ExploratoryLsStrategy, PhaseCBatchTask, PhaseCConfigId,
+    PhaseCGaConfig, default_phase_c_budget, run_dual_view_exploratory_batch,
+    run_dual_view_ls_allocation, run_phase_c_batch, run_phase_c_ga,
 };
 use jssp_core::metaheuristics::PhaseBStrategy;
 use jssp_core::model::{JobId, JsspInstance};
@@ -265,4 +266,149 @@ fn all_11_phase_c_configs_execute_within_equal_budget_and_verify_feasibility() {
         assert_eq!(single.best_chromosome, res.best_chromosome);
         assert_eq!(single.final_gate_p, res.final_gate_p);
     }
+}
+
+#[test]
+fn exploratory_dv_ls_budget_parity_conservation_selection_and_short_sa() {
+    let inst = ft06_instance();
+    let budget = 1000;
+
+    // 1. Control config (b_LS=50, f_LS=1.0, SteepestDescent, N5) must match C06 bit-for-bit.
+    let c06_cfg = PhaseCGaConfig::standard(
+        PhaseCConfigId::C06,
+        InitializerId::A11,
+        budget,
+        NeighborhoodId::N5,
+        PhaseBStrategy::SteepestDescent,
+        50,
+    );
+    let mut s_c06 = phase_c_context(0, "ft06", "C06").all_streams();
+    let res_c06 = run_phase_c_ga(&inst, &c06_cfg, &mut s_c06).expect("c06");
+
+    let ctrl_cfg = DualViewLsAllocationConfig::standard(
+        "DV_A4_B50".to_owned(),
+        PhaseCConfigId::C06,
+        InitializerId::A11,
+        budget,
+        NeighborhoodId::N5,
+        ExploratoryLsStrategy::SteepestDescent,
+        50,
+        1.0,
+    );
+    let mut s_ctrl = phase_c_context(0, "ft06", "C06").all_streams();
+    let res_ctrl = run_dual_view_ls_allocation(&inst, &ctrl_cfg, &mut s_ctrl).expect("dv_ctrl");
+
+    assert_eq!(res_ctrl.best_makespan, res_c06.best_makespan);
+    assert_eq!(res_ctrl.evals_used, res_c06.evals_used);
+    assert_eq!(res_ctrl.generations_executed, res_c06.generations_executed);
+    assert_eq!(res_ctrl.final_gate_p, res_c06.final_gate_p);
+    assert_eq!(res_ctrl.best_chromosome, res_c06.best_chromosome);
+    assert_eq!(res_ctrl.anytime_cmax_auc, res_c06.anytime_cmax_auc);
+
+    // 2. Exact budget conservation across LS limits, candidate fractions, and strategies.
+    let cases = [
+        (
+            "DV_A1_B10",
+            ExploratoryLsStrategy::SteepestDescent,
+            10usize,
+            1.0_f64,
+        ),
+        (
+            "DV_A2_B20",
+            ExploratoryLsStrategy::SteepestDescent,
+            20usize,
+            1.0_f64,
+        ),
+        (
+            "DV_B1_F020",
+            ExploratoryLsStrategy::SteepestDescent,
+            20usize,
+            0.20_f64,
+        ),
+        (
+            "DV_B2_F040",
+            ExploratoryLsStrategy::SteepestDescent,
+            20usize,
+            0.40_f64,
+        ),
+        (
+            "DV_B3_F060",
+            ExploratoryLsStrategy::SteepestDescent,
+            20usize,
+            0.60_f64,
+        ),
+        (
+            "DV_C2_FI",
+            ExploratoryLsStrategy::FirstImprovement,
+            20usize,
+            0.40_f64,
+        ),
+        (
+            "DV_C3_SA",
+            ExploratoryLsStrategy::BudgetLimitedSa,
+            20usize,
+            0.40_f64,
+        ),
+    ];
+
+    let mut ws = SerialDecoderWorkspace::new(&inst);
+    let mut tasks = Vec::new();
+    for &(exp_id, strat, b_ls, f_ls) in &cases {
+        let cfg = DualViewLsAllocationConfig::standard(
+            exp_id.to_owned(),
+            PhaseCConfigId::C06,
+            InitializerId::A11,
+            budget,
+            NeighborhoodId::N5,
+            strat,
+            b_ls,
+            f_ls,
+        );
+        let ctx = phase_c_context(2, "ft06", "C06");
+        let mut s1 = ctx.all_streams();
+        let r1 = run_dual_view_ls_allocation(&inst, &cfg, &mut s1).expect(exp_id);
+        let mut s2 = ctx.all_streams();
+        let r2 = run_dual_view_ls_allocation(&inst, &cfg, &mut s2).expect("repro");
+        assert_eq!(r1.best_makespan, r2.best_makespan);
+        assert_eq!(r1.best_chromosome, r2.best_chromosome);
+        assert_eq!(r1.evals_used, r2.evals_used);
+
+        assert!(r1.feasible_final);
+        assert!(r1.evals_used <= budget);
+        assert_eq!(r1.init_evals + r1.search_evals, r1.evals_used);
+        let branch_total = r1.lam_branch.decode_evals
+            + r1.lam_branch.ls_evals
+            + r1.bald_branch.decode_evals
+            + r1.bald_branch.ls_evals;
+        assert_eq!(branch_total, r1.evals_used);
+        assert!(
+            r1.lam_branch.decode_evals >= r1.bald_branch.decode_evals
+                && r1.lam_branch.decode_evals - r1.bald_branch.decode_evals <= 1
+        );
+        assert_eq!(r1.diversity_trajectory.len(), r1.generations_executed + 1);
+
+        let best_obr = ObrChromosome::from_job_indices(&r1.best_chromosome);
+        let sched = ws.decode(&inst, &best_obr, true).expect("decode best");
+        validate_schedule(&inst, &sched).expect("valid M2 schedule");
+        assert_eq!(sched.makespan(), r1.best_makespan);
+
+        if strat == ExploratoryLsStrategy::BudgetLimitedSa {
+            assert!(r1.lam_branch.ls_calls > 0);
+            assert!(r1.lam_branch.evaluated_moves > 0);
+            assert!(r1.lam_branch.accepted_moves > 0);
+        }
+
+        tasks.push(jssp_core::memetic::DualViewExploratoryTask {
+            config: cfg,
+            seed_context: ctx,
+        });
+    }
+
+    // 3. Batch parity check and lower fraction yielding higher generation count than 100%.
+    let batch = run_dual_view_exploratory_batch(&inst, &tasks, 2).expect("batch");
+    assert_eq!(batch.len(), cases.len());
+    // DV_B1_F020 (index 2) must run strictly more generations than DV_A2_B20 (index 1).
+    assert!(batch[2].generations_executed > batch[1].generations_executed);
+    // Exact ceil(0.20 * 32) = 7 initial + ceil(0.20 * 31) = 7 per gen -> ls_calls per branch divisible or smaller than decodes
+    assert!(batch[2].lam_branch.ls_calls < batch[2].lam_branch.decode_evals);
 }

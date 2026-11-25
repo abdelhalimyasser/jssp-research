@@ -3,6 +3,7 @@
 pub mod adaptive_gate;
 pub mod fixed_gate;
 pub mod individual;
+pub mod ls_budget_investigation;
 pub mod migration;
 pub mod reproduction;
 
@@ -11,6 +12,11 @@ pub use fixed_gate::FixedGate;
 pub use individual::{
     DualViewIndividual, NormalizedPairScores, normalize_dual_view_scores, ranked_dual_view_indices,
     select_dual_view_parent,
+};
+pub use ls_budget_investigation::{
+    BranchLsTelemetry, DualViewExploratoryResult, DualViewExploratoryTask,
+    DualViewLsAllocationConfig, ExploratoryLsStrategy, run_budget_limited_sa,
+    run_dual_view_exploratory_batch, run_dual_view_ls_allocation,
 };
 pub use migration::{MIGRATION_INTERVAL_GENS, MigrationPlan, plan_cross_view_migration};
 pub use reproduction::reproduce_dual_view_within_view;
