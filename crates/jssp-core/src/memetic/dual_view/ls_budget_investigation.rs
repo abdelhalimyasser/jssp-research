@@ -9,7 +9,7 @@ use std::time::Instant;
 use crate::decoder::SerialDecoderWorkspace;
 use crate::error::JsspError;
 use crate::feasibility::validate_schedule;
-use crate::genetic::PoxWorkspace;
+use crate::genetic::{PoxWorkspace, mutate_obr, ranked_population_indices, tournament_select};
 use crate::initialization::qmc::u01_from_u64;
 use crate::initialization::{InitializerId, generate_initial_population};
 use crate::local_search::descent::{
@@ -122,15 +122,16 @@ impl DualViewLsAllocationConfig {
         }
     }
 
-    /// Validates Dual-View pairing, GA hyperparameters, and LS allocation bounds.
+    /// Validates single-view `C02` or Model A Dual-View pairing, GA hyperparameters, and LS bounds.
     ///
     /// # Errors
     /// Returns [`JsspError::InvalidGeneticConfiguration`] on invalid settings.
     pub fn validate(&self) -> Result<(), JsspError> {
-        if !self.base_config_id.is_dual_view_paired() {
+        if self.base_config_id != PhaseCConfigId::C02 && !self.base_config_id.is_dual_view_paired()
+        {
             return Err(JsspError::InvalidGeneticConfiguration {
                 detail: format!(
-                    "{} is not a paired Model A Dual-View config",
+                    "{} is not C02 or a paired Model A Dual-View config",
                     self.base_config_id.code()
                 ),
             });
@@ -877,7 +878,407 @@ fn record_generation_diversity_and_gate(
     }
 }
 
-/// Executes one exploratory Dual-View LS budget allocation run under exact `EvalCounter` parity.
+struct SingleViewCandidate {
+    cohort_idx: usize,
+    raw_chr: ObrChromosome,
+    raw_sched: Schedule,
+    raw_cmax: u64,
+}
+
+struct SingleViewState<'a> {
+    instance: &'a JsspInstance,
+    config: &'a DualViewLsAllocationConfig,
+    counter: &'a mut EvalCounter,
+    decoder_ws: &'a mut SerialDecoderWorkspace,
+    ls_decoder_ws: &'a mut SerialDecoderWorkspace,
+    graph_eval: &'a mut FastGraphEvaluator,
+    streams: &'a mut RunRngStreams,
+    lam_branch: BranchLsTelemetry,
+    writeback_count: usize,
+    best_makespan: u64,
+    best_chr: ObrChromosome,
+    best_found_eval: usize,
+    best_found_gen: usize,
+    milestones: Vec<(usize, u64)>,
+}
+
+impl SingleViewState<'_> {
+    fn maybe_update_best(
+        &mut self,
+        cmax: u64,
+        chr: &ObrChromosome,
+        curr_gen: usize,
+        push_milestone: bool,
+    ) {
+        if cmax < self.best_makespan {
+            self.best_makespan = cmax;
+            self.best_chr = chr.clone();
+            self.best_found_eval = self.counter.total();
+            self.best_found_gen = curr_gen;
+            if push_milestone {
+                self.milestones
+                    .push((self.best_found_eval, self.best_makespan));
+            }
+        }
+    }
+
+    fn consume_decode(&mut self, is_init: bool) -> bool {
+        if is_init {
+            self.counter.try_consume_init()
+        } else {
+            self.counter.try_consume_search()
+        }
+    }
+
+    fn finalize_ls_outcome(
+        &mut self,
+        outcome: &mut MemeticEvalOutcome,
+        ls_counters: &SearchCounters,
+        curr_gen: usize,
+        push_milestone: bool,
+    ) -> Result<(), JsspError> {
+        if outcome.ls_evals_consumed > 0 || ls_counters.evaluated_moves > 0 {
+            self.lam_branch.ls_calls += 1;
+            self.lam_branch.ls_evals += outcome.ls_evals_consumed;
+            self.lam_branch.record_counters(ls_counters);
+            if outcome.post_ls_makespan < outcome.raw_makespan {
+                self.lam_branch.improving_calls += 1;
+            }
+        }
+        apply_lamarckian_writeback(self.instance, outcome)?;
+        if outcome.post_ls_makespan < outcome.raw_makespan {
+            self.writeback_count += 1;
+        }
+        let imp = outcome.improved_genotype.clone();
+        self.maybe_update_best(outcome.post_ls_makespan, &imp, curr_gen, push_milestone);
+        Ok(())
+    }
+}
+
+fn eval_single_view_sequential(
+    chr: &ObrChromosome,
+    is_init: bool,
+    curr_gen: usize,
+    state: &mut SingleViewState<'_>,
+) -> Result<Option<(ObrChromosome, u64)>, JsspError> {
+    if !state.consume_decode(is_init) {
+        return Ok(None);
+    }
+    state.lam_branch.decode_evals += 1;
+    let raw_sched = state.decoder_ws.decode(state.instance, chr, true)?;
+    validate_schedule(state.instance, &raw_sched)?;
+    let (mut out, cnt) = apply_ls_on_decoded_schedule(
+        state.instance,
+        chr,
+        raw_sched,
+        state.config.strategy,
+        state.config.neighborhood,
+        state.config.max_ls_evals,
+        state.counter,
+        state.ls_decoder_ws,
+        state.graph_eval,
+        state.streams,
+    )?;
+    // Match `run_single_view_memetic`: defer init milestone push until after t=0 loop.
+    state.finalize_ls_outcome(&mut out, &cnt, curr_gen, !is_init)?;
+    Ok(Some((out.effective_genotype, out.post_ls_makespan)))
+}
+
+fn eval_single_view_cohort_selective(
+    raw_chrs: &[ObrChromosome],
+    is_init: bool,
+    curr_gen: usize,
+    state: &mut SingleViewState<'_>,
+) -> Result<Vec<(ObrChromosome, u64)>, JsspError> {
+    let mut cohort: Vec<SingleViewCandidate> = Vec::with_capacity(raw_chrs.len());
+    for (idx, chr) in raw_chrs.iter().enumerate() {
+        if !state.consume_decode(is_init) {
+            break;
+        }
+        state.lam_branch.decode_evals += 1;
+        let sched = state.decoder_ws.decode(state.instance, chr, true)?;
+        validate_schedule(state.instance, &sched)?;
+        let cmax = sched.makespan();
+        state.maybe_update_best(cmax, chr, curr_gen, true);
+        cohort.push(SingleViewCandidate {
+            cohort_idx: idx,
+            raw_chr: chr.clone(),
+            raw_sched: sched,
+            raw_cmax: cmax,
+        });
+    }
+
+    if cohort.is_empty() {
+        return Ok(Vec::new());
+    }
+
+    let m = cohort.len();
+    let k = ((state.config.candidate_fraction * (m as f64)).ceil() as usize).clamp(1, m);
+    let mut order: Vec<usize> = (0..m).collect();
+    order.sort_by_key(|&i| (cohort[i].raw_cmax, cohort[i].cohort_idx));
+
+    let mut resolved: Vec<Option<(ObrChromosome, u64)>> = vec![None; m];
+    for &idx in order.iter().take(k) {
+        let c = &cohort[idx];
+        if state.counter.remaining() > 0 {
+            let (mut out, cnt) = apply_ls_on_decoded_schedule(
+                state.instance,
+                &c.raw_chr,
+                c.raw_sched.clone(),
+                state.config.strategy,
+                state.config.neighborhood,
+                state.config.max_ls_evals,
+                state.counter,
+                state.ls_decoder_ws,
+                state.graph_eval,
+                state.streams,
+            )?;
+            state.finalize_ls_outcome(&mut out, &cnt, curr_gen, true)?;
+            resolved[idx] = Some((out.effective_genotype, out.post_ls_makespan));
+        } else {
+            resolved[idx] = Some((c.raw_chr.clone(), c.raw_cmax));
+        }
+    }
+
+    for (idx, cand) in cohort.into_iter().enumerate() {
+        if resolved[idx].is_none() {
+            resolved[idx] = Some((cand.raw_chr, cand.raw_cmax));
+        }
+    }
+
+    Ok(resolved.into_iter().flatten().collect())
+}
+
+#[allow(clippy::too_many_lines)]
+fn run_single_view_lga_ls_allocation(
+    instance: &JsspInstance,
+    config: &DualViewLsAllocationConfig,
+    streams: &mut RunRngStreams,
+) -> Result<DualViewExploratoryResult, JsspError> {
+    let run_start = Instant::now();
+    let pop_size = config.population_size;
+    let elite_cnt = config.elitism_count;
+    let num_jobs = instance.num_jobs();
+    let chrom_len = instance.num_operations();
+    let use_full_seq = config.candidate_fraction >= 1.0 - 1e-12;
+
+    let mut counter = EvalCounter::new(config.evaluation_budget)?;
+    let mut decoder_ws = SerialDecoderWorkspace::new(instance);
+    let mut ls_decoder_ws = SerialDecoderWorkspace::new(instance);
+    let mut graph_eval = FastGraphEvaluator::new(instance)?;
+
+    let generated = generate_initial_population(config.initializer, instance, pop_size, streams)?;
+    let init_chr0 = generated.chromosomes[0].clone();
+
+    let mut state = SingleViewState {
+        instance,
+        config,
+        counter: &mut counter,
+        decoder_ws: &mut decoder_ws,
+        ls_decoder_ws: &mut ls_decoder_ws,
+        graph_eval: &mut graph_eval,
+        streams,
+        lam_branch: BranchLsTelemetry::default(),
+        writeback_count: 0,
+        best_makespan: u64::MAX,
+        best_chr: init_chr0,
+        best_found_eval: 0,
+        best_found_gen: 0,
+        milestones: Vec::new(),
+    };
+
+    let mut chromosomes: Vec<ObrChromosome> = Vec::with_capacity(pop_size);
+    let mut fitnesses: Vec<u64> = Vec::with_capacity(pop_size);
+    if use_full_seq {
+        for c in &generated.chromosomes {
+            let Some((eff, fit)) = eval_single_view_sequential(c, true, 0, &mut state)? else {
+                break;
+            };
+            chromosomes.push(eff);
+            fitnesses.push(fit);
+        }
+        if state.best_makespan < u64::MAX {
+            state
+                .milestones
+                .push((state.best_found_eval, state.best_makespan));
+        }
+    } else {
+        for (eff, fit) in
+            eval_single_view_cohort_selective(&generated.chromosomes, true, 0, &mut state)?
+        {
+            chromosomes.push(eff);
+            fitnesses.push(fit);
+        }
+    }
+
+    let init_div = compute_obr_hamming_diversity(&chromosomes, num_jobs);
+    let mut diversity_trajectory: Vec<(usize, f64, f64, f64)> = vec![(0, init_div, init_div, 0.0)];
+
+    let mut pox_ws = PoxWorkspace::new(num_jobs, chrom_len);
+    let mut buf1: Vec<JobId> = Vec::with_capacity(chrom_len);
+    let mut buf2: Vec<JobId> = Vec::with_capacity(chrom_len);
+    let mut generation = 0usize;
+    let mut crossover_count = 0usize;
+    let mut mutation_count = 0usize;
+
+    while state.counter.remaining() > 0 && chromosomes.len() >= 2 {
+        let ranked = ranked_population_indices(&fitnesses);
+        let mut next_chrs: Vec<ObrChromosome> = Vec::with_capacity(pop_size);
+        let mut next_fits: Vec<u64> = Vec::with_capacity(pop_size);
+        for &e in ranked.iter().take(elite_cnt) {
+            next_chrs.push(chromosomes[e].clone());
+            next_fits.push(fitnesses[e]);
+        }
+
+        let gen_next = generation + 1;
+        if use_full_seq {
+            while next_chrs.len() < pop_size && state.counter.remaining() > 0 {
+                let p1 = tournament_select(
+                    &fitnesses,
+                    config.tournament_size,
+                    &mut state.streams.selection,
+                )?;
+                let p2 = tournament_select(
+                    &fitnesses,
+                    config.tournament_size,
+                    &mut state.streams.selection,
+                )?;
+                if pox_ws.crossover_into(
+                    (chromosomes[p1].genes(), chromosomes[p2].genes()),
+                    num_jobs,
+                    config.crossover_rate,
+                    &mut state.streams.crossover,
+                    (&mut buf1, &mut buf2),
+                )? {
+                    crossover_count += 1;
+                }
+                for raw_buf in [&buf1, &buf2] {
+                    if next_chrs.len() >= pop_size || state.counter.remaining() == 0 {
+                        break;
+                    }
+                    let mut child = ObrChromosome::new(raw_buf.clone());
+                    if mutate_obr(
+                        &mut child,
+                        config.mutation_rate,
+                        &mut state.streams.mutation,
+                    )? {
+                        mutation_count += 1;
+                    }
+                    let Some((eff, fit)) =
+                        eval_single_view_sequential(&child, false, gen_next, &mut state)?
+                    else {
+                        break;
+                    };
+                    next_chrs.push(eff);
+                    next_fits.push(fit);
+                }
+            }
+        } else {
+            let needed = pop_size.saturating_sub(next_chrs.len());
+            let mut raw_offspring: Vec<ObrChromosome> = Vec::with_capacity(needed);
+            while raw_offspring.len() < needed {
+                let p1 = tournament_select(
+                    &fitnesses,
+                    config.tournament_size,
+                    &mut state.streams.selection,
+                )?;
+                let p2 = tournament_select(
+                    &fitnesses,
+                    config.tournament_size,
+                    &mut state.streams.selection,
+                )?;
+                if pox_ws.crossover_into(
+                    (chromosomes[p1].genes(), chromosomes[p2].genes()),
+                    num_jobs,
+                    config.crossover_rate,
+                    &mut state.streams.crossover,
+                    (&mut buf1, &mut buf2),
+                )? {
+                    crossover_count += 1;
+                }
+                for raw_buf in [&buf1, &buf2] {
+                    if raw_offspring.len() >= needed {
+                        break;
+                    }
+                    let mut child = ObrChromosome::new(raw_buf.clone());
+                    if mutate_obr(
+                        &mut child,
+                        config.mutation_rate,
+                        &mut state.streams.mutation,
+                    )? {
+                        mutation_count += 1;
+                    }
+                    raw_offspring.push(child);
+                }
+            }
+            for (eff, fit) in
+                eval_single_view_cohort_selective(&raw_offspring, false, gen_next, &mut state)?
+            {
+                next_chrs.push(eff);
+                next_fits.push(fit);
+            }
+        }
+
+        if next_chrs.len() < 2 {
+            break;
+        }
+        generation = gen_next;
+        chromosomes = next_chrs;
+        fitnesses = next_fits;
+        let gen_div = compute_obr_hamming_diversity(&chromosomes, num_jobs);
+        diversity_trajectory.push((generation, gen_div, gen_div, 0.0));
+    }
+
+    let (ver_cmax, ver_genes, ver_seqs) =
+        verify_final_best(state.instance, &state.best_chr, state.decoder_ws)?;
+    let final_best = state.best_makespan.min(ver_cmax);
+    let final_div = compute_obr_hamming_diversity(&chromosomes, num_jobs);
+    let anytime_cmax_auc =
+        compute_stepwise_anytime_auc(&state.milestones, config.evaluation_budget);
+    let total_elapsed_ns = u64::try_from(run_start.elapsed().as_nanos()).unwrap_or(u64::MAX);
+
+    Ok(DualViewExploratoryResult {
+        experiment_id: config.experiment_id.clone(),
+        base_config_id: config.base_config_id.code(),
+        initializer_id: config.initializer.code(),
+        ls_neighborhood: config.neighborhood.code(),
+        ls_strategy: config.strategy.code(),
+        max_ls_evals: config.max_ls_evals,
+        candidate_fraction: config.candidate_fraction,
+        genotype_capacity: config.population_size,
+        evaluation_budget: config.evaluation_budget,
+        evals_used: state.counter.total(),
+        init_evals: state.counter.init_evals(),
+        search_evals: state.counter.search_evals(),
+        generations_executed: generation,
+        best_makespan: final_best,
+        best_found_eval: state.best_found_eval,
+        best_found_generation: state.best_found_gen,
+        feasible_final: true,
+        anytime_cmax_auc,
+        total_elapsed_ns,
+        final_obr_diversity: final_div,
+        final_lam_diversity: final_div,
+        final_bald_diversity: 0.0,
+        final_gate_p: None,
+        lam_best_makespan: final_best,
+        bald_best_makespan: u64::MAX,
+        crossover_count,
+        mutation_count,
+        writeback_count: state.writeback_count,
+        migrations_applied: 0,
+        lam_branch: state.lam_branch,
+        bald_branch: BranchLsTelemetry::default(),
+        gate_p_trajectory: Vec::new(),
+        diversity_trajectory,
+        best_milestones: state.milestones,
+        best_chromosome: ver_genes,
+        best_machine_sequences: ver_seqs,
+    })
+}
+
+/// Executes one exploratory Dual-View or matched single-view `C02` LS budget allocation run
+/// under exact `EvalCounter` parity.
 ///
 /// # Errors
 /// Returns [`JsspError`] on invalid configuration, decode failure, or M2 validation failure.
@@ -888,6 +1289,9 @@ pub fn run_dual_view_ls_allocation(
     streams: &mut RunRngStreams,
 ) -> Result<DualViewExploratoryResult, JsspError> {
     config.validate()?;
+    if matches!(config.base_config_id, PhaseCConfigId::C02) {
+        return run_single_view_lga_ls_allocation(instance, config, streams);
+    }
     let run_start = Instant::now();
 
     let n_pairs = config.population_size / 2;

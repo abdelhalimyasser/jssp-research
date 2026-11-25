@@ -411,4 +411,99 @@ fn exploratory_dv_ls_budget_parity_conservation_selection_and_short_sa() {
     assert!(batch[2].generations_executed > batch[1].generations_executed);
     // Exact ceil(0.20 * 32) = 7 initial + ceil(0.20 * 31) = 7 per gen -> ls_calls per branch divisible or smaller than decodes
     assert!(batch[2].lam_branch.ls_calls < batch[2].lam_branch.decode_evals);
+
+    // 4. Matched single-view C02 control: C02_CTRL_SD50 parity + C02_RETUNED_SA budget/selection checks.
+    let c02_ref_cfg = PhaseCGaConfig::standard(
+        PhaseCConfigId::C02,
+        InitializerId::A11,
+        budget,
+        NeighborhoodId::N5,
+        PhaseBStrategy::SteepestDescent,
+        50,
+    );
+    let mut s_c02_ref = phase_c_context(0, "ft06", "C02").all_streams();
+    let res_c02_ref = run_phase_c_ga(&inst, &c02_ref_cfg, &mut s_c02_ref).expect("c02_ref");
+
+    let c02_ctrl_cfg = DualViewLsAllocationConfig::standard(
+        "C02_CTRL_SD50".to_owned(),
+        PhaseCConfigId::C02,
+        InitializerId::A11,
+        budget,
+        NeighborhoodId::N5,
+        ExploratoryLsStrategy::SteepestDescent,
+        50,
+        1.0,
+    );
+    let mut s_c02_ctrl = phase_c_context(0, "ft06", "C02").all_streams();
+    let res_c02_ctrl =
+        run_dual_view_ls_allocation(&inst, &c02_ctrl_cfg, &mut s_c02_ctrl).expect("c02_ctrl");
+
+    assert_eq!(res_c02_ctrl.best_makespan, res_c02_ref.best_makespan);
+    assert_eq!(res_c02_ctrl.evals_used, res_c02_ref.evals_used);
+    assert_eq!(res_c02_ctrl.init_evals, res_c02_ref.init_evals);
+    assert_eq!(res_c02_ctrl.search_evals, res_c02_ref.search_evals);
+    assert_eq!(
+        res_c02_ctrl.lam_branch.decode_evals,
+        res_c02_ref.decode_evals
+    );
+    assert_eq!(res_c02_ctrl.lam_branch.ls_evals, res_c02_ref.ls_evals);
+    assert_eq!(
+        res_c02_ctrl.generations_executed,
+        res_c02_ref.generations_executed
+    );
+    assert_eq!(res_c02_ctrl.best_chromosome, res_c02_ref.best_chromosome);
+    assert_eq!(res_c02_ctrl.anytime_cmax_auc, res_c02_ref.anytime_cmax_auc);
+    assert_eq!(res_c02_ctrl.bald_branch.decode_evals, 0);
+    assert_eq!(res_c02_ctrl.bald_branch.ls_evals, 0);
+    assert!(res_c02_ctrl.final_gate_p.is_none());
+
+    let c02_retuned_cfg = DualViewLsAllocationConfig::standard(
+        "C02_RETUNED_SA".to_owned(),
+        PhaseCConfigId::C02,
+        InitializerId::A11,
+        budget,
+        NeighborhoodId::N5,
+        ExploratoryLsStrategy::BudgetLimitedSa,
+        10,
+        0.60,
+    );
+    let ctx_retuned = phase_c_context(2, "ft06", "C02");
+    let mut s_ret1 = ctx_retuned.all_streams();
+    let res_ret1 =
+        run_dual_view_ls_allocation(&inst, &c02_retuned_cfg, &mut s_ret1).expect("c02_ret1");
+    let mut s_ret2 = ctx_retuned.all_streams();
+    let res_ret2 =
+        run_dual_view_ls_allocation(&inst, &c02_retuned_cfg, &mut s_ret2).expect("c02_ret2");
+    assert_eq!(res_ret1.best_makespan, res_ret2.best_makespan);
+    assert_eq!(res_ret1.evals_used, res_ret2.evals_used);
+    assert_eq!(res_ret1.generations_executed, res_ret2.generations_executed);
+    assert_eq!(res_ret1.best_chromosome, res_ret2.best_chromosome);
+    assert_eq!(res_ret1.best_milestones, res_ret2.best_milestones);
+    assert_eq!(res_ret1.diversity_trajectory, res_ret2.diversity_trajectory);
+    assert_eq!(res_ret1.lam_branch, res_ret2.lam_branch);
+    assert_eq!(res_ret1.anytime_cmax_auc, res_ret2.anytime_cmax_auc);
+    assert!(res_ret1.feasible_final);
+    assert!(res_ret1.evals_used <= budget);
+    assert_eq!(
+        res_ret1.init_evals + res_ret1.search_evals,
+        res_ret1.evals_used
+    );
+    assert_eq!(
+        res_ret1.lam_branch.decode_evals + res_ret1.lam_branch.ls_evals,
+        res_ret1.evals_used
+    );
+    assert_eq!(res_ret1.bald_branch.decode_evals, 0);
+    assert_eq!(res_ret1.bald_branch.ls_evals, 0);
+    assert!(res_ret1.final_gate_p.is_none());
+    assert!(res_ret1.lam_branch.ls_calls > 0);
+    assert!(res_ret1.lam_branch.ls_calls < res_ret1.lam_branch.decode_evals);
+    assert!(res_ret1.lam_branch.evaluated_moves > 0);
+    assert_eq!(
+        res_ret1.diversity_trajectory.len(),
+        res_ret1.generations_executed + 1
+    );
+    let ret_obr = ObrChromosome::from_job_indices(&res_ret1.best_chromosome);
+    let ret_sched = ws.decode(&inst, &ret_obr, true).expect("decode retuned");
+    validate_schedule(&inst, &ret_sched).expect("valid retuned schedule");
+    assert_eq!(ret_sched.makespan(), res_ret1.best_makespan);
 }

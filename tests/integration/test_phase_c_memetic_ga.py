@@ -212,3 +212,64 @@ def test_exploratory_dual_view_ls_budget_allocation_and_parity() -> None:
     assert batch[1].lam_branch.ls_calls < batch[1].lam_branch.decode_evals
     assert batch[3].ls_strategy == "budget_limited_sa"
     assert batch[3].lam_branch.accepted_moves > 0
+
+    # Matched single-view C02 control parity and retuned C02_RETUNED_SA budget accounting
+    c02 = run_phase_c_single(
+        jobs,
+        "C02",
+        "ft06",
+        initializer_id="A11",
+        ls_neighborhood="N5",
+        ls_strategy="steepest_descent",
+        max_ls_evals=50,
+        evaluation_budget=budget,
+        replicate_index=0,
+        configuration_id="C02",
+    )
+    c02_ctrl = run_dual_view_exploratory_single(
+        jobs,
+        "C02_CTRL_SD50",
+        "ft06",
+        base_config_id="C02",
+        initializer_id="A11",
+        ls_neighborhood="N5",
+        ls_strategy="steepest_descent",
+        max_ls_evals=50,
+        candidate_fraction=1.0,
+        evaluation_budget=budget,
+        replicate_index=0,
+        configuration_id="C02",
+    )
+    assert c02_ctrl.best_makespan == c02.best_makespan
+    assert c02_ctrl.evals_used == c02.evals_used
+    assert c02_ctrl.generations_executed == c02.generations_executed
+    assert c02_ctrl.final_gate_p is None
+    assert c02_ctrl.best_chromosome == c02.best_chromosome
+
+    c02_retuned = run_dual_view_exploratory_single(
+        jobs,
+        "C02_RETUNED_SA",
+        "ft06",
+        base_config_id="C02",
+        initializer_id="A11",
+        ls_neighborhood="N5",
+        ls_strategy="budget_limited_sa",
+        max_ls_evals=10,
+        candidate_fraction=0.60,
+        evaluation_budget=budget,
+        replicate_index=1,
+        configuration_id="C02",
+    )
+    assert c02_retuned.feasible_final is True
+    assert c02_retuned.evals_used <= budget
+    assert c02_retuned.init_evals + c02_retuned.search_evals == c02_retuned.evals_used
+    assert (
+        c02_retuned.lam_branch.decode_evals + c02_retuned.lam_branch.ls_evals
+        == c02_retuned.evals_used
+    )
+    assert c02_retuned.bald_branch.decode_evals == 0
+    assert c02_retuned.bald_branch.ls_evals == 0
+    assert c02_retuned.final_gate_p is None
+    assert c02_retuned.lam_branch.ls_calls < c02_retuned.lam_branch.decode_evals
+    assert c02_retuned.lam_branch.accepted_moves > 0
+    assert len(c02_retuned.diversity_trajectory) == c02_retuned.generations_executed + 1

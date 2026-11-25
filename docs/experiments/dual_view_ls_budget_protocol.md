@@ -53,3 +53,13 @@ Select **$S_{\text{LS}}^*$** on Dev, freeze `DV_STAR = (b_LS^*, f_LS^*, S_LS^*)`
 
 ### Stage 4 — Frozen Held-Out Validation
 Evaluate frozen `DV_STAR` and `DV_CTRL_C06` (`b_LS=50, f_LS=1.0, SD+N5`) on the `16` Held-Out instances (`20` seeds each), comparing against frozen `C06` and single-view `C02` (`LGA`, read from `results/phase_c/raw/phase_c_common_32.jsonl`) via blocked Friedman, Kendall $W$, paired Wilcoxon with Holm–Bonferroni correction, Vargha–Delaney $A_{12}$, Cliff's $\delta$, branch telemetry, generation counts, and diversity trajectories.
+
+---
+
+## 3. Matched Retuned Single-View Control (`C02_RETUNED_SA`)
+
+To separate the effect of the retuned LS regime (`b_LS=10, f_LS=0.60, BudgetLimitedSa + N5`) from the Dual-View architecture itself (`DV_STAR`), a single final controlled experiment evaluates single-view Lamarckian GA (`C02_RETUNED_SA`, `C02` base) under identical capacity, initializer, seeds, and shared budget:
+
+- **Genotype Capacity & Cohort Parity:** `N = 64` single-view Lamarckian genotypes, `E = 2` elites, `62` non-elite offspring per generation $t \ge 1$ (`POX` $p_c = 0.85$, swap/insert $p_m = 0.15$, `A11` init, `20` frozen SHA-256 seeds, identical $B_{\text{GA}}$).
+- **Deterministic Candidate Selection (`f_LS = 0.60`):** Decode the $M$ newly generated chromosomes ($M = 64$ at $t=0$; $M = 62$ at $t \ge 1$) charging `1` decode eval each to `EvalCounter`, rank ascending by `(raw_makespan, cohort_idx)`, apply `BudgetLimitedSa` (`N5`, $b_{\text{LS}}=10$) and `apply_lamarckian_writeback` to the top $K = \mathrm{clamp}(\lceil f_{\text{LS}} \cdot M \rceil, 1, M)$ individuals ($K = 39$ at $t=0$, vs. `40` in `DV_STAR`; $K = 38$ at every $t \ge 1$, identical to `DV_STAR`), leaving unselected offspring at their raw makespans/genotypes (`0` LS evals).
+- **Budget Conservation & Parity Controls:** Enforces `evals_used == init_evals + search_evals == decode_evals + ls_evals <= B_GA` with `bald_decode_evals == bald_ls_evals == 0`. Control `C02_CTRL_SD50` (`f_LS=1.00, b_LS=50, steepest_descent`) must match frozen `C02` bit-for-bit across all `320` Dev and `320` Held-Out runs. Dev evaluation is locked before Held-Out execution without parameter re-tuning.

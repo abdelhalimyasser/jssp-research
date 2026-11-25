@@ -131,14 +131,59 @@
    **Yes.** On Held-Out, `DV_STAR` increased executed generations `5.74x` (`11.95 -> 68.62`) while lowering LS budget share from `97.0%` to `85.8%` (raising genotype decodes per branch from `~389` to `2,158.1`). This longer horizon allowed the adaptive gate ($G^B$ weight $p$) to respond properly instead of stalling near its initialization (`final_gate_p_mean = 0.3540` vs `0.5172`), shifting reproductive slots toward the stronger Lamarckian branch (`G^L` beat `G^B` in `302/320` = `94.4%` Held-Out runs) and allowing evolutionary selection/recombination to drive `final_obr_diversity` down productively (`0.9245 -> 0.8016`) rather than stalling near initial random diversity (`0.9252 -> 0.8876`).
 
 3. **Did reallocated Dual-View close the gap to single-view LGA (`C02`)?**
-   **It outperformed frozen `C02_LGA` under equal total evaluation budget, with an important experimental caveat.** On Held-Out, frozen `DV_STAR` outperformed frozen `C02_LGA` (`Med RPD 6.054%` vs `7.845%`, `-1.791%`, `12/0/4`, `p_Holm = 4.181e-03`, $A_{12} = 0.582$; `Best RPD 3.648%` vs `5.463%`). However, `C02_LGA` used the frozen Phase C confirmatory setting (`b_LS=50, f_LS=1.00, steepest_descent`, `13.23` gens). Whether `Dual-View` at `(b_LS=10, f_LS=0.60, budget_limited_sa)` outperforms an equivalently re-tuned single-view LGA (`C02` with `b_LS=10, f_LS=0.60, budget_limited_sa`) was outside this investigation's frozen-baseline comparison and remains an open ablation. Note also that under matched total evaluations (`30,504`), `DV_STAR` took more wall-clock time than `DV_CTRL_C06` (`897.2 ms` vs `473.4 ms`) due to executing `~5.7x` more generations of M2 serial decodes and crossover/diversity passes.
+   **It outperformed frozen `C02_LGA` (`7.845%`) under equal total budget, but a matched-budget retuned single-view `C02_RETUNED_SA` (`4.964%`) outperforms `DV_STAR` (`6.054%`) across `15/16` Held-Out instances.** See Section 5 below for the controlled single-view comparison (`C02_RETUNED_SA` vs. `DV_STAR`).
 
 4. **Remaining architectural bottleneck in `Dual-View`:**
-   Even in `DV_STAR`, symmetrical per-branch LS application still spends `50.0%` of all LS evaluations (`13,092.0 / 26,187.8`) refining Baldwinian genotypes (`G^B`) whose moves are never written back, while `G^L` produces the strictly better schedule in `94.4%` of Held-Out runs. Gate-coupled asymmetric LS allocation (allocating LS effort proportionally to $1-p$ vs $p$) or avoiding redundant $t=0$ LS on identical paired chromosomes is a clear next-step hypothesis.
+   Even in `DV_STAR`, symmetrical per-branch LS application still spends `50.0%` of all LS evaluations (`13,092.0 / 26,187.8`) refining Baldwinian genotypes (`G^B`) whose moves are never written back, while `G^L` produces the strictly better schedule in `94.4%` of Held-Out runs. Because `C02_RETUNED_SA` devotes `100%` of its `64` genotypes and `2,619.1` LS calls to Lamarckian evolution, it performs `1,523.9` writebacks vs. `DV_STAR`'s `905.3` under identical generation horizons (`68.62` gens) and evaluation budgets (`30,504.0`).
 
-## 5. Artifacts
+## 5. Matched Retuned Single-View Control (`C02_RETUNED_SA` vs. `DV_STAR`)
+
+To isolate whether `DV_STAR`'s gain came from the Dual-View architecture or from the retuned LS regime, single-view Lamarckian GA (`C02`) was evaluated under the exact `DV_STAR` configuration (`A11`, `N5`, $b_{\text{LS}}=10$, $f_{\text{LS}}=0.60$, `budget_limited_sa`, `N=64`, `E=2`, identical seeds and shared budget $B_{\text{GA}}$). Cohort ranking `(raw_makespan, cohort_idx)` applies LS to `39/64` individuals at $t=0$ (vs. `40` in `DV_STAR`) and `38/62` non-elite offspring at $t \ge 1$ (exact match to `DV_STAR`'s `19` pairs = `38` genotypes/generation). Control `C02_CTRL_SD50` (`b_LS=50, f_LS=1.00, steepest_descent`) matched frozen `C02` bit-for-bit on all `320` Dev and `320` Held-Out runs. The comparison lock ([`frozen_retuned_c02_comparison_lock.json`](file:///home/abdelhalimyasser/Downloads/jssp-research/results/exploratory_dv_ls/selection/frozen_retuned_c02_comparison_lock.json), SHA-256 `c145f58d...`) was frozen after Dev before evaluating Held-Out (`1,280` new runs total).
+
+### Development Split (`16` Instances × `20` Seeds — Pre-Held-Out Lock)
+
+| ID | Base | Strategy | $b_{\text{LS}}$ | $f_{\text{LS}}$ | Med RPD | Mean RPD | Best RPD | Friedman Rank | Gens | LS Share | Writebacks | Final OBR Div | ms |
+|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| `C02_RETUNED_SA` | `C02` | `budget_limited_sa` | `10` | `0.60` | `4.655%` | `4.805%` | `3.073%` | `1.47` | `76.34` | `80.5%` | `1724.6` | `0.635` | `905.2` |
+| `DV_STAR` | `C06` | `budget_limited_sa` | `10` | `0.60` | `5.800%` | `5.846%` | `3.556%` | `2.22` | `71.13` | `83.4%` | `916.8` | `0.801` | `1217.0` |
+| `C02_LGA` | `C02` | `Steepest Descent` | `50` | `1.00` | `7.570%` | `7.584%` | `5.701%` | `2.69` | `15.37` | `94.6%` | `792.2` | `0.826` | `454.3` |
+| `DV_CTRL_C06` | `C06` | `steepest_descent` | `50` | `1.00` | `8.943%` | `8.907%` | `6.674%` | `3.62` | `13.15` | `95.9%` | `352.8` | `0.873` | `491.7` |
+
+- **Dev Friedman:** $\chi^2_F = 31.54$ ($p = 6.549\times 10^{-7}$, Kendall $W = 0.6570$).
+- **Dev `DV_STAR` vs. `C02_RETUNED_SA`:** `+1.145%` mean RPD diff (`0/5/11` W/T/L, $p_{\text{Holm}} = 3.346\times 10^{-3}$, $A_{12} = 0.443$, Cliff's $d = -0.113$).
+
+### Held-Out Generalization (`16` Held-Out Instances × `20` Seeds — Unseen)
+
+| ID | Base | Strategy | $b_{\text{LS}}$ | $f_{\text{LS}}$ | Med RPD | Mean RPD | Best RPD | Friedman Rank | Gens | LS Share | Writebacks | Final OBR Div | ms |
+|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| `C02_RETUNED_SA` | `C02` | `budget_limited_sa` | `10` | `0.60` | **`4.964%`** | **`5.111%`** | **`2.857%`** | **`1.09`** | `68.62` | `85.8%` | `1523.9` | `0.578` | `828.3` |
+| `DV_STAR` | `C06` | `budget_limited_sa` | `10` | `0.60` | `6.054%` | `6.080%` | `3.648%` | `2.34` | `68.62` | `85.8%` | `905.3` | `0.802` | `897.2` |
+| `C02_LGA` | `C02` | `Steepest Descent` | `50` | `1.00` | `7.845%` | `7.810%` | `5.463%` | `2.69` | `13.23` | `96.6%` | `749.1` | `0.831` | `448.5` |
+| `DV_CTRL_C06` | `C06` | `steepest_descent` | `50` | `1.00` | `9.472%` | `9.499%` | `6.695%` | `3.88` | `11.95` | `97.0%` | `342.9` | `0.888` | `473.4` |
+
+- **Held-Out Friedman:** $\chi^2_F = 38.43$ ($p = 2.296\times 10^{-8}$, Kendall $W = 0.8006$).
+- **Held-Out Budget & Horizon Equivalence:** Both `C02_RETUNED_SA` and `DV_STAR` averaged `30,504.0` evals, `68.625` generations, `4,316.9` vs. `4,316.2` decode evals, `26,187.1` vs. `26,187.8` LS evals, and `85.8%` LS budget share (`2,619.1` LS calls/run).
+- **Held-Out Diversity Progression (Gen `0` $\to$ `10` $\to$ `30` $\to$ `50` $\to$ `final`):** `C02_RETUNED_SA` (`0.9220` $\to$ `0.8676` $\to$ `0.7335` $\to$ `0.7144` $\to$ `0.5781`) vs. `DV_STAR` (`0.9245` $\to$ `0.8926` $\to$ `0.8528` $\to$ `0.8548` $\to$ `0.8016`) vs. `DV_CTRL_C06` (`0.9252` $\to$ `0.9127` $\to$ `—` $\to$ `—` $\to$ `0.8876`). See [`retuned_c02_diversity_trajectories.json`](file:///home/abdelhalimyasser/Downloads/jssp-research/results/exploratory_dv_ls/analysis/retuned_c02_diversity_trajectories.json).
+
+| Candidate vs. Ref (`Held-Out`) | W/T/L | Mean Diff | $p_{\text{raw}}$ | $p_{\text{Holm}}$ | Sig (0.05) | $A_{12}$ | Cliff's $d$ |
+|---|---:|---:|---:|---:|---|---:|---:|
+| `DV_STAR` vs `C02_RETUNED_SA` | `0/1/15` | `+1.089%` | `6.550e-04` | `6.550e-04` | Yes | `0.396` | `-0.207` |
+| `C02_RETUNED_SA` vs `C02_LGA` | `14/2/0` | `-2.881%` | `9.815e-04` | `9.815e-04` | Yes | `0.648` | `+0.297` |
+| `C02_RETUNED_SA` vs `DV_CTRL_C06` | `16/0/0` | `-4.508%` | `3.052e-05` | `3.052e-05` | Yes | `0.762` | `+0.523` |
+| `DV_STAR` vs `C02_LGA` | `12/0/4` | `-1.791%` | `4.181e-03` | `4.181e-03` | Yes | `0.582` | `+0.164` |
+| `DV_STAR` vs `DV_CTRL_C06` | `14/0/2` | `-3.419%` | `1.526e-04` | `1.526e-04` | Yes | `0.688` | `+0.375` |
+| `DV_CTRL_C06` vs `C02_LGA` | `0/0/16` | `+1.627%` | `3.052e-05` | `3.052e-05` | Yes | `0.391` | `-0.219` |
+
+### Scientific Verdict & Limitations
+- **Main Finding:** When budget and LS kernel are held truly equal (`68.62` gens, `85.8%` LS share, `30,504.0` evals), single-view `C02_RETUNED_SA` (`4.964%`, rank `1.09`) significantly outperforms paired Model A `DV_STAR` (`6.054%`, rank `2.34`) on `15/16` Held-Out instances (`1` tie, `0` losses, $p_{\text{Holm}} = 6.550\times 10^{-4}$). Thus, the `DV_STAR > C02_LGA` reversal observed in Stage 4 was driven by retuning LS budget allocation (`b_LS=10, f_LS=0.60, BudgetLimitedSa`) rather than a Dual-View architectural advantage over an equally tuned Lamarckian GA.
+- **Mechanistic Explanation:** Splitting the `64`-genotype pool across isolated $G^L$ (`32` genotypes, `1` elite) and Baldwinian $G^B$ (`32` genotypes, no writeback, still consuming `50.0%` of LS evals) reduces Lamarckian writebacks (`905.3` vs. `1,523.9`) and keeps population diversity higher (`0.802` vs. `0.578`) at the expense of convergence depth under a finite evaluation budget.
+- **Limitations:** `(b_LS=10, f_LS=0.60, BudgetLimitedSa)` was transferred from the `DV` Dev sweep rather than independently tuned for `C02` (so an independent `C02` hyperparameter sweep could yield different optimal values); at $t=0$, `C02_RETUNED_SA` refines `39/64` initial individuals vs. `DV_STAR`'s `40` genotypes (`20` pairs $\times 2$) before becoming identically `38/62` per generation for all $t \ge 1$.
+
+## 6. Artifacts
 - Protocol: [`docs/experiments/dual_view_ls_budget_protocol.md`](file:///home/abdelhalimyasser/Downloads/jssp-research/docs/experiments/dual_view_ls_budget_protocol.md)
-- Selection Lock (`bf8cd2a2458254e3...`): [`results/exploratory_dv_ls/selection/frozen_dv_ls_selection.json`](file:///home/abdelhalimyasser/Downloads/jssp-research/results/exploratory_dv_ls/selection/frozen_dv_ls_selection.json)
-- Manifest (`7109b6d761db5053...`): [`results/exploratory_dv_ls/manifests/exploratory_dv_ls_manifest.json`](file:///home/abdelhalimyasser/Downloads/jssp-research/results/exploratory_dv_ls/manifests/exploratory_dv_ls_manifest.json)
-- Raw Runs JSONL (`3,520` runs): [`results/exploratory_dv_ls/raw/exploratory_dv_ls_runs.jsonl`](file:///home/abdelhalimyasser/Downloads/jssp-research/results/exploratory_dv_ls/raw/exploratory_dv_ls_runs.jsonl)
-- Statistical Tests: [`results/exploratory_dv_ls/analysis/exploratory_statistical_tests.json`](file:///home/abdelhalimyasser/Downloads/jssp-research/results/exploratory_dv_ls/analysis/exploratory_statistical_tests.json)
+- `DV_STAR` Selection Lock (`bf8cd2a2458254e3...`): [`results/exploratory_dv_ls/selection/frozen_dv_ls_selection.json`](file:///home/abdelhalimyasser/Downloads/jssp-research/results/exploratory_dv_ls/selection/frozen_dv_ls_selection.json)
+- `C02_RETUNED_SA` Lock (`c145f58db7cf2d3a...`): [`results/exploratory_dv_ls/selection/frozen_retuned_c02_comparison_lock.json`](file:///home/abdelhalimyasser/Downloads/jssp-research/results/exploratory_dv_ls/selection/frozen_retuned_c02_comparison_lock.json)
+- `DV_STAR` Manifest (`7109b6d761db5053...`): [`results/exploratory_dv_ls/manifests/exploratory_dv_ls_manifest.json`](file:///home/abdelhalimyasser/Downloads/jssp-research/results/exploratory_dv_ls/manifests/exploratory_dv_ls_manifest.json)
+- `C02_RETUNED_SA` Manifest (`bcaa12c815168d4e...`): [`results/exploratory_dv_ls/manifests/retuned_c02_control_manifest.json`](file:///home/abdelhalimyasser/Downloads/jssp-research/results/exploratory_dv_ls/manifests/retuned_c02_control_manifest.json)
+- Raw Runs JSONL (`3,520` + `1,280` runs, local `.gitignore`d): [`exploratory_dv_ls_runs.jsonl`](file:///home/abdelhalimyasser/Downloads/jssp-research/results/exploratory_dv_ls/raw/exploratory_dv_ls_runs.jsonl), [`retuned_c02_control_runs.jsonl`](file:///home/abdelhalimyasser/Downloads/jssp-research/results/exploratory_dv_ls/raw/retuned_c02_control_runs.jsonl)
+- Statistical Tests: [`exploratory_statistical_tests.json`](file:///home/abdelhalimyasser/Downloads/jssp-research/results/exploratory_dv_ls/analysis/exploratory_statistical_tests.json), [`retuned_c02_statistical_tests.json`](file:///home/abdelhalimyasser/Downloads/jssp-research/results/exploratory_dv_ls/analysis/retuned_c02_statistical_tests.json)

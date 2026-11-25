@@ -1,0 +1,152 @@
+[
+  {
+    "experiment_id": "DV_STAR",
+    "generation": 0,
+    "n_active_runs": 320,
+    "mean_obr_diversity": 0.9244717528866293
+  },
+  {
+    "experiment_id": "DV_STAR",
+    "generation": 5,
+    "n_active_runs": 320,
+    "mean_obr_diversity": 0.9033595928750552
+  },
+  {
+    "experiment_id": "DV_STAR",
+    "generation": 10,
+    "n_active_runs": 320,
+    "mean_obr_diversity": 0.8925691658571704
+  },
+  {
+    "experiment_id": "DV_STAR",
+    "generation": 15,
+    "n_active_runs": 320,
+    "mean_obr_diversity": 0.8805240144813713
+  },
+  {
+    "experiment_id": "DV_STAR",
+    "generation": 20,
+    "n_active_runs": 300,
+    "mean_obr_diversity": 0.8723899227476485
+  },
+  {
+    "experiment_id": "DV_STAR",
+    "generation": 30,
+    "n_active_runs": 300,
+    "mean_obr_diversity": 0.852789155276308
+  },
+  {
+    "experiment_id": "DV_STAR",
+    "generation": 50,
+    "n_active_runs": 180,
+    "mean_obr_diversity": 0.8548005646188516
+  },
+  {
+    "experiment_id": "DV_STAR",
+    "generation": 144,
+    "n_active_runs": 20,
+    "mean_obr_diversity": 0.812851314484127
+  },
+  {
+    "experiment_id": "DV_STAR",
+    "generation": -1,
+    "n_active_runs": 320,
+    "mean_obr_diversity": 0.8015868386168503
+  },
+  {
+    "experiment_id": "C02_RETUNED_SA",
+    "generation": 0,
+    "n_active_runs": 320,
+    "mean_obr_diversity": 0.9219718351280038
+  },
+  {
+    "experiment_id": "C02_RETUNED_SA",
+    "generation": 5,
+    "n_active_runs": 320,
+    "mean_obr_diversity": 0.893768252418155
+  },
+  {
+    "experiment_id": "C02_RETUNED_SA",
+    "generation": 10,
+    "n_active_runs": 320,
+    "mean_obr_diversity": 0.8676350808118387
+  },
+  {
+    "experiment_id": "C02_RETUNED_SA",
+    "generation": 15,
+    "n_active_runs": 320,
+    "mean_obr_diversity": 0.8310628909694666
+  },
+  {
+    "experiment_id": "C02_RETUNED_SA",
+    "generation": 20,
+    "n_active_runs": 300,
+    "mean_obr_diversity": 0.8002136312279543
+  },
+  {
+    "experiment_id": "C02_RETUNED_SA",
+    "generation": 30,
+    "n_active_runs": 300,
+    "mean_obr_diversity": 0.7334639136904761
+  },
+  {
+    "experiment_id": "C02_RETUNED_SA",
+    "generation": 50,
+    "n_active_runs": 180,
+    "mean_obr_diversity": 0.7143536384847148
+  },
+  {
+    "experiment_id": "C02_RETUNED_SA",
+    "generation": 144,
+    "n_active_runs": 20,
+    "mean_obr_diversity": 0.5108577628968252
+  },
+  {
+    "experiment_id": "C02_RETUNED_SA",
+    "generation": -1,
+    "n_active_runs": 320,
+    "mean_obr_diversity": 0.5781268668103553
+  },
+  {
+    "experiment_id": "DV_CTRL_C06",
+    "generation": 0,
+    "n_active_runs": 320,
+    "mean_obr_diversity": 0.925245376398534
+  },
+  {
+    "experiment_id": "DV_CTRL_C06",
+    "generation": 5,
+    "n_active_runs": 320,
+    "mean_obr_diversity": 0.9020395404472554
+  },
+  {
+    "experiment_id": "DV_CTRL_C06",
+    "generation": 10,
+    "n_active_runs": 180,
+    "mean_obr_diversity": 0.9126565066732439
+  },
+  {
+    "experiment_id": "DV_CTRL_C06",
+    "generation": 15,
+    "n_active_runs": 101,
+    "mean_obr_diversity": 0.9172498466563122
+  },
+  {
+    "experiment_id": "DV_CTRL_C06",
+    "generation": 20,
+    "n_active_runs": 20,
+    "mean_obr_diversity": 0.9165762648809525
+  },
+  {
+    "experiment_id": "DV_CTRL_C06",
+    "generation": 22,
+    "n_active_runs": 6,
+    "mean_obr_diversity": 0.8904644830008296
+  },
+  {
+    "experiment_id": "DV_CTRL_C06",
+    "generation": -1,
+    "n_active_runs": 320,
+    "mean_obr_diversity": 0.8875691578240155
+  }
+]
